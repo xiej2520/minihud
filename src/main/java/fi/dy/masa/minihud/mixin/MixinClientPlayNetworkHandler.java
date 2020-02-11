@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import fi.dy.masa.minihud.util.DataStorage;
+import fi.dy.masa.minihud.util.NotificationUtils;
 
 @Mixin(net.minecraft.client.network.ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler
@@ -12,20 +13,20 @@ public abstract class MixinClientPlayNetworkHandler
     @Inject(method = "onBlockUpdate", at = @At("RETURN"))
     private void markChunkChangedBlockChange(net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket packet, CallbackInfo ci)
     {
-        DataStorage.getInstance().markChunkForHeightmapCheck(packet.getPos().getX() >> 4, packet.getPos().getZ() >> 4);
+        NotificationUtils.onBlockChange(packet.getPos(), packet.getState());
     }
 
     @Inject(method = "onChunkData", at = @At("RETURN"))
     private void markChunkChangedFullChunk(net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket packet, CallbackInfo ci)
     {
-        DataStorage.getInstance().markChunkForHeightmapCheck(packet.getX(), packet.getZ());
+        NotificationUtils.onChunkData(packet.getX(), packet.getZ(), packet);
     }
 
     @Inject(method = "onChunkDeltaUpdate", at = @At("RETURN"))
     private void markChunkChangedMultiBlockChange(net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci)
     {
         net.minecraft.util.math.ChunkPos pos = ((IMixinChunkDeltaUpdateS2CPacket) packet).getChunkPos();
-        DataStorage.getInstance().markChunkForHeightmapCheck(pos.x, pos.z);
+        NotificationUtils.onMultiBlockChange(pos, packet);
     }
 
     @Inject(method = "onChatMessage", at = @At("RETURN"))

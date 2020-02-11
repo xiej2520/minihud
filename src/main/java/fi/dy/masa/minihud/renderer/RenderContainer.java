@@ -30,6 +30,7 @@ public class RenderContainer
 
     private RenderContainer()
     {
+        this.addRenderer(new OverlayRendererBeaconRange());
         this.addRenderer(new OverlayRendererBlockGrid());
         this.addRenderer(new OverlayRendererLightLevel());
         this.addRenderer(new OverlayRendererRandomTickableChunks(RendererToggle.OVERLAY_RANDOM_TICKS_FIXED));
