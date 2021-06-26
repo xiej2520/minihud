@@ -1,6 +1,7 @@
 package fi.dy.masa.minihud.renderer;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import org.lwjgl.opengl.GL11;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
@@ -9,7 +10,6 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.dimension.DimensionType;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.minihud.config.RendererToggle;
@@ -36,7 +36,7 @@ public class OverlayRendererStructures extends OverlayRendererBase
 
         for (StructureType type : StructureType.VALUES)
         {
-            if (type.isEnabled() && type.existsInDimension(mc.world.getDimension().getType()))
+            if (type.isEnabled())
             {
                 return true;
             }
@@ -59,12 +59,18 @@ public class OverlayRendererStructures extends OverlayRendererBase
     @Override
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
+        int maxRange = (mc.options.viewDistance + 4) * 16;
+        List<WrappedData> data = this.getStructuresToRender(this.lastUpdatePos, maxRange);
+
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);
         BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
         BUFFER_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
 
-        this.updateStructures(mc.world.getDimension().getType(), this.lastUpdatePos, cameraPos, mc);
+        if (data.isEmpty() == false)
+        {
+            this.renderStructureBoxes(data, cameraPos);
+        }
 
         BUFFER_1.end();
         BUFFER_2.end();
@@ -80,54 +86,66 @@ public class OverlayRendererStructures extends OverlayRendererBase
         this.allocateBuffer(GL11.GL_LINES);
     }
 
-    private void updateStructures(DimensionType dimId, BlockPos playerPos, Vec3d cameraPos, MinecraftClient mc)
+    private void renderStructureBoxes(List<WrappedData> wrappedData, Vec3d cameraPos)
     {
-        ArrayListMultimap<StructureType, StructureData> structures = DataStorage.getInstance().getCopyOfStructureData();
-        int maxRange = (mc.options.viewDistance + 4) * 16;
-
-        for (StructureType type : StructureType.VALUES)
+        for (WrappedData wrapped : wrappedData)
         {
-            if (type.isEnabled() && type.existsInDimension(dimId))
-            {
-                Collection<StructureData> structureData = structures.get(type);
-
-                if (structureData.isEmpty() == false)
-                {
-                    this.renderStructuresWithinRange(type, structureData, playerPos, cameraPos, maxRange);
-                }
-            }
+            this.renderStructure(wrapped.data, wrapped.mainColor, wrapped.componentColor, cameraPos);
         }
     }
 
-    private void renderStructuresWithinRange(StructureType type, Collection<StructureData> structureData, BlockPos playerPos, Vec3d cameraPos, int maxRange)
+    private void renderStructure(StructureData structure, Color4f mainColor, Color4f componentColor, Vec3d cameraPos)
     {
-        for (StructureData structure : structureData)
-        {
-            if (MiscUtils.isStructureWithinRange(structure.getBoundingBox(), playerPos, maxRange))
-            {
-                this.renderStructure(type, structure, cameraPos);
-            }
-        }
-    }
+        fi.dy.masa.malilib.render.RenderUtils.drawBox(structure.getBoundingBox(), cameraPos, mainColor, BUFFER_1, BUFFER_2);
 
-    private void renderStructure(StructureType type, StructureData structure, Vec3d cameraPos)
-    {
-        Color4f color = type.getToggle().getColorMain().getColor();
         ImmutableList<IntBoundingBox> components = structure.getComponents();
-
-        fi.dy.masa.malilib.render.RenderUtils.drawBox(structure.getBoundingBox(), cameraPos, color, BUFFER_1, BUFFER_2);
 
         if (components.isEmpty() == false)
         {
             if (components.size() > 1 || MiscUtils.areBoxesEqual(components.get(0), structure.getBoundingBox()) == false)
             {
-                color = type.getToggle().getColorComponents().getColor();
-
                 for (IntBoundingBox bb : components)
                 {
-                    fi.dy.masa.malilib.render.RenderUtils.drawBox(bb, cameraPos, color, BUFFER_1, BUFFER_2);
+                    fi.dy.masa.malilib.render.RenderUtils.drawBox(bb, cameraPos, componentColor, BUFFER_1, BUFFER_2);
                 }
             }
+        }
+    }
+
+    private List<WrappedData> getStructuresToRender(BlockPos playerPos, int maxRange)
+    {
+        ArrayListMultimap<StructureType, StructureData> structures = DataStorage.getInstance().getCopyOfStructureData();
+        List<WrappedData> data = new ArrayList<>();
+
+        for (StructureType type : structures.keySet())
+        {
+            if (type.isEnabled() == false)
+            {
+                continue;
+            }
+
+            for (StructureData structure : structures.get(type))
+            {
+                if (MiscUtils.isStructureWithinRange(structure.getBoundingBox(), playerPos, maxRange))
+                {
+                    Color4f mainColor = type.getToggle().getColorMain().getColor();
+                    Color4f componentColor = type.getToggle().getColorComponents().getColor();
+                    data.add(new WrappedData(structure, mainColor, componentColor));
+                }
+            }
+        }
+
+        return data;
+    }
+
+    private class WrappedData {
+        StructureData data;
+        Color4f mainColor;
+        Color4f componentColor;
+        public WrappedData(StructureData data, Color4f mainColor, Color4f componentColor) {
+            this.data = data;
+            this.mainColor = mainColor;
+            this.componentColor = componentColor;
         }
     }
 }
