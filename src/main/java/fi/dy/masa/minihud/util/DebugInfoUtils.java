@@ -1,6 +1,7 @@
 package fi.dy.masa.minihud.util;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import com.google.common.collect.MapMaker;
@@ -16,10 +17,14 @@ import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -200,13 +205,14 @@ public class DebugInfoUtils
 
     private static boolean isAnyPlayerWithinRange(ServerWorld world, Entity entity, double range)
     {
-        for (int i = 0; i < world.getPlayers().size(); ++i)
-        {
-            PlayerEntity player = world.getPlayers().get(i);
+        List<ServerPlayerEntity> players = world.getPlayers();
+        double squaredRange = range * range;
 
+        for (PlayerEntity player : players)
+        {
             double distSq = player.squaredDistanceTo(entity.getX(), entity.getY(), entity.getZ());
 
-            if (range < 0.0D || distSq < range * range)
+            if (range < 0.0 || distSq < squaredRange)
             {
                 return true;
             }
@@ -225,6 +231,11 @@ public class DebugInfoUtils
         {
             pathfindingEnabled = config.getBooleanValue();
         }
+        else if (config == RendererToggle.DEBUG_CHUNK_BORDER)
+        {
+            boolean enabled = MinecraftClient.getInstance().debugRenderer.toggleShowChunkBorder();
+            debugWarn(enabled ? "debug.chunk_boundaries.on" : "debug.chunk_boundaries.off");
+        }
         else if (config == RendererToggle.DEBUG_CHUNK_INFO)
         {
             MinecraftClient.getInstance().debugChunkInfo = config.getBooleanValue();
@@ -233,6 +244,14 @@ public class DebugInfoUtils
         {
             MinecraftClient.getInstance().debugChunkOcculsion = config.getBooleanValue();
         }
+    }
+
+    private static void debugWarn(String key, Object... args)
+    {
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage((new LiteralText(""))
+                .append((new TranslatableText("debug.prefix")).formatted(Formatting.YELLOW, Formatting.BOLD))
+                .append(" ")
+                .append((new TranslatableText(key, args))));
     }
 
     public static void renderVanillaDebug(MatrixStack matrixStack, VertexConsumerProvider.Immediate vtx,
