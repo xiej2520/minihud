@@ -1,19 +1,28 @@
 package fi.dy.masa.minihud.util;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
+
+import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.recipe.AbstractCookingRecipe;
+import net.minecraft.recipe.Recipe;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import net.minecraft.world.dimension.DimensionType;
+import fi.dy.masa.minihud.mixin.IMixinAbstractFurnaceBlockEntity;
 
 public class MiscUtils
 {
@@ -158,5 +167,25 @@ public class MiscUtils
 
             lines.add(Math.min(1, lines.size()), new TranslatableText("minihud.label.honey_info.level", honeyLevel));
         }
+    }
+
+    public static int getFurnaceXpAmount(AbstractFurnaceBlockEntity be)
+    {
+        Map<Identifier, Integer> recipes = ((IMixinAbstractFurnaceBlockEntity) be).minihud_getUsedRecipes();
+        World world = be.getWorld();
+        int xp = 0;
+
+        for (Map.Entry<Identifier, Integer> entry : recipes.entrySet())
+        {
+            Optional<? extends Recipe<?>> recipeOpt = world.getRecipeManager().get(entry.getKey());
+
+            if (recipeOpt.isPresent() && recipeOpt.get() instanceof AbstractCookingRecipe)
+            {
+                // underestimate, the game will take the decimal fraction as a probability to round up
+                xp += MathHelper.floor(entry.getValue() * ((AbstractCookingRecipe) recipeOpt.get()).getExperience());
+            }
+        }
+
+        return xp;
     }
 }

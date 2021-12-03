@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BeehiveBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -565,6 +566,16 @@ public class RenderHandler implements IRenderer
             if (be instanceof BeehiveBlockEntity)
             {
                 this.addLine("Bees: " + GuiBase.TXT_AQUA + ((BeehiveBlockEntity) be).getBeeCount());
+            }
+        }
+        else if (type == InfoToggle.FURNACE_XP)
+        {
+            World bestWorld = WorldUtils.getBestWorld(mc);
+            BlockEntity be = this.getTargetedBlockEntity(bestWorld, mc);
+
+            if (be instanceof AbstractFurnaceBlockEntity)
+            {
+                this.addLine("Furnace XP: " + GuiBase.TXT_AQUA + MiscUtils.getFurnaceXpAmount((AbstractFurnaceBlockEntity) be));
             }
         }
         else if (type == InfoToggle.HONEY_LEVEL)
