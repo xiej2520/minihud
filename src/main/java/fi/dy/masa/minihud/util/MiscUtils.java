@@ -104,31 +104,32 @@ public class MiscUtils
 
     public static void addBeeTooltip(ItemStack stack, List<Text> lines)
     {
-        CompoundTag tag = stack.getTag();
+        CompoundTag stackTag = stack.getTag();
 
-        if (tag != null && tag.contains("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
+        if (stackTag != null && stackTag.contains("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
         {
-            tag = tag.getCompound("BlockEntityTag");
-            ListTag bees = tag.getList("Bees", Constants.NBT.TAG_COMPOUND);
+            CompoundTag beTag = stackTag.getCompound("BlockEntityTag");
+            ListTag bees = beTag.getList("Bees", Constants.NBT.TAG_COMPOUND);
             int count = bees.size();
             int babyCount = 0;
 
             for (int i = 0; i < count; i++)
             {
-                tag = bees.getCompound(i).getCompound("EntityData");
+                CompoundTag beeTag = bees.getCompound(i);
+                CompoundTag entityDataTag = beeTag.getCompound("EntityData");
 
-                if (tag != null)
+                if (entityDataTag.contains("CustomName", Constants.NBT.TAG_STRING))
                 {
-                    if (tag.contains("CustomName", Constants.NBT.TAG_STRING))
-                    {
-                        String beeName = tag.getString("CustomName");
-                        lines.add(Math.min(1, lines.size()), new TranslatableText("minihud.label.bee_info.name", Text.Serializer.fromJson(beeName).getString()));
-                    }
+                    String beeName = entityDataTag.getString("CustomName");
+                    lines.add(Math.min(1, lines.size()), new TranslatableText("minihud.label.bee_tooltip.name", Text.Serializer.fromJson(beeName).getString()));
+                }
 
-                    if (tag.contains("Age", Constants.NBT.TAG_INT) && tag.getInt("Age") < 0)
-                    {
-                        ++babyCount;
-                    }
+                //if (entityDataTag.contains("Age", Constants.NBT.TAG_INT) &&
+                //    entityDataTag.getInt("Age") + beeTag.getInt("TickInHive") < 0)
+                // In 1.15 bees don't age in hives (bug)
+                if (entityDataTag.contains("Age", Constants.NBT.TAG_INT) && entityDataTag.getInt("Age") < 0)
+                {
+                    ++babyCount;
                 }
             }
 
@@ -136,11 +137,11 @@ public class MiscUtils
 
             if (babyCount > 0)
             {
-                text = new TranslatableText("minihud.label.bee_info.count_babies", String.valueOf(count), String.valueOf(babyCount));
+                text = new TranslatableText("minihud.label.bee_tooltip.count_babies", String.valueOf(count), String.valueOf(babyCount));
             }
             else
             {
-                text = new TranslatableText("minihud.label.bee_info.count", String.valueOf(count));
+                text = new TranslatableText("minihud.label.bee_tooltip.count", String.valueOf(count));
             }
 
             lines.add(Math.min(1, lines.size()), text);
