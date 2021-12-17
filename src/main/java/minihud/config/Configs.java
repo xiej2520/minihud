@@ -45,14 +45,17 @@ public class Configs
         public static final BooleanConfig FIX_VANILLA_DEBUG_RENDERERS           = new BooleanConfig("enableVanillaDebugRendererFix", true);
         public static final BooleanConfig ITEM_NBT_ENABLED                      = new BooleanConfig("itemNbtEnabled", false);
         public static final IntegerConfig ITEM_PREVIEW_Z                        = new IntegerConfig("itemPreviewZ", 400, 0, 4096);
+        public static final BooleanConfig LIGHT_LEVEL_AUTO_HEIGHT               = new BooleanConfig("lightLevelAutoHeight", false);
         public static final BooleanConfig LIGHT_LEVEL_COLORED_NUMBERS           = new BooleanConfig("lightLevelColoredNumbers", true);
+        public static final BooleanConfig LIGHT_LEVEL_COLLISION_CHECK           = new BooleanConfig("lightLevelCollisionCheck", false);
         public static final DoubleConfig  LIGHT_LEVEL_MARKER_SIZE               = new DoubleConfig( "lightLevelMarkerSize", 0.84, 0.0, 1.0);
         public static final Vec2dConfig   LIGHT_LEVEL_NUMBER_OFFSET_BLOCK       = new Vec2dConfig(  "lightLevelNumberOffsetBlock", 0.24, 0.32, 0.0, 1.0);
         public static final Vec2dConfig   LIGHT_LEVEL_NUMBER_OFFSET_SKY         = new Vec2dConfig(  "lightLevelNumberOffsetSky", 0.42, 0.56, 0.0, 1.0);
         public static final BooleanConfig LIGHT_LEVEL_NUMBER_ROTATION           = new BooleanConfig("lightLevelNumberRotation", true);
         public static final IntegerConfig LIGHT_LEVEL_RANGE                     = new IntegerConfig("lightLevelRange", 24, 1, 64);
+        public static final DoubleConfig  LIGHT_LEVEL_RENDER_OFFSET             = new DoubleConfig( "lightLevelRenderOffset", 0.005, 0.0, 1.0);
+        public static final BooleanConfig LIGHT_LEVEL_RENDER_THROUGH            = new BooleanConfig("lightLevelRenderThrough", false);
         public static final IntegerConfig LIGHT_LEVEL_THRESHOLD                 = new IntegerConfig("lightLevelThreshold", 8, 0, 15);
-        public static final DoubleConfig  LIGHT_LEVEL_Z_OFFSET                  = new DoubleConfig( "lightLevelZOffset", 0.005, 0.0, 1.0);
         public static final BooleanConfig MAP_PREVIEW                           = new BooleanConfig("mapPreview", false);
         public static final BooleanConfig MAP_PREVIEW_REQUIRE_SHIFT             = new BooleanConfig("mapPreviewRequireShift", true);
         public static final IntegerConfig MAP_PREVIEW_SIZE                      = new IntegerConfig("mapPreviewSize", 160, 16, 512);
@@ -98,6 +101,8 @@ public class Configs
                 INFO_LINES_RENDERING_TOGGLE,
                 ITEM_NBT_ENABLED,
                 ITEM_PREVIEW_Z,
+                LIGHT_LEVEL_AUTO_HEIGHT,
+                LIGHT_LEVEL_COLLISION_CHECK,
                 LIGHT_LEVEL_COLORED_NUMBERS,
                 LIGHT_LEVEL_MARKER_MODE,
                 LIGHT_LEVEL_MARKER_SIZE,
@@ -106,8 +111,9 @@ public class Configs
                 LIGHT_LEVEL_NUMBER_OFFSET_SKY,
                 LIGHT_LEVEL_NUMBER_ROTATION,
                 LIGHT_LEVEL_RANGE,
+                LIGHT_LEVEL_RENDER_OFFSET,
+                LIGHT_LEVEL_RENDER_THROUGH,
                 LIGHT_LEVEL_THRESHOLD,
-                LIGHT_LEVEL_Z_OFFSET,
                 MAP_PREVIEW,
                 MAP_PREVIEW_REQUIRE_SHIFT,
                 MAP_PREVIEW_SIZE,

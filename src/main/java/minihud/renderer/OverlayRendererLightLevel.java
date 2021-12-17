@@ -2,6 +2,10 @@ package minihud.renderer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import malilib.overlay.message.MessageDispatcher;
+import malilib.util.game.BlockUtils;
+import net.minecraft.util.math.AxisAlignedBB;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.block.material.Material;
@@ -142,7 +146,7 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
         double oz = cfgOff.getValue().y;
         double tmpX, tmpZ;
         Color4f colorLit, colorDark;
-        double offsetY = Configs.Generic.LIGHT_LEVEL_Z_OFFSET.getDoubleValue();
+        double offsetY = Configs.Generic.LIGHT_LEVEL_RENDER_OFFSET.getDoubleValue();
 
         switch (numberFacing)
         {
@@ -174,20 +178,25 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
         Color4f colorLit = Configs.Colors.LIGHT_LEVEL_MARKER_LIT.getColor();
         Color4f colorDark = Configs.Colors.LIGHT_LEVEL_MARKER_DARK.getColor();
         double offsetX = cameraPos.x;
-        double offsetY = cameraPos.y - Configs.Generic.LIGHT_LEVEL_Z_OFFSET.getDoubleValue();
+        double offsetY = cameraPos.y - Configs.Generic.LIGHT_LEVEL_RENDER_OFFSET.getDoubleValue();
         double offsetZ = cameraPos.z;
         double offset1 = (1.0 - markerSize) / 2.0;
         double offset2 = (1.0 - offset1);
+        boolean autoHeight = Configs.Generic.LIGHT_LEVEL_AUTO_HEIGHT.getBooleanValue();
         VertexBuilder lineBuilder = this.lineBuilder;
 
         for (LightLevelInfo info : this.lightInfoList)
         {
             if (info.block < lightThreshold)
             {
-                BlockPos pos = info.pos;
+                BlockPos pos = BlockPos.fromPacked(info.packedPos);
                 Color4f color = info.sky >= lightThreshold ? colorLit : colorDark;
-                renderer.render(pos.getX() - offsetX, pos.getY() - offsetY, pos.getZ() - offsetZ,
-                                color, offset1, offset2, lineBuilder);
+
+                double x = pos.getX() - offsetX;
+                double y = (autoHeight ? info.y : pos.getY()) - offsetY;
+                double z = pos.getZ() - offsetZ;
+
+                renderer.render(x, y, z, color, offset1, offset2, lineBuilder);
             }
         }
     }
@@ -196,13 +205,15 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
                                            int lightThreshold, LightLevelNumberMode numberMode,
                                            Color4f colorLit, Color4f colorDark)
     {
+        boolean autoHeight = Configs.Generic.LIGHT_LEVEL_AUTO_HEIGHT.getBooleanValue();
+
         for (LightLevelInfo info : this.lightInfoList)
         {
             int lightLevel = numberMode == LightLevelNumberMode.BLOCK ? info.block : info.sky;
             Color4f color = lightLevel >= lightThreshold ? colorLit : colorDark;
-            BlockPos pos = info.pos;
+            BlockPos pos = BlockPos.fromPacked(info.packedPos);
             double x = pos.getX() - dx;
-            double y = pos.getY() - dy;
+            double y = (autoHeight ? info.y : pos.getY()) - dy;
             double z = pos.getZ() - dz;
 
             this.renderLightLevelTextureColor(x, y, z, facing, lightLevel, color, this.quadBuilder);
@@ -292,6 +303,12 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
         final int maxCX = (maxX >> 4);
         final int maxCZ = (maxZ >> 4);
 
+        BlockPos.MutBlockPos mutablePos = new BlockPos.MutBlockPos();
+
+        final int worldTopHeight = world.getHeight();
+        final boolean collisionCheck = Configs.Generic.LIGHT_LEVEL_COLLISION_CHECK.getBooleanValue();
+        final boolean autoHeight = Configs.Generic.LIGHT_LEVEL_AUTO_HEIGHT.getBooleanValue();
+
         for (int cx = minCX; cx <= maxCX; ++cx)
         {
             final int startX = Math.max( cx << 4      , minX);
@@ -309,28 +326,37 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
                     {
                         final int startY = Math.max(minY, 0);
                         final int endY   = Math.min(maxY, chunk.getTopFilledSegment() + 15 + 1);
-                        IBlockState stateDown = chunk.getBlockState(x, startY - 1, z);
-                        IBlockState state    = chunk.getBlockState(x, startY, z);
-                        IBlockState stateUp  = chunk.getBlockState(x, startY + 1, z);
-                        IBlockState stateUp2 = chunk.getBlockState(x, startY + 2, z);
 
                         for (int y = startY; y <= endY; ++y)
                         {
-                            if (canSpawnAt(stateDown, state, stateUp, stateUp2))
+                            if (this.canSpawnAtWrapper(x, y, z, chunk, world) == false)
                             {
-                                BlockPos pos = new BlockPos(x, y, z);
-                                int block = y < 256 ? chunk.getLightFor(EnumSkyBlock.BLOCK, pos) : 0;
-                                int sky   = y < 256 ? chunk.getLightFor(EnumSkyBlock.SKY, pos) : 15;
-
-                                this.lightInfoList.add(new LightLevelInfo(pos, block, sky));
-
-                                //y += 2; // if the spot is spawnable, that means the next spawnable spot can be the third block up
+                                continue;
                             }
 
-                            stateDown = state;
-                            state = stateUp;
-                            stateUp = stateUp2;
-                            stateUp2 = chunk.getBlockState(x, y + 3, z);
+                            mutablePos.set(x, y, z);
+                            IBlockState state = chunk.getBlockState(mutablePos);
+
+                            if (collisionCheck) {
+                                AxisAlignedBB bb = state.getCollisionBoundingBox(world, mutablePos);
+                                // check if hitbox contains the top center of the block below: (0.5, 0.5), and y is nonempty (snow layer 1)
+                                if (bb != null && (bb.minX < 0.5 && bb.maxX > 0.5 && bb.minY != bb.maxY && bb.minZ < 0.5 && bb.maxZ > 0.5)) {
+                                    continue;
+                                }
+                            }
+
+                            int block = y < worldTopHeight ? chunk.getLightFor(EnumSkyBlock.BLOCK, mutablePos) : 0;
+                            int sky   = y < worldTopHeight ? chunk.getLightFor(EnumSkyBlock.SKY, mutablePos) : 15;
+                            // air blocks have full bounding box until 1.13
+                            double topY = (state.getBlock() == Blocks.AIR || BlockUtils.isFluidBlock(state)) ? 0.0 : state.getBoundingBox(world, mutablePos).maxY;
+
+                            // Don't render the light level marker if it would be raised all the way to the next block space
+                            if (autoHeight == false || topY < 1)
+                            {
+                                float posY = topY >= 0 ? y + (float) topY : y;
+                                this.lightInfoList.add(new LightLevelInfo(mutablePos.toPackedLong(), posY, block, sky));
+                                //y += 2; // if the spot is spawnable, that means the next spawnable spot can be the third block up
+                            }
                         }
                     }
                 }
@@ -338,11 +364,28 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
         }
     }
 
+    private boolean canSpawnAtWrapper(int x, int y, int z, Chunk chunk, World world)
+    {
+        try
+        {
+            return canSpawnAt(x, y, z, chunk, world);
+        }
+        catch (Exception e)
+        {
+            MessageDispatcher.warning("This dimension seems to have missing block tag data, the light level will not use the normal block spawnability checks in this dimension. This is known to happen on some Waterfall/BungeeCord/ViaVersion/whatever setups that have an older MC version at the back end.");
+            //tagsBroken = true;
+
+            return false;
+        }
+    }
+
     /**
      * This method mimics the one from WorldEntitySpawner, but takes in the Chunk to avoid that lookup
      */
-    public static boolean canSpawnAt(IBlockState stateDown, IBlockState state, IBlockState stateUp, IBlockState stateUp2)
+    public static boolean canSpawnAt(int x, int y, int z, Chunk chunk, World world)
     {
+        BlockPos.MutBlockPos pos = new BlockPos.MutBlockPos(x, y - 1, z); // TODO: where to allocate
+        IBlockState stateDown = chunk.getBlockState(pos);
         if (stateDown.isTopSolid() == false ||
             stateDown.getBlock() == Blocks.BEDROCK ||
             stateDown.getBlock() == Blocks.BARRIER)
@@ -351,8 +394,17 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
         }
         else
         {
+            pos.set(x, y, z);
+            IBlockState state = chunk.getBlockState(pos);
+
+            pos.set(x, y + 1, z);
+            IBlockState stateUp = chunk.getBlockState(pos);
+
             if (state.getMaterial() == Material.WATER)
             {
+                pos.set(x, y + 2, z);
+                IBlockState stateUp2 = chunk.getBlockState(pos);
+
                 return stateUp.getMaterial() == Material.WATER &&
                        stateUp2.isNormalCube() == false;
             }
@@ -364,15 +416,17 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
 
     public static class LightLevelInfo
     {
-        public final BlockPos pos;
-        public final int block;
-        public final int sky;
+        public final long packedPos;
+        public final byte block;
+        public final byte sky;
+        public final float y;
 
-        public LightLevelInfo(BlockPos pos, int block, int sky)
+        public LightLevelInfo(long packedPos, float y, int block, int sky)
         {
-            this.pos = pos;
-            this.block = block;
-            this.sky = sky;
+            this.packedPos = packedPos;
+            this.block = (byte) block;
+            this.sky = (byte) sky;
+            this.y = y;
         }
     }
 
