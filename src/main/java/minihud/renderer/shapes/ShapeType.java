@@ -8,6 +8,7 @@ import malilib.util.StringUtils;
 
 public enum ShapeType
 {
+    BOX                 ("box",                "minihud.name.shapes.box",                ShapeBox::new),
     CIRCLE              ("circle",             "minihud.name.shapes.circle",             ShapeCircle::new),
     SPHERE_BLOCKY       ("sphere_blocky",      "minihud.name.shapes.sphere_blocky",      ShapeSphereBlocky::new),
     CAN_SPAWN_SPHERE    ("can_spawn_sphere",   "minihud.name.shapes.can_spawn_sphere",   ShapeCanSpawnSphere::new),

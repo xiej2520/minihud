@@ -47,7 +47,7 @@
             if [ -L "$BASE_DIR/.share/gradle" ]; then
               unlink "$BASE_DIR/.share/gradle"
             fi
-            ln -sf ${pkgs.gradle}/lib/gradle $BASE_DIR/.share/gradle
+            ln -sf ${pkgs.gradle}/libexec/gradle $BASE_DIR/.share/gradle
             export GRADLE_HOME="$BASE_DIR/.share/gradle"
 
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${

@@ -177,6 +177,7 @@ public class Configs
         public static final ColorConfig RANDOM_TICKS_FIXED_OVERLAY_COLOR    = new ColorConfig("randomTicksFixed",           "#40F9F225");
         public static final ColorConfig RANDOM_TICKS_PLAYER_OVERLAY_COLOR   = new ColorConfig("randomTicksPlayer",          "#4030FE73");
         public static final ColorConfig REGION_OVERLAY_COLOR                = new ColorConfig("regionFileBorders",          "#40FF8019");
+        public static final ColorConfig SHAPE_BOX                           = new ColorConfig("shapeBox",                   "#6050A0A0");
         public static final ColorConfig SHAPE_CAN_DESPAWN_SPHERE            = new ColorConfig("shapeCanDespawnSphere",      "#60A04050");
         public static final ColorConfig SHAPE_CAN_SPAWN_SPHERE              = new ColorConfig("shapeCanSpawnSphere",        "#60A04050");
         public static final ColorConfig SHAPE_CIRCLE                        = new ColorConfig("shapeCircle",                "#6030B0B0");
@@ -213,6 +214,7 @@ public class Configs
                 RANDOM_TICKS_FIXED_OVERLAY_COLOR,
                 RANDOM_TICKS_PLAYER_OVERLAY_COLOR,
                 REGION_OVERLAY_COLOR,
+                SHAPE_BOX,
                 SHAPE_CAN_DESPAWN_SPHERE,
                 SHAPE_CAN_SPAWN_SPHERE,
                 SHAPE_CIRCLE,

@@ -1,5 +1,6 @@
 package minihud.gui;
 
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
@@ -18,25 +19,30 @@ import malilib.gui.listener.DoubleTextFieldListener;
 import malilib.gui.listener.IntegerModifierButtonListener;
 import malilib.gui.listener.IntegerTextFieldListener;
 import malilib.gui.widget.BaseTextFieldWidget;
+import malilib.gui.widget.CheckBoxWidget;
 import malilib.gui.widget.ColorIndicatorWidget;
 import malilib.gui.widget.DoubleTextFieldWidget;
 import malilib.gui.widget.IntegerTextFieldWidget;
 import malilib.gui.widget.LabelWidget;
 import malilib.gui.widget.Vec3dEditWidget;
 import malilib.gui.widget.button.GenericButton;
+import malilib.gui.widget.button.OnOffButton;
 import malilib.gui.widget.button.OptionListConfigButton;
 import malilib.input.ActionResult;
 import malilib.util.ListUtils;
 import malilib.util.data.DualDoubleConsumer;
 import malilib.util.data.DualIntConsumer;
 import malilib.util.position.Direction;
+import malilib.util.position.Vec3d;
 import minihud.Reference;
 import minihud.renderer.shapes.ShapeBase;
+import minihud.renderer.shapes.ShapeBox;
 import minihud.renderer.shapes.ShapeCircle;
 import minihud.renderer.shapes.ShapeCircleBase;
 import minihud.renderer.shapes.ShapeManager;
 import minihud.renderer.shapes.ShapeSpawnSphere;
 import minihud.util.value.ShapeRenderType;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class GuiShapeEditor extends BaseLayerRangeEditScreen
 {
@@ -116,6 +122,11 @@ public class GuiShapeEditor extends BaseLayerRangeEditScreen
 
         switch (this.shape.getType())
         {
+            case BOX:
+                this.createShapeEditorElementsBox(x, y);
+                // TODO: move this
+                this.editWidget.setPosition(x, y + 300);
+                break;
             case CAN_DESPAWN_SPHERE:
             case CAN_SPAWN_SPHERE:
             case DESPAWN_SPHERE:
@@ -141,6 +152,100 @@ public class GuiShapeEditor extends BaseLayerRangeEditScreen
                 this.createRenderTypeButton(renderTypeX, renderTypeY, this.shape::getRenderType, this.shape::setRenderType, "minihud.button.shapes.render_type");
                 break;
         }
+    }
+
+    private void createShapeEditorElementsBox(int xIn, int yIn)
+    {
+        ShapeBox shape = (ShapeBox) this.shape;
+
+        int x = xIn;
+        int y = yIn + 4;
+
+        createBoxInputs(x, y, x, y + 88, 110, shape::getBox, shape::setBox);
+
+        y += 184;
+        this.createColorInput(x, y);
+
+        x = xIn + 210;
+        y = yIn + 4;
+        this.addBoxSideToggleCheckbox(x, y     , Direction.DOWN,  shape);
+        this.addBoxSideToggleCheckbox(x, y + 11, Direction.UP,    shape);
+        this.addBoxSideToggleCheckbox(x, y + 22, Direction.NORTH, shape);
+        this.addBoxSideToggleCheckbox(x, y + 33, Direction.SOUTH, shape);
+        this.addBoxSideToggleCheckbox(x, y + 44, Direction.WEST,  shape);
+        this.addBoxSideToggleCheckbox(x, y + 55, Direction.EAST,  shape);
+
+        x = xIn + 120;
+        y = yIn + 4;
+
+        if (shape.isGridEnabled())
+        {
+            LabelWidget label = new LabelWidget("minihud.label.shape_box.grid_size");
+            label.setPosition(x, y);
+            this.addWidget(label);
+
+            Vec3dEditWidget editGridSize = new Vec3dEditWidget(80, 50, 2, false, shape.getGridSize(), shape::setGridSize);
+            editGridSize.setPosition(x, y + 12);
+            this.addWidget(editGridSize);
+
+            y += 80;
+
+            label = new LabelWidget("minihud.label.shape_box.grid_start_offset");
+            label.setPosition(x, y);
+            this.addWidget(label);
+
+            Vec3dEditWidget editGridStartOffset = new Vec3dEditWidget(80, 50, 2, false, shape.getGridStartOffset(), shape::setGridStartOffset);
+            editGridStartOffset.setPosition(x, y + 12);
+            this.addWidget(editGridStartOffset);
+
+
+            label = new LabelWidget("minihud.label.shape_box.grid_end_offset");
+            label.setPosition(x + 100, y);
+            this.addWidget(label);
+
+            Vec3dEditWidget editGridEndOffset = new Vec3dEditWidget(80, 50, 2, false, shape.getGridEndOffset(), shape::setGridEndOffset);
+            editGridEndOffset.setPosition(x + 100, y + 12);
+            this.addWidget(editGridEndOffset);
+        }
+
+        GenericButton button = new OnOffButton(-1, 20, OnOffButton.OnOffStyle.TEXT_ON_OFF, shape::isGridEnabled, "minihud.label.shape_box.grid_enabled");
+        button.setPosition(x, yIn + 180);
+        button.setActionListener(() -> this.toggleGridEnabled(shape));
+        this.addWidget(button);
+    }
+
+    private void toggleGridEnabled(ShapeBox shape)
+    {
+        shape.toggleGridEnabled();
+        this.initGui();
+    }
+
+    private void addBoxSideToggleCheckbox(int x, int y, Direction side, ShapeBox shape)
+    {
+        CheckBoxWidget cb = new CheckBoxWidget(
+            this.capitalize(side.getName()),
+            "Render the " + side.getName() + " side of the box",
+            () -> shape.isSideEnabled(side),
+            (enabled) -> this.toggleSideEnabled(side, shape)
+        );
+        cb.setPosition(x, y);
+        this.addWidget(cb);
+    }
+
+    private void toggleSideEnabled(Direction side, ShapeBox shape)
+    {
+        int mask = shape.getEnabledSidesMask();
+        shape.setEnabledSidesMask(mask ^ (1 << side.getIndex()));
+    }
+
+    private String capitalize(String str)
+    {
+        if (str.length() > 1)
+        {
+            return str.substring(0, 1).toUpperCase(Locale.ROOT) + str.substring(1);
+        }
+
+        return str.length() > 0 ? str.toUpperCase(Locale.ROOT) : str;
     }
 
     private void createShapeEditorElementsSphereBase(int x, int y, boolean addRadiusInput)
@@ -261,6 +366,29 @@ public class GuiShapeEditor extends BaseLayerRangeEditScreen
         this.addWidget(button);
     }
 
+    public void createBoxInputs(int x1, int y1, int x2, int y2, int textFieldWidth,
+                                Supplier<AxisAlignedBB> supplier, Consumer<AxisAlignedBB> consumer)
+    {
+        AxisAlignedBB box = supplier.get();
+        MutableWrapperBox mutableBox = new MutableWrapperBox(box, consumer);
+
+        LabelWidget minLabel = new LabelWidget("minihud.label.shape_box.minimum_coord");
+        minLabel.setPosition(x1, y1);
+        this.addWidget(minLabel);
+
+        Vec3dEditWidget corner1Edit = new Vec3dEditWidget(textFieldWidth, 72, 2, true, mutableBox.getCorner1(), mutableBox::setCorner1);
+        corner1Edit.setPosition(x1, y1 + 12);
+        this.addWidget(corner1Edit);
+
+        LabelWidget maxLabel = new LabelWidget("minihud.label.shape_box.maximum_coord");
+        maxLabel.setPosition(x1, y2);
+        this.addWidget(maxLabel);
+
+        Vec3dEditWidget corner2Edit = new Vec3dEditWidget(textFieldWidth, 72, 2, true, mutableBox.getCorner2(), mutableBox::setCorner2);
+        corner2Edit.setPosition(x2, y2 + 12);
+        this.addWidget(corner2Edit);
+    }
+
     public static ActionResult openShapeEditor()
     {
         ShapeBase shape = ShapeManager.INSTANCE.getSelectedShape();
@@ -268,4 +396,63 @@ public class GuiShapeEditor extends BaseLayerRangeEditScreen
         BaseScreen.openScreen(screen);
         return ActionResult.SUCCESS;
     }
+
+    // TODO: move to malilib?
+    public static class MutableWrapperBox
+    {
+        protected final Consumer<AxisAlignedBB> boxConsumer;
+        protected double x1;
+        protected double y1;
+        protected double z1;
+        protected double x2;
+        protected double y2;
+        protected double z2;
+
+        public MutableWrapperBox(AxisAlignedBB box, Consumer<AxisAlignedBB> boxConsumer)
+        {
+            this.x1 = box.minX;
+            this.y1 = box.minY;
+            this.z1 = box.minZ;
+            this.x2 = box.maxX;
+            this.y2 = box.maxY;
+            this.z2 = box.maxZ;
+            this.boxConsumer = boxConsumer;
+        }
+
+        public Vec3d getCorner1() {
+            return Vec3d.of(x1, y1, z1);
+        }
+
+        public Vec3d getCorner2() {
+            return Vec3d.of(x2, y2, z2);
+        }
+
+        public void setCorner1(Vec3d corner) {
+            this.x1 = corner.x;
+            this.y1 = corner.y;
+            this.z1 = corner.z;
+            this.updateAxisAlignedBB();
+        }
+
+        public void setCorner2(Vec3d corner) {
+            this.x2 = corner.x;
+            this.y2 = corner.y;
+            this.z2 = corner.z;
+            this.updateAxisAlignedBB();
+        }
+
+        protected void updateAxisAlignedBB()
+        {
+            AxisAlignedBB box = new AxisAlignedBB(
+                Math.min(this.x1, this.x2),
+                Math.min(this.y1, this.y2),
+                Math.min(this.z1, this.z2),
+                Math.max(this.x1, this.x2),
+                Math.max(this.y1, this.y2),
+                Math.max(this.z1, this.z2)
+            );
+            this.boxConsumer.accept(box);
+        }
+    }
+
 }
