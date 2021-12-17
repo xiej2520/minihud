@@ -1,5 +1,6 @@
 package fi.dy.masa.minihud.gui;
 
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
@@ -7,8 +8,12 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.malilib.config.IConfigInteger;
 import fi.dy.masa.malilib.config.options.ConfigInteger;
 import fi.dy.masa.malilib.config.options.ConfigOptionList;
@@ -21,10 +26,12 @@ import fi.dy.masa.malilib.gui.GuiTextFieldInteger;
 import fi.dy.masa.malilib.gui.MaLiLibIcons;
 import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
+import fi.dy.masa.malilib.gui.button.ButtonOnOff;
 import fi.dy.masa.malilib.gui.button.ConfigButtonOptionList;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.interfaces.ITextFieldListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetBase;
+import fi.dy.masa.malilib.gui.widgets.WidgetCheckBox;
 import fi.dy.masa.malilib.interfaces.ICoordinateValueModifier;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.BlockSnap;
@@ -36,6 +43,7 @@ import fi.dy.masa.malilib.util.PositionUtils.CoordinateType;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.minihud.gui.GuiConfigs.ConfigGuiTab;
 import fi.dy.masa.minihud.renderer.shapes.ShapeBase;
+import fi.dy.masa.minihud.renderer.shapes.ShapeBox;
 import fi.dy.masa.minihud.renderer.shapes.ShapeCircle;
 import fi.dy.masa.minihud.renderer.shapes.ShapeCircleBase;
 import fi.dy.masa.minihud.renderer.shapes.ShapeSpawnSphere;
@@ -50,7 +58,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
     public GuiShapeEditor(ShapeBase shape)
     {
         this.shape = shape;
-        this.title = StringUtils.translate("minihud.gui.title.shape_editor");
+        this.title = StringUtils.translate("minihud.gui.title.shape_editor", shape.getDisplayName());
         this.configBlockSnap = new ConfigOptionList("blockSnap", BlockSnap.NONE, "");
     }
 
@@ -66,8 +74,6 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
 
         ButtonGeneric button = new ButtonGeneric(x, this.height - 24, -1, 20, ConfigGuiTab.SHAPES.getDisplayName());
         this.addButton(button, new GuiShapeManager.ButtonListenerTab(ConfigGuiTab.SHAPES));
-
-        this.createLayerEditControls(146, 162, this.getLayerRange());
     }
 
     @Override
@@ -109,8 +115,13 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
             case ADJUSTABLE_SPAWN_SPHERE:
             {
                 this.createShapeEditorElementsSphereBase(x, y, true);
+                this.createLayerEditControls(146, 162, this.getLayerRange());
                 break;
             }
+
+            case BOX:
+                this.createShapeEditorElementsBox(x, y);
+                break;
 
             case CAN_DESPAWN_SPHERE:
             case CAN_SPAWN_SPHERE:
@@ -119,6 +130,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
                 ShapeSpawnSphere shape = (ShapeSpawnSphere) this.shape;
                 this.createShapeEditorElementsSphereBase(x, y, false);
                 this.createShapeEditorElementDoubleField(x + 150, y + 2, shape::getMargin, shape::setMargin, "minihud.gui.label.margin_colon", false);
+                this.createLayerEditControls(146, 162, this.getLayerRange());
                 break;
             }
 
@@ -129,12 +141,14 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
                 this.createShapeEditorElementIntField(x + 150, y + 36, shape::getHeight, shape::setHeight, "minihud.gui.label.height_colon", true);
                 this.createDirectionButton(x + 230, y + 36, shape::getMainAxis, shape::setMainAxis, "minihud.gui.label.circle.main_axis_colon");
                 this.createRenderTypeButton(renderTypeX, renderTypeY, this.shape::getRenderType, this.shape::setRenderType, "minihud.gui.label.render_type_colon");
+                this.createLayerEditControls(146, 162, this.getLayerRange());
                 break;
             }
 
             case SPHERE_BLOCKY:
                 this.createShapeEditorElementsSphereBase(x, y, true);
                 this.createRenderTypeButton(renderTypeX, renderTypeY, this.shape::getRenderType, this.shape::setRenderType, "minihud.gui.label.render_type_colon");
+                this.createLayerEditControls(146, 162, this.getLayerRange());
                 break;
         }
     }
@@ -151,12 +165,12 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         }
 
         y += 12;
-        GuiUtils.createVec3dInputsVertical(x, y, 120, shape.getCenter(), new SphereEditor(shape, this), true, this);
+        GuiUtils.createVec3dInputsVertical(x, y, 120, shape.getCenter(), new Vec3dEditor(shape::getCenter, shape::setCenter, this), true, this);
         x += 11;
         y += 54;
 
         ButtonGeneric button = new ButtonGeneric(x, y, -1, false, "malilib.gui.button.render_layers_gui.set_to_player");
-        this.addButton(button, new ButtonListenerSphere(shape, this));
+        this.addButton(button, (btn, mbtn) -> this.setPositionFromCamera(shape::setCenter));
 
         this.configBlockSnap.setOptionListValue(shape.getBlockSnap());
         String label = StringUtils.translate("minihud.gui.label.block_snap", shape.getBlockSnap().getDisplayName());
@@ -167,6 +181,105 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         y += 34;
 
         this.createColorInput(x, y);
+    }
+
+    private void createShapeEditorElementsBox(int xIn, int yIn)
+    {
+        ShapeBox shape = (ShapeBox) this.shape;
+
+        int x = xIn;
+        int y = yIn + 4;
+        this.addLabel(x, y     , 60, 14, 0xFFFFFFFF, StringUtils.translate("minihud.gui.label.shape_box.minimum_coord"));
+        this.addLabel(x, y + 70, 60, 14, 0xFFFFFFFF, StringUtils.translate("minihud.gui.label.shape_box.maximum_coord"));
+
+        createBoxInputs(x, y + 12, x, y + 82, 80, shape::getBox, shape::setBox, this);
+
+        y += 134;
+        this.createColorInput(x, y);
+
+        x = xIn + 210;
+        y = yIn + 4;
+        this.addBoxSideToggleCheckbox(x, y     , Direction.DOWN,  shape);
+        this.addBoxSideToggleCheckbox(x, y + 11, Direction.UP,    shape);
+        this.addBoxSideToggleCheckbox(x, y + 22, Direction.NORTH, shape);
+        this.addBoxSideToggleCheckbox(x, y + 33, Direction.SOUTH, shape);
+        this.addBoxSideToggleCheckbox(x, y + 44, Direction.WEST,  shape);
+        this.addBoxSideToggleCheckbox(x, y + 55, Direction.EAST,  shape);
+
+        x = xIn + 120;
+        y = yIn + 4;
+
+        if (shape.isGridEnabled())
+        {
+            this.addLabel(x, y, 60, 14, 0xFFFFFFFF, StringUtils.translate("minihud.gui.label.shape_box.grid_size"));
+            GuiUtils.createVec3dInputsVertical(x, y + 12, 50, shape.getGridSize(),
+                                               new Vec3dEditor(shape::getGridSize, shape::setGridSize, this), true, this);
+
+            y += 70;
+            this.addLabel(x, y, 60, 14, 0xFFFFFFFF, StringUtils.translate("minihud.gui.label.shape_box.grid_start_offset"));
+            GuiUtils.createVec3dInputsVertical(x, y + 12, 50, shape.getGridStartOffset(),
+                                               new Vec3dEditor(shape::getGridStartOffset, shape::setGridStartOffset, this), true, this);
+
+            this.addLabel(x + 100, y, 60, 14, 0xFFFFFFFF, StringUtils.translate("minihud.gui.label.shape_box.grid_end_offset"));
+            GuiUtils.createVec3dInputsVertical(x + 100, y + 12, 50, shape.getGridEndOffset(),
+                                               new Vec3dEditor(shape::getGridEndOffset, shape::setGridEndOffset, this), true, this);
+        }
+
+        y = yIn + 148;
+        ButtonGeneric button = new ButtonOnOff(x, y, -1, false, "minihud.gui.label.shape_box.grid_enabled", shape.isGridEnabled());
+        this.addButton(button, (btn, mbtn) -> this.toggleGridEnabled(shape));
+    }
+
+    protected Vec3d boxMinToVec3d(Box box)
+    {
+        return new Vec3d(box.x1, box.y1, box.z1);
+    }
+
+    protected Vec3d boxMaxToVec3d(Box box)
+    {
+        return new Vec3d(box.x2, box.y2, box.z2);
+    }
+
+    private void toggleGridEnabled(ShapeBox shape)
+    {
+        shape.toggleGridEnabled();
+        this.initGui();
+    }
+
+    private void addBoxSideToggleCheckbox(int x, int y, Direction side, ShapeBox shape)
+    {
+        WidgetCheckBox cb = new WidgetCheckBox(x, y, MaLiLibIcons.MINUS, MaLiLibIcons.PLUS, this.capitalize(side.getName()), "Render the " + side.getName() + " side of the box");
+        cb.setChecked(shape.isSideEnabled(side));
+        cb.setListener((w) -> this.toggleSideEnabled(side, shape));
+        this.addWidget(cb);
+    }
+
+    private void toggleSideEnabled(Direction side, ShapeBox shape)
+    {
+        int mask = shape.getEnabledSidesMask();
+        shape.setEnabledSidesMask(mask ^ (1 << side.getId()));
+    }
+
+    private String capitalize(String str)
+    {
+        if (str.length() > 1)
+        {
+            return str.substring(0, 1).toUpperCase(Locale.ROOT) + str.substring(1);
+        }
+
+        return str.length() > 0 ? str.toUpperCase(Locale.ROOT) : str;
+    }
+
+    protected void vecToBoxMin(Vec3d vec, Supplier<Box> boxIn, Consumer<Box> boxOut)
+    {
+        Box box = boxIn.get();
+        boxOut.accept(new Box(vec.x, vec.y, vec.z, box.x2, box.y2, box.z2));
+    }
+
+    protected void vecToBoxMax(Vec3d vec, Supplier<Box> boxIn, Consumer<Box> boxOut)
+    {
+        Box box = boxIn.get();
+        boxOut.accept(new Box(box.x1, box.y1, box.z1, vec.x, vec.y, vec.z));
     }
 
     private void createShapeEditorElementDoubleField(int x, int y, DoubleSupplier supplier, DoubleConsumer consumer, String translationKey, boolean addButton)
@@ -237,21 +350,186 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         return Direction.byId(index);
     }
 
-    private static class SphereEditor implements ICoordinateValueModifier
+    protected void setPositionFromCamera(Consumer<Vec3d> consumer)
     {
-        private final GuiShapeEditor gui;
-        private final ShapeCircleBase shape;
+        Entity entity = this.mc.getCameraEntity();
 
-        private SphereEditor(ShapeCircleBase shape, GuiShapeEditor gui)
+        if (entity != null)
         {
-            this.shape = shape;
+            consumer.accept(entity.getPos());
+            this.initGui();
+        }
+    }
+
+    public static void createBoxInputs(int x1, int y1, int x2, int y2, int textFieldWidth,
+                                       Supplier<Box> supplier, Consumer<Box> consumer, GuiBase gui)
+    {
+        int yInc = 16;
+        addLabel(x1, y1           , CoordinateType.X, gui);
+        addLabel(x1, y1 + yInc    , CoordinateType.Y, gui);
+        addLabel(x1, y1 + yInc * 2, CoordinateType.Z, gui);
+
+        addLabel(x2, y2           , CoordinateType.X, gui);
+        addLabel(x2, y2 + yInc    , CoordinateType.Y, gui);
+        addLabel(x2, y2 + yInc * 2, CoordinateType.Z, gui);
+
+        Box box = supplier.get();
+        MutableWrapperBox mutableBox = new MutableWrapperBox(box, consumer);
+        int x = x1 + 12;
+
+        addBoxInput(x, y1            + 1, textFieldWidth, mutableBox::getMinX, mutableBox::setMinX, gui);
+        addBoxInput(x, y1 + yInc     + 1, textFieldWidth, mutableBox::getMinY, mutableBox::setMinY, gui);
+        addBoxInput(x, y1 + yInc * 2 + 1, textFieldWidth, mutableBox::getMinZ, mutableBox::setMinZ, gui);
+
+        x = x2 + 12;
+        addBoxInput(x, y2            + 1, textFieldWidth, mutableBox::getMaxX, mutableBox::setMaxX, gui);
+        addBoxInput(x, y2 + yInc     + 1, textFieldWidth, mutableBox::getMaxY, mutableBox::setMaxY, gui);
+        addBoxInput(x, y2 + yInc * 2 + 1, textFieldWidth, mutableBox::getMaxZ, mutableBox::setMaxZ, gui);
+    }
+
+    protected static void addBoxInput(int x, int y, int textFieldWidth, DoubleSupplier coordinateSource,
+                                      DoubleConsumer coordinateConsumer, GuiBase gui)
+    {
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        GuiTextFieldGeneric textField = new GuiTextFieldGeneric(x, y + 1, textFieldWidth, 14, textRenderer);
+        textField.setText("" + coordinateSource.getAsDouble());
+
+        addTextFieldAndButtonForBoxCoordinate(x + textFieldWidth + 4, y, textField,
+                                              coordinateSource, coordinateConsumer, gui);
+    }
+
+    protected static int addLabel(int x, int y, CoordinateType type, GuiBase gui)
+    {
+        String label = type.name() + ":";
+        int labelWidth = 12;
+        gui.addLabel(x, y, labelWidth, 20, 0xFFFFFFFF, label);
+        return labelWidth;
+    }
+
+    protected static void addTextFieldAndButtonForBoxCoordinate(int x, int y, GuiTextFieldGeneric textField,
+                                                                DoubleSupplier coordinateSource,
+                                                                DoubleConsumer coordinateConsumer, GuiBase gui)
+    {
+        gui.addTextField(textField, new TextFieldListenerDouble(coordinateConsumer));
+
+        String hover = StringUtils.translate("malilib.gui.button.hover.plus_minus_tip");
+        ButtonGeneric button = new ButtonGeneric(x, y, MaLiLibIcons.BTN_PLUSMINUS_16, hover);
+        gui.addButton(button, new ButtonListenerDoubleModifier(coordinateSource, (v) -> {
+            coordinateConsumer.accept(v);
+            textField.setText("" + coordinateSource.getAsDouble());
+        }));
+    }
+
+    public static class MutableWrapperBox
+    {
+        protected final Consumer<Box> boxConsumer;
+        protected double minX;
+        protected double minY;
+        protected double minZ;
+        protected double maxX;
+        protected double maxY;
+        protected double maxZ;
+
+        public MutableWrapperBox(Box box, Consumer<Box> boxConsumer)
+        {
+            this.minX = box.x1;
+            this.minY = box.y1;
+            this.minZ = box.z1;
+            this.maxX = box.x2;
+            this.maxY = box.y2;
+            this.maxZ = box.z2;
+            this.boxConsumer = boxConsumer;
+        }
+
+        public double getMinX()
+        {
+            return this.minX;
+        }
+
+        public double getMinY()
+        {
+            return this.minY;
+        }
+
+        public double getMinZ()
+        {
+            return this.minZ;
+        }
+
+        public double getMaxX()
+        {
+            return this.maxX;
+        }
+
+        public double getMaxY()
+        {
+            return this.maxY;
+        }
+
+        public double getMaxZ()
+        {
+            return this.maxZ;
+        }
+
+        public void setMinX(double minX)
+        {
+            this.minX = minX;
+            this.updateBox();
+        }
+
+        public void setMinY(double minY)
+        {
+            this.minY = minY;
+            this.updateBox();
+        }
+
+        public void setMinZ(double minZ)
+        {
+            this.minZ = minZ;
+            this.updateBox();
+        }
+
+        public void setMaxX(double maxX)
+        {
+            this.maxX = maxX;
+            this.updateBox();
+        }
+
+        public void setMaxY(double maxY)
+        {
+            this.maxY = maxY;
+            this.updateBox();
+        }
+
+        public void setMaxZ(double maxZ)
+        {
+            this.maxZ = maxZ;
+            this.updateBox();
+        }
+
+        protected void updateBox()
+        {
+            Box box = new Box(this.minX, this.minY, this.minZ, this.maxX, this.maxY, this.maxZ);
+            this.boxConsumer.accept(box);
+        }
+    }
+
+    public static class Vec3dEditor implements ICoordinateValueModifier
+    {
+        private final Supplier<Vec3d> supplier;
+        private final Consumer<Vec3d> consumer;
+        private final GuiShapeEditor gui;
+
+        private Vec3dEditor(Supplier<Vec3d> supplier, Consumer<Vec3d> consumer, GuiShapeEditor gui) {
+            this.supplier = supplier;
+            this.consumer = consumer;
             this.gui = gui;
         }
 
         @Override
         public boolean modifyValue(CoordinateType type, int amount)
         {
-            this.shape.setCenter(PositionUtils.modifyValue(type, this.shape.getCenter(), amount));
+            this.consumer.accept(PositionUtils.modifyValue(type, this.supplier.get(), amount));
             this.gui.initGui();
             return true;
         }
@@ -261,7 +539,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         {
             try
             {
-                this.shape.setCenter(PositionUtils.setValue(type, this.shape.getCenter(), Double.parseDouble(newValue)));
+                this.consumer.accept(PositionUtils.setValue(type, this.supplier.get(), Double.parseDouble(newValue)));
                 return true;
             }
             catch (Exception ignore) {}
@@ -270,34 +548,10 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         }
     }
 
-    private static class ButtonListenerSphere implements IButtonActionListener
-    {
-        private final GuiShapeEditor gui;
-        private final ShapeCircleBase shape;
-
-        private ButtonListenerSphere(ShapeCircleBase shape, GuiShapeEditor gui)
-        {
-            this.shape = shape;
-            this.gui = gui;
-        }
-
-        @Override
-        public void actionPerformedWithButton(ButtonBase button, int mouseButton)
-        {
-            Entity entity = this.gui.mc.getCameraEntity();
-
-            if (entity != null)
-            {
-                this.shape.setCenter(entity.getPos());
-                this.gui.initGui();
-            }
-        }
-    }
-
     private static class ButtonListenerSphereBlockSnap implements IButtonActionListener
     {
-        private final GuiShapeEditor gui;
         private final ShapeCircleBase shape;
+        private final GuiShapeEditor gui;
 
         private ButtonListenerSphereBlockSnap(ShapeCircleBase shape, GuiShapeEditor gui)
         {
@@ -353,7 +607,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         }
     }
 
-    private static class TextFieldListenerDouble implements ITextFieldListener<GuiTextFieldDouble>
+    private static class TextFieldListenerDouble implements ITextFieldListener<GuiTextFieldGeneric>
     {
         private final DoubleConsumer consumer;
 
@@ -363,7 +617,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         }
 
         @Override
-        public boolean onTextChange(GuiTextFieldDouble textField)
+        public boolean onTextChange(GuiTextFieldGeneric textField)
         {
             try
             {
@@ -526,7 +780,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
             int width = this.getWidth();
             int height = this.getHeight();
 
-            RenderUtils.drawRect(x    , y + 0, width    , height    , 0xFFFFFFFF, z);
+            RenderUtils.drawRect(x    , y    , width    , height    , 0xFFFFFFFF, z);
             RenderUtils.drawRect(x + 1, y + 1, width - 2, height - 2, 0xFF000000, z);
             RenderUtils.drawRect(x + 2, y + 2, width - 4, height - 4, 0xFF000000 | this.config.getIntegerValue(), z);
         }
