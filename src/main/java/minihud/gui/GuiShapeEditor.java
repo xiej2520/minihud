@@ -7,7 +7,7 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
-import malilib.config.option.OptionListConfig;
+import malilib.config.option.OptionConfig;
 import malilib.config.value.BlockSnap;
 import malilib.gui.BaseScreen;
 import malilib.gui.config.BaseConfigScreen;
@@ -24,7 +24,7 @@ import malilib.gui.widget.IntegerTextFieldWidget;
 import malilib.gui.widget.LabelWidget;
 import malilib.gui.widget.Vec3dEditWidget;
 import malilib.gui.widget.button.GenericButton;
-import malilib.gui.widget.button.OptionListConfigButton;
+import malilib.gui.widget.button.OptionConfigButton;
 import malilib.input.ActionResult;
 import malilib.util.ListUtils;
 import malilib.util.data.DualDoubleConsumer;
@@ -41,14 +41,14 @@ import minihud.util.value.ShapeRenderType;
 public class GuiShapeEditor extends BaseLayerRangeEditScreen
 {
     private final ShapeBase shape;
-    private final OptionListConfig<BlockSnap> configBlockSnap;
+    private final OptionConfig<BlockSnap> configBlockSnap;
 
     public GuiShapeEditor(ShapeBase shape)
     {
         super("minihud_shape_editor", ConfigScreen.ALL_TABS, ConfigScreen.SHAPES, shape.getLayerRange());
 
         this.shape = shape;
-        this.configBlockSnap = new OptionListConfig<>("blockSnap", BlockSnap.NONE, BlockSnap.VALUES, "");
+        this.configBlockSnap = new OptionConfig<>("blockSnap", BlockSnap.NONE, BlockSnap.VALUES, "");
 
         this.setTitle("minihud.title.screen.shape_editor", Reference.MOD_VERSION);
     }
@@ -165,7 +165,7 @@ public class GuiShapeEditor extends BaseLayerRangeEditScreen
 
         this.configBlockSnap.setValue(shape.getBlockSnap());
 
-        OptionListConfigButton buttonSnap = new OptionListConfigButton(-1, 20, this.configBlockSnap, "minihud.button.shapes.block_snap");
+        OptionConfigButton buttonSnap = new OptionConfigButton(-1, 20, this.configBlockSnap, "minihud.button.shapes.block_snap");
         buttonSnap.setPosition(editWidget.getRight() + 12, y);
         buttonSnap.setChangeListener(this::onBlockSnapChanged);
         this.addWidget(buttonSnap);
