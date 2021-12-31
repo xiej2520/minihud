@@ -61,6 +61,7 @@ import fi.dy.masa.minihud.mixin.IMixinWorldRenderer;
 import fi.dy.masa.minihud.renderer.OverlayRenderer;
 import fi.dy.masa.minihud.util.DataStorage;
 import fi.dy.masa.minihud.util.MiscUtils;
+import net.minecraft.world.dimension.DimensionType;
 
 public class RenderHandler implements IRenderer
 {
@@ -280,7 +281,7 @@ public class RenderHandler implements IRenderer
         MinecraftClient mc = this.mc;
         Entity entity = mc.getCameraEntity();
         World world = entity.getEntityWorld();
-        double y = entity.getBoundingBox().y1;
+        double y = entity.getY();
         BlockPos pos = new BlockPos(entity.getX(), y, entity.getZ());
         ChunkPos chunkPos = new ChunkPos(pos);
 
@@ -415,16 +416,22 @@ public class RenderHandler implements IRenderer
             }
         }
         else if (type == InfoToggle.COORDINATES ||
+                 type == InfoToggle.COORDINATES_SCALED ||
                  type == InfoToggle.DIMENSION)
         {
             // Don't add the same line multiple times
-            if (this.addedTypes.contains(InfoToggle.COORDINATES) || this.addedTypes.contains(InfoToggle.DIMENSION))
+            if (this.addedTypes.contains(InfoToggle.COORDINATES) ||
+                this.addedTypes.contains(InfoToggle.COORDINATES_SCALED) ||
+                this.addedTypes.contains(InfoToggle.DIMENSION))
             {
                 return;
             }
 
             String pre = "";
             StringBuilder str = new StringBuilder(128);
+            String fmtStr = Configs.Generic.COORDINATE_FORMAT_STRING.getStringValue();
+            double x = entity.getX();
+            double z = entity.getZ();
 
             if (InfoToggle.COORDINATES.getBooleanValue())
             {
@@ -432,8 +439,7 @@ public class RenderHandler implements IRenderer
                 {
                     try
                     {
-                        str.append(String.format(Configs.Generic.COORDINATE_FORMAT_STRING.getStringValue(),
-                            entity.getX(), y, entity.getZ()));
+                        str.append(String.format(fmtStr, x, y, z));
                     }
                     // Uh oh, someone done goofed their format string... :P
                     catch (Exception e)
@@ -443,8 +449,46 @@ public class RenderHandler implements IRenderer
                 }
                 else
                 {
-                    str.append(String.format("XYZ: %.2f / %.4f / %.2f",
-                        entity.getX(), y, entity.getZ()));
+                    str.append(String.format("XYZ: %.2f / %.4f / %.2f", x, y, z));
+                }
+
+                pre = " / ";
+            }
+
+            if (InfoToggle.COORDINATES_SCALED.getBooleanValue() &&
+                (world.dimension.isNether() || world.dimension.getType() == DimensionType.OVERWORLD))
+            {
+                boolean isNether = world.dimension.isNether();
+                double scale = isNether ? 8.0 : 1.0 / 8.0;
+                x *= scale;
+                z *= scale;
+
+                str.append(pre);
+
+                if (isNether)
+                {
+                    str.append("Overworld: ");
+                }
+                else
+                {
+                    str.append("Nether: ");
+                }
+
+                if (Configs.Generic.USE_CUSTOMIZED_COORDINATES.getBooleanValue())
+                {
+                    try
+                    {
+                        str.append(String.format(fmtStr, x, y, z));
+                    }
+                    // Uh oh, someone done goofed their format string... :P
+                    catch (Exception e)
+                    {
+                        str.append("broken coordinate format string!");
+                    }
+                }
+                else
+                {
+                    str.append(String.format("XYZ: %.2f / %.4f / %.2f", x, y, z));
                 }
 
                 pre = " / ";
@@ -459,6 +503,7 @@ public class RenderHandler implements IRenderer
             this.addLine(str.toString());
 
             this.addedTypes.add(InfoToggle.COORDINATES);
+            this.addedTypes.add(InfoToggle.COORDINATES_SCALED);
             this.addedTypes.add(InfoToggle.DIMENSION);
         }
         else if (type == InfoToggle.BLOCK_POS ||
