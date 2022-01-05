@@ -307,6 +307,7 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
 
         final int worldTopHeight = world.getHeight();
         final boolean collisionCheck = Configs.Generic.LIGHT_LEVEL_COLLISION_CHECK.getBooleanValue();
+        final boolean underWater = Configs.Generic.LIGHT_LEVEL_UNDER_WATER.getBooleanValue();
         final boolean autoHeight = Configs.Generic.LIGHT_LEVEL_AUTO_HEIGHT.getBooleanValue();
 
         for (int cx = minCX; cx <= maxCX; ++cx)
@@ -337,12 +338,18 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
                             mutablePos.set(x, y, z);
                             IBlockState state = chunk.getBlockState(mutablePos);
 
-                            if (collisionCheck) {
+                            if (collisionCheck)
+                            {
                                 AxisAlignedBB bb = state.getCollisionBoundingBox(world, mutablePos);
                                 // check if hitbox contains the top center of the block below: (0.5, 0.5), and y is nonempty (snow layer 1)
-                                if (bb != null && (bb.minX < 0.5 && bb.maxX > 0.5 && bb.minY != bb.maxY && bb.minZ < 0.5 && bb.maxZ > 0.5)) {
+                                if (bb != null && (bb.minX < 0.5 && bb.maxX > 0.5 && bb.minY != bb.maxY && bb.minZ < 0.5 && bb.maxZ > 0.5))
+                                {
                                     continue;
                                 }
+                            }
+                            if (underWater == false && BlockUtils.isFluidBlock(state))
+                            {
+                                continue;
                             }
 
                             int block = y < worldTopHeight ? chunk.getLightFor(EnumSkyBlock.BLOCK, mutablePos) : 0;

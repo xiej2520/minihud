@@ -56,6 +56,7 @@ public class Configs
         public static final DoubleConfig  LIGHT_LEVEL_RENDER_OFFSET             = new DoubleConfig( "lightLevelRenderOffset", 0.005, 0.0, 1.0);
         public static final BooleanConfig LIGHT_LEVEL_RENDER_THROUGH            = new BooleanConfig("lightLevelRenderThrough", false);
         public static final IntegerConfig LIGHT_LEVEL_THRESHOLD                 = new IntegerConfig("lightLevelThreshold", 8, 0, 15);
+        public static final BooleanConfig LIGHT_LEVEL_UNDER_WATER               = new BooleanConfig("lightLevelUnderWater", false);
         public static final BooleanConfig MAP_PREVIEW                           = new BooleanConfig("mapPreview", false);
         public static final BooleanConfig MAP_PREVIEW_REQUIRE_SHIFT             = new BooleanConfig("mapPreviewRequireShift", true);
         public static final IntegerConfig MAP_PREVIEW_SIZE                      = new IntegerConfig("mapPreviewSize", 160, 16, 512);
@@ -114,6 +115,7 @@ public class Configs
                 LIGHT_LEVEL_RENDER_OFFSET,
                 LIGHT_LEVEL_RENDER_THROUGH,
                 LIGHT_LEVEL_THRESHOLD,
+                LIGHT_LEVEL_UNDER_WATER,
                 MAP_PREVIEW,
                 MAP_PREVIEW_REQUIRE_SHIFT,
                 MAP_PREVIEW_SIZE,
