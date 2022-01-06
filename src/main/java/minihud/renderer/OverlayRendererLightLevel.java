@@ -7,6 +7,7 @@ import malilib.overlay.message.MessageDispatcher;
 import malilib.util.game.BlockUtils;
 import minihud.util.value.LightLevelRenderCondition;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.block.material.Material;
@@ -325,15 +326,24 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
                 final int startZ = Math.max( cz << 4      , minZ);
                 final int endZ   = Math.min((cz << 4) + 15, maxZ);
                 Chunk chunk = world.getChunk(cx, cz);
+                final int startY = Math.max(minY, 0); // TODO: world.getMinY()?
+                final int endY   = Math.min(maxY, chunk.getTopFilledSegment() + 15 + 1);
 
-                for (int x = startX; x <= endX; ++x)
+                for (int y = startY; y <= endY; ++y)
                 {
-                    for (int z = startZ; z <= endZ; ++z)
+                    if (y > startY)
                     {
-                        final int startY = Math.max(minY, 0);
-                        final int endY   = Math.min(maxY, chunk.getTopFilledSegment() + 15 + 1);
+                        // If there are no blocks in the section below this layer, then we can skip it
+                        ExtendedBlockStorage section = chunk.getBlockStorageArray()[(y - 1) >> 4];
+                        if (section == null || section.isEmpty())
+                        {
+                            continue;
+                        }
+                    }
 
-                        for (int y = startY; y <= endY; ++y)
+                    for (int x = startX; x <= endX; ++x)
+                    {
+                        for (int z = startZ; z <= endZ; ++z)
                         {
                             if (this.canSpawnAtWrapper(x, y, z, chunk, world) == false)
                             {
