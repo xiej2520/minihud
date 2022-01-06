@@ -2,6 +2,7 @@ package minihud.renderer;
 
 import malilib.render.overlay.BaseOverlayRenderer;
 import malilib.render.overlay.OverlayRendererContainer;
+import minihud.config.Configs;
 import minihud.config.RendererToggle;
 
 public class RenderContainer
