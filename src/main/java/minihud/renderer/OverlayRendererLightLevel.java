@@ -6,6 +6,7 @@ import java.util.List;
 import malilib.overlay.message.MessageDispatcher;
 import malilib.util.game.BlockUtils;
 import minihud.util.value.LightLevelRenderCondition;
+import net.minecraft.block.Block;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import org.lwjgl.opengl.GL11;
@@ -315,6 +316,7 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
         final boolean collisionCheck = Configs.Generic.LIGHT_LEVEL_COLLISION_CHECK.getBooleanValue();
         final boolean underWater = Configs.Generic.LIGHT_LEVEL_UNDER_WATER.getBooleanValue();
         final boolean autoHeight = Configs.Generic.LIGHT_LEVEL_AUTO_HEIGHT.getBooleanValue();
+        final boolean skipBlockCheck = Configs.Generic.LIGHT_LEVEL_SKIP_BLOCK_CHECK.getBooleanValue();
 
         for (int cx = minCX; cx <= maxCX; ++cx)
         {
@@ -345,7 +347,7 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
                     {
                         for (int z = startZ; z <= endZ; ++z)
                         {
-                            if (this.canSpawnAtWrapper(x, y, z, chunk, world) == false)
+                            if (this.canSpawnAtWrapper(x, y, z, chunk, world, skipBlockCheck) == false)
                             {
                                 continue;
                             }
@@ -386,11 +388,11 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
         }
     }
 
-    private boolean canSpawnAtWrapper(int x, int y, int z, Chunk chunk, World world)
+    private boolean canSpawnAtWrapper(int x, int y, int z, Chunk chunk, World world, boolean skipBlockCheck)
     {
         try
         {
-            return canSpawnAt(x, y, z, chunk, world);
+            return canSpawnAt(x, y, z, chunk, world, skipBlockCheck);
         }
         catch (Exception e)
         {
@@ -404,36 +406,41 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
     /**
      * This method mimics the one from WorldEntitySpawner, but takes in the Chunk to avoid that lookup
      */
-    public static boolean canSpawnAt(int x, int y, int z, Chunk chunk, World world)
+    public static boolean canSpawnAt(int x, int y, int z, Chunk chunk, World world, boolean skipBlockCheck)
     {
         BlockPos.MutBlockPos pos = new BlockPos.MutBlockPos(x, y - 1, z); // TODO: where to allocate
         IBlockState stateDown = chunk.getBlockState(pos);
-        if (stateDown.isTopSolid() == false ||
-            stateDown.getBlock() == Blocks.BEDROCK ||
-            stateDown.getBlock() == Blocks.BARRIER)
+        if (skipBlockCheck)
         {
-            return false;
+            if (stateDown.getBlock().equals(Blocks.AIR) || BlockUtils.isFluidBlock(stateDown))
+            {
+                return false;
+            }
         }
         else
         {
-            pos.set(x, y, z);
-            IBlockState state = chunk.getBlockState(pos);
-
-            pos.set(x, y + 1, z);
-            IBlockState stateUp = chunk.getBlockState(pos);
-
-            if (state.getMaterial() == Material.WATER)
+            if (stateDown.isTopSolid() == false || stateDown.getBlock() == Blocks.BEDROCK || stateDown.getBlock() == Blocks.BARRIER)
             {
-                pos.set(x, y + 2, z);
-                IBlockState stateUp2 = chunk.getBlockState(pos);
-
-                return stateUp.getMaterial() == Material.WATER &&
-                       stateUp2.isNormalCube() == false;
+                return false;
             }
-
-            return WorldEntitySpawner.isValidEmptySpawnBlock(state) &&
-                   WorldEntitySpawner.isValidEmptySpawnBlock(stateUp);
         }
+        pos.set(x, y, z);
+        IBlockState state = chunk.getBlockState(pos);
+
+        pos.set(x, y + 1, z);
+        IBlockState stateUp = chunk.getBlockState(pos);
+
+        if (state.getMaterial() == Material.WATER)
+        {
+            pos.set(x, y + 2, z);
+            IBlockState stateUp2 = chunk.getBlockState(pos);
+
+            return stateUp.getMaterial() == Material.WATER &&
+                   stateUp2.isNormalCube() == false;
+        }
+
+        return WorldEntitySpawner.isValidEmptySpawnBlock(state) &&
+               WorldEntitySpawner.isValidEmptySpawnBlock(stateUp);
     }
 
     public static class LightLevelInfo
