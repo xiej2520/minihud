@@ -1,6 +1,7 @@
 package fi.dy.masa.minihud.renderer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -351,16 +352,27 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
             {
                 final int startZ = Math.max( cz << 4      , minZ);
                 final int endZ   = Math.min((cz << 4) + 15, maxZ);
-                Chunk chunk = world.getChunk(cx, cz);
+                WorldChunk chunk = world.getChunk(cx, cz);
+                final int startY = Math.max(minY, 0);
+                final int endY   = Math.min(maxY, chunk.getHighestNonEmptySectionYOffset() + 15 + 1);
 
-                for (int x = startX; x <= endX; ++x)
+                for (int y = startY; y <= endY; ++y)
                 {
-                    for (int z = startZ; z <= endZ; ++z)
+                    if (y > startY)
                     {
-                        final int startY = Math.max(minY, 0);
-                        final int endY   = Math.min(maxY, chunk.getHighestNonEmptySectionYOffset() + 15 + 1);
+                        // If there are no blocks in the section below this layer, then we can skip it
+                        // FIXME: chunk.getSectionIndex(y - 1) in 1.17+
+                        ChunkSection section = chunk.getSectionArray()[(y - 1) >> 4];
+                        if (section == null || section.isEmpty())
+                        {
+                            //y += 16 - (y & 0xF);
+                            continue;
+                        }
+                    }
 
-                        for (int y = startY; y <= endY; ++y)
+                    for (int x = startX; x <= endX; ++x)
+                    {
+                        for (int z = startZ; z <= endZ; ++z)
                         {
                             if (this.canSpawnAtWrapper(x, y, z, chunk, world) == false)
                             {
