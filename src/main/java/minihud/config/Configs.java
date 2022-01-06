@@ -22,6 +22,7 @@ import minihud.Reference;
 import minihud.util.value.BlockGridMode;
 import minihud.util.value.LightLevelMarkerMode;
 import minihud.util.value.LightLevelNumberMode;
+import minihud.util.value.LightLevelRenderCondition;
 
 public class Configs
 {
@@ -81,9 +82,11 @@ public class Configs
         public static final BooleanConfig WOOL_COUNTER_ENABLE_ALL               = new BooleanConfig("woolCounterEnableAll", true);
         public static final StringConfig  WOOL_COUNTER_TYPES                    = new StringConfig( "woolCounterTypes", "0-15");
 
-        public static final OptionListConfig<BlockGridMode>         BLOCK_GRID_OVERLAY_MODE  = new OptionListConfig<>("blockGridOverlayMode", BlockGridMode.ALL, BlockGridMode.VALUES);
-        public static final OptionListConfig<LightLevelMarkerMode>  LIGHT_LEVEL_MARKER_MODE  = new OptionListConfig<>("lightLevelMarkers", LightLevelMarkerMode.SQUARE, LightLevelMarkerMode.VALUES);
-        public static final OptionListConfig<LightLevelNumberMode>  LIGHT_LEVEL_NUMBER_MODE  = new OptionListConfig<>("lightLevelNumbers", LightLevelNumberMode.BLOCK, LightLevelNumberMode.VALUES);
+        public static final OptionListConfig<BlockGridMode>             BLOCK_GRID_OVERLAY_MODE      = new OptionListConfig<>("blockGridOverlayMode", BlockGridMode.ALL, BlockGridMode.VALUES);
+        public static final OptionListConfig<LightLevelRenderCondition> LIGHT_LEVEL_MARKER_CONDITION = new OptionListConfig<>("lightLevelMarkerCondition", LightLevelRenderCondition.SPAWNABLE, LightLevelRenderCondition.VALUES);
+        public static final OptionListConfig<LightLevelRenderCondition> LIGHT_LEVEL_NUMBER_CONDITION = new OptionListConfig<>("lightLevelNumberCondition", LightLevelRenderCondition.ALWAYS, LightLevelRenderCondition.VALUES);
+        public static final OptionListConfig<LightLevelMarkerMode>      LIGHT_LEVEL_MARKER_MODE      = new OptionListConfig<>("lightLevelMarkers", LightLevelMarkerMode.SQUARE, LightLevelMarkerMode.VALUES);
+        public static final OptionListConfig<LightLevelNumberMode>      LIGHT_LEVEL_NUMBER_MODE      = new OptionListConfig<>("lightLevelNumbers", LightLevelNumberMode.BLOCK, LightLevelNumberMode.VALUES);
 
         public static final ImmutableList<ConfigOption<?>> OPTIONS = ImmutableList.of(
                 BEACON_RANGE_AUTO_UPDATE,
@@ -105,9 +108,11 @@ public class Configs
                 LIGHT_LEVEL_AUTO_HEIGHT,
                 LIGHT_LEVEL_COLLISION_CHECK,
                 LIGHT_LEVEL_COLORED_NUMBERS,
+                LIGHT_LEVEL_MARKER_CONDITION,
                 LIGHT_LEVEL_MARKER_MODE,
                 LIGHT_LEVEL_MARKER_SIZE,
                 LIGHT_LEVEL_NUMBER_MODE,
+                LIGHT_LEVEL_NUMBER_CONDITION,
                 LIGHT_LEVEL_NUMBER_OFFSET_BLOCK,
                 LIGHT_LEVEL_NUMBER_OFFSET_SKY,
                 LIGHT_LEVEL_NUMBER_ROTATION,
@@ -154,12 +159,13 @@ public class Configs
         public static final ColorConfig BEACON_RANGE_LVL3_OVERLAY_COLOR     = new ColorConfig("beaconRangeLvl3",            "#20FFF040");
         public static final ColorConfig BEACON_RANGE_LVL4_OVERLAY_COLOR     = new ColorConfig("beaconRangeLvl4",            "#2060FF40");
         public static final ColorConfig BLOCK_GRID_OVERLAY_COLOR            = new ColorConfig("blockGrid",                  "#80FFFFFF");
+        public static final ColorConfig LIGHT_LEVEL_MARKER_BLOCK_LIT        = new ColorConfig("lightLevelMarkerBlockLit",   "#FFFFFF33");
         public static final ColorConfig LIGHT_LEVEL_MARKER_DARK             = new ColorConfig("lightLevelMarkerDark",       "#FFFF4848");
-        public static final ColorConfig LIGHT_LEVEL_MARKER_LIT              = new ColorConfig("lightLevelMarkerLit",        "#FFFFFF33");
+        public static final ColorConfig LIGHT_LEVEL_MARKER_SKY_LIT          = new ColorConfig("lightLevelMarkerSkyLit",     "#FFFFFF33");
         public static final ColorConfig LIGHT_LEVEL_NUMBER_BLOCK_DARK       = new ColorConfig("lightLevelNumberBlockDark",  "#FFC03030");
         public static final ColorConfig LIGHT_LEVEL_NUMBER_BLOCK_LIT        = new ColorConfig("lightLevelNumberBlockLit",   "#FF209040");
         public static final ColorConfig LIGHT_LEVEL_NUMBER_SKY_DARK         = new ColorConfig("lightLevelNumberSkyDark",    "#FFFFF030");
-        public static final ColorConfig LIGHT_LEVEL_NUMBER_SKY_LIT          = new ColorConfig("lightLevelNumberSkyLit",     "#FF40E0FF");
+        public static final ColorConfig LIGHT_LEVEL_NUMBER_SKY_LIT          = new ColorConfig("lightLevelNumberSkyLit",     "#FF20FF40");
         public static final ColorConfig RANDOM_TICKS_FIXED_OVERLAY_COLOR    = new ColorConfig("randomTicksFixed",           "#40F9F225");
         public static final ColorConfig RANDOM_TICKS_PLAYER_OVERLAY_COLOR   = new ColorConfig("randomTicksPlayer",          "#4030FE73");
         public static final ColorConfig REGION_OVERLAY_COLOR                = new ColorConfig("regionFileBorders",          "#40FF8019");
@@ -186,7 +192,8 @@ public class Configs
                 BEACON_RANGE_LVL4_OVERLAY_COLOR,
                 BLOCK_GRID_OVERLAY_COLOR,
                 LIGHT_LEVEL_MARKER_DARK,
-                LIGHT_LEVEL_MARKER_LIT,
+                LIGHT_LEVEL_MARKER_BLOCK_LIT,
+                LIGHT_LEVEL_MARKER_SKY_LIT,
                 LIGHT_LEVEL_NUMBER_BLOCK_DARK,
                 LIGHT_LEVEL_NUMBER_BLOCK_LIT,
                 LIGHT_LEVEL_NUMBER_SKY_DARK,

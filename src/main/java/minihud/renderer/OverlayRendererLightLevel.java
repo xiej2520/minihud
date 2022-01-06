@@ -5,6 +5,7 @@ import java.util.List;
 
 import malilib.overlay.message.MessageDispatcher;
 import malilib.util.game.BlockUtils;
+import minihud.util.value.LightLevelRenderCondition;
 import net.minecraft.util.math.AxisAlignedBB;
 import org.lwjgl.opengl.GL11;
 
@@ -174,9 +175,12 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
 
     protected void renderMarkers(IMarkerRenderer renderer, Vec3d cameraPos, int lightThreshold)
     {
-        double markerSize = Configs.Generic.LIGHT_LEVEL_MARKER_SIZE.getDoubleValue();
-        Color4f colorLit = Configs.Colors.LIGHT_LEVEL_MARKER_LIT.getColor();
+        Color4f colorBlockLit = Configs.Colors.LIGHT_LEVEL_MARKER_BLOCK_LIT.getColor();
+        Color4f colorSkyLit = Configs.Colors.LIGHT_LEVEL_MARKER_SKY_LIT.getColor();
         Color4f colorDark = Configs.Colors.LIGHT_LEVEL_MARKER_DARK.getColor();
+        LightLevelRenderCondition condition = Configs.Generic.LIGHT_LEVEL_MARKER_CONDITION.getValue();
+        double markerSize = Configs.Generic.LIGHT_LEVEL_MARKER_SIZE.getDoubleValue();
+
         double offsetX = cameraPos.x;
         double offsetY = cameraPos.y - Configs.Generic.LIGHT_LEVEL_RENDER_OFFSET.getDoubleValue();
         double offsetZ = cameraPos.z;
@@ -187,15 +191,13 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
 
         for (LightLevelInfo info : this.lightInfoList)
         {
-            if (info.block < lightThreshold)
-            {
+            if (condition.shouldRender(info.block, lightThreshold)) {
                 BlockPos pos = BlockPos.fromPacked(info.packedPos);
-                Color4f color = info.sky >= lightThreshold ? colorLit : colorDark;
-
                 double x = pos.getX() - offsetX;
                 double y = (autoHeight ? info.y : pos.getY()) - offsetY;
                 double z = pos.getZ() - offsetZ;
 
+                Color4f color = info.block >= lightThreshold ? colorBlockLit : (info.sky >= lightThreshold ? colorSkyLit : colorDark);
                 renderer.render(x, y, z, color, offset1, offset2, lineBuilder);
             }
         }
@@ -205,18 +207,21 @@ public class OverlayRendererLightLevel extends MiniHudOverlayRenderer
                                            int lightThreshold, LightLevelNumberMode numberMode,
                                            Color4f colorLit, Color4f colorDark)
     {
+        LightLevelRenderCondition condition = Configs.Generic.LIGHT_LEVEL_NUMBER_CONDITION.getValue();
         boolean autoHeight = Configs.Generic.LIGHT_LEVEL_AUTO_HEIGHT.getBooleanValue();
 
         for (LightLevelInfo info : this.lightInfoList)
         {
-            int lightLevel = numberMode == LightLevelNumberMode.BLOCK ? info.block : info.sky;
-            Color4f color = lightLevel >= lightThreshold ? colorLit : colorDark;
-            BlockPos pos = BlockPos.fromPacked(info.packedPos);
-            double x = pos.getX() - dx;
-            double y = (autoHeight ? info.y : pos.getY()) - dy;
-            double z = pos.getZ() - dz;
+            if (condition.shouldRender(info.block, lightThreshold)) {
+                BlockPos pos = BlockPos.fromPacked(info.packedPos);
+                double x = pos.getX() - dx;
+                double y = (autoHeight ? info.y : pos.getY()) - dy;
+                double z = pos.getZ() - dz;
 
-            this.renderLightLevelTextureColor(x, y, z, facing, lightLevel, color, this.quadBuilder);
+                int lightLevel = numberMode == LightLevelNumberMode.BLOCK ? info.block : info.sky;
+                Color4f color = lightLevel >= lightThreshold ? colorLit : colorDark;
+                this.renderLightLevelTextureColor(x, y, z, facing, lightLevel, color, this.quadBuilder);
+            }
         }
     }
 
