@@ -3,7 +3,6 @@ package fi.dy.masa.minihud.renderer;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -31,6 +30,7 @@ public class RenderContainer
     private RenderContainer()
     {
         this.addRenderer(new OverlayRendererBeaconRange());
+        this.addRenderer(OverlayRendererBiomeBorders.INSTANCE);
         this.addRenderer(new OverlayRendererBlockGrid());
         this.addRenderer(OverlayRendererLightLevel.INSTANCE);
         this.addRenderer(new OverlayRendererRandomTickableChunks(RendererToggle.OVERLAY_RANDOM_TICKS_FIXED));
