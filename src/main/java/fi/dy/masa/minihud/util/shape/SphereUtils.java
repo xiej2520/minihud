@@ -1,11 +1,11 @@
 package fi.dy.masa.minihud.util.shape;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 public class SphereUtils
 {
@@ -46,17 +46,17 @@ public class SphereUtils
         return false;
     }
 
-    public static void addPositionsOnHorizontalBlockRing(LongOpenHashSet positions,
+    public static void addPositionsOnHorizontalBlockRing(Consumer<BlockPos.Mutable> positionConsumer,
                                                          BlockPos.Mutable mutablePos,
                                                          RingPositionTest test,
                                                          double radius)
     {
         Function<Direction, Direction> nextDirectionFunction = SphereUtils::getNextHorizontalDirection;
         Direction startDirection = Direction.EAST;
-        addPositionsOnBlockRing(positions, mutablePos, startDirection, test, nextDirectionFunction, radius);
+        addPositionsOnBlockRing(positionConsumer, mutablePos, startDirection, test, nextDirectionFunction, radius);
     }
 
-    public static void addPositionsOnVerticalBlockRing(LongOpenHashSet positions,
+    public static void addPositionsOnVerticalBlockRing(Consumer<BlockPos.Mutable> positionConsumer,
                                                        BlockPos.Mutable mutablePos,
                                                        Direction mainAxis,
                                                        RingPositionTest test,
@@ -64,10 +64,10 @@ public class SphereUtils
     {
         Function<Direction, Direction> nextDirectionFunction = (dir) -> SphereUtils.getNextVerticalRingDirection(dir, mainAxis);
         Direction startDirection = Direction.UP;
-        addPositionsOnBlockRing(positions, mutablePos, startDirection, test, nextDirectionFunction, radius);
+        addPositionsOnBlockRing(positionConsumer, mutablePos, startDirection, test, nextDirectionFunction, radius);
     }
 
-    public static void addPositionsOnBlockRing(LongOpenHashSet positions,
+    public static void addPositionsOnBlockRing(Consumer<BlockPos.Mutable> positionConsumer,
                                                BlockPos.Mutable mutablePos,
                                                Direction startDirection,
                                                RingPositionTest test,
@@ -80,7 +80,7 @@ public class SphereUtils
             Direction direction = startDirection;
             int failsafe = (int) (2.5 * Math.PI * radius); // a bit over the circumference
 
-            positions.add(firstPos.asLong());
+            positionConsumer.accept(mutablePos);
 
             while (--failsafe > 0)
             {
@@ -91,7 +91,7 @@ public class SphereUtils
                     break;
                 }
 
-                positions.add(mutablePos.asLong());
+                positionConsumer.accept(mutablePos);
             }
         }
     }
@@ -179,31 +179,34 @@ public class SphereUtils
      */
     protected static Direction getNextVerticalRingDirection(Direction currentDirection, Direction mainAxis)
     {
-        return switch (mainAxis)
-               {
-                   case UP, DOWN -> switch (currentDirection)
-                                    {
-                                        case NORTH -> Direction.DOWN;
-                                        case SOUTH -> Direction.UP;
-                                        case DOWN -> Direction.SOUTH;
-                                        default -> Direction.NORTH;
-                                    };
-                   case NORTH, SOUTH -> switch (currentDirection)
-                                        {
-                                            case WEST -> Direction.UP;
-                                            case EAST -> Direction.DOWN;
-                                            case DOWN -> Direction.WEST;
-                                            default -> Direction.EAST;
-                                        };
-                   case WEST, EAST -> switch (currentDirection)
-                                      {
-                                          case NORTH -> Direction.UP;
-                                          case SOUTH -> Direction.DOWN;
-                                          case DOWN -> Direction.NORTH;
-                                          default -> Direction.SOUTH;
-                                      };
-               };
-
+         switch (mainAxis) {
+             case UP:
+             case DOWN:
+                 switch (currentDirection) {
+                     case NORTH: return Direction.DOWN;
+                     case SOUTH: return Direction.UP;
+                     case DOWN:  return Direction.SOUTH;
+                     default:    return Direction.NORTH;
+                 }
+             case NORTH:
+             case SOUTH:
+                 switch (currentDirection) {
+                     case WEST: return Direction.UP;
+                     case EAST: return Direction.DOWN;
+                     case DOWN: return Direction.WEST;
+                     default:   return Direction.EAST;
+                 }
+             case WEST:
+             case EAST:
+                 switch (currentDirection) {
+                     case NORTH: return Direction.UP;
+                     case SOUTH: return Direction.DOWN;
+                     case DOWN:  return Direction.NORTH;
+                     default:    return Direction.SOUTH;
+                 }
+        };
+        // unreachable
+        return Direction.UP;
     }
 
     public interface RingPositionTest
