@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL11;
 
 public class ShapeBox extends ShapeBase
 {
-    protected static final Box EMPTY_BOX = new Box(0, 0, 0, 0, 0, 0);
+    public static final Box EMPTY_BOX = new Box(0, 0, 0, 0, 0, 0);
 
     protected Box box = EMPTY_BOX;
     protected Box renderPerimeter = EMPTY_BOX;

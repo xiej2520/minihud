@@ -17,11 +17,11 @@ import fi.dy.masa.malilib.util.StringUtils;
 
 public abstract class ShapeCircleBase extends ShapeBlocky
 {
-    protected BlockSnap snap = BlockSnap.CENTER;
     protected Direction mainAxis = Direction.UP;
+    private BlockSnap snap = BlockSnap.CENTER;
+    private final double maxRadius = 1024;
     private double radius;
     private double radiusSq;
-    private double maxRadius = 256.0; // TODO use per-chunk VBOs or something to allow bigger shapes?
     private Vec3d center = Vec3d.ZERO;
     private Vec3d effectiveCenter = Vec3d.ZERO;
 
@@ -77,6 +77,7 @@ public abstract class ShapeCircleBase extends ShapeBlocky
         {
             this.radius = radius;
             this.radiusSq = radius * radius;
+            this.setRenderPerimeter(this.effectiveCenter, this.radius + 512);
             this.setNeedsUpdate();
         }
     }
@@ -125,6 +126,7 @@ public abstract class ShapeCircleBase extends ShapeBlocky
             this.effectiveCenter = center;
         }
 
+        this.setRenderPerimeter(this.effectiveCenter, this.radius + 512);
         this.setNeedsUpdate();
     }
 
