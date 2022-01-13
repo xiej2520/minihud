@@ -10,6 +10,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.malilib.util.LayerRange;
 import fi.dy.masa.malilib.util.PositionUtils;
+import fi.dy.masa.minihud.renderer.shapes.SideQuad;
 import fi.dy.masa.minihud.util.ShapeRenderType;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -294,11 +295,8 @@ public class SphereUtils
 
         for (SideQuad strip : strips.values())
         {
-            final long pos = strip.startPos;
-            final Direction side = strip.side;
-            int x = BlockPos.unpackLongX(pos);
-            int y = BlockPos.unpackLongY(pos);
-            int z = BlockPos.unpackLongZ(pos);
+            final long pos = strip.startPos();
+            final Direction side = strip.side();
 
             if (isHandledAndMarkHandled(pos, side, handledPositions))
             {
@@ -312,7 +310,7 @@ public class SphereUtils
             final long startPos = offsetPos(pos, minDir, stripCountMin);
             final int height = stripCountMin + stripCountMax + 1;
 
-            quads.add(new SideQuad(startPos, strip.width, height, side));
+            quads.add(new SideQuad(startPos, strip.width(), height, side));
         }
 
         return quads;
@@ -323,9 +321,9 @@ public class SphereUtils
                                              Long2ObjectOpenHashMap<SideQuad> strips,
                                              Long2ByteOpenHashMap handledPositions)
     {
-        final long startPos = startStrip.startPos;
-        final Direction side = startStrip.side;
-        final int width = startStrip.width;
+        final long startPos = startStrip.startPos();
+        final Direction side = startStrip.side();
+        final int width = startStrip.width();
         long adjPos = BlockPos.offset(startPos, offsetSide);
         int count = 0;
 
@@ -336,7 +334,7 @@ public class SphereUtils
 
             // Note: the isHandled call needs to be the last call,
             // so that we don't mark things handled when they have not been handled!
-            if (adjStrip == null || adjStrip.width != width ||
+            if (adjStrip == null || adjStrip.width() != width ||
                 isHandledAndMarkHandled(adjPos, side, handledPositions))
             {
                 break;
@@ -375,9 +373,9 @@ public class SphereUtils
         return length;
     }
 
-    protected static boolean isHandledAndMarkHandled(long pos,
-                                                     Direction side,
-                                                     Long2ByteOpenHashMap handledPositions)
+    public static boolean isHandledAndMarkHandled(long pos,
+                                                  Direction side,
+                                                  Long2ByteOpenHashMap handledPositions)
     {
         byte sideMask = (byte) (1 << side.getId());
         byte val = handledPositions.get(pos);
@@ -400,48 +398,57 @@ public class SphereUtils
                                               LongOpenHashSet positions)
     {
         long adjPos = BlockPos.offset(pos, side);
-        boolean full = renderType == ShapeRenderType.FULL_BLOCK;
-        boolean render = full && positions.contains(adjPos) == false;
 
-        if (full == false)
+        if (positions.contains(adjPos))
         {
-            int adjX = BlockPos.unpackLongX(adjPos);
-            int adjY = BlockPos.unpackLongY(adjPos);
-            int adjZ = BlockPos.unpackLongZ(adjPos);
-            boolean onOrIn = test.isInsideOrCloserThan(adjX, adjY, adjZ, side);
-            render = ((renderType == ShapeRenderType.OUTER_EDGE && onOrIn == false) ||
-                      (renderType == ShapeRenderType.INNER_EDGE && onOrIn));
+            return false;
         }
 
-        return render;
+        if (renderType == ShapeRenderType.FULL_BLOCK)
+        {
+            return true;
+        }
+
+        int adjX = BlockPos.unpackLongX(adjPos);
+        int adjY = BlockPos.unpackLongY(adjPos);
+        int adjZ = BlockPos.unpackLongZ(adjPos);
+        boolean onOrIn = test.isInsideOrCloserThan(adjX, adjY, adjZ, side);
+
+        return ((renderType == ShapeRenderType.OUTER_EDGE && onOrIn == false) ||
+                (renderType == ShapeRenderType.INNER_EDGE && onOrIn));
     }
 
     public static Direction getNegativeDirectionFor(Direction.Axis axis)
     {
-        return switch (axis) {
-            case X -> Direction.WEST;
-            case Y -> Direction.DOWN;
-            case Z -> Direction.NORTH;
-        };
+        switch (axis) {
+            case X: return Direction.WEST;
+            case Y: return Direction.DOWN;
+            case Z: return Direction.NORTH;
+        }
+        // unreachable
+        return Direction.WEST;
     }
 
     public static Direction getPositiveDirectionFor(Direction.Axis axis)
     {
-        return switch (axis) {
-            case X -> Direction.EAST;
-            case Y -> Direction.UP;
-            case Z -> Direction.SOUTH;
-        };
+        switch (axis) {
+            case X: return Direction.EAST;
+            case Y: return Direction.UP;
+            case Z: return Direction.SOUTH;
+        }
+        // unreachable
+        return Direction.EAST;
     }
 
     public static Direction.Axis getThirdAxis(Direction.Axis axis1, Direction.Axis axis2)
     {
-        return switch (axis1)
-               {
-                   case X -> axis2 == Direction.Axis.Y ? Direction.Axis.Z : Direction.Axis.Y;
-                   case Y -> axis2 == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
-                   case Z -> axis2 == Direction.Axis.X ? Direction.Axis.Y : Direction.Axis.X;
-               };
+        switch (axis1) {
+            case X: return axis2 == Direction.Axis.Y ? Direction.Axis.Z : Direction.Axis.Y;
+            case Y: return axis2 == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
+            case Z: return axis2 == Direction.Axis.X ? Direction.Axis.Y : Direction.Axis.X;
+        }
+        // unreachable;
+        return Direction.Axis.X;
     }
 
     public static long offsetPos(long pos, Direction direction, int amount)
@@ -468,20 +475,5 @@ public class SphereUtils
     public interface RingPositionTest
     {
         boolean isInsideOrCloserThan(int x, int y, int z, Direction outsideDirection);
-    }
-
-    public record SideQuad(long startPos, int width, int height, Direction side)
-    {
-        @Override
-        public String toString()
-        {
-            return "SideQuad{start=" + String.format("BlockPos{x=%d,y=%d,z=%d}",
-                                                     BlockPos.unpackLongX(this.startPos),
-                                                     BlockPos.unpackLongY(this.startPos),
-                                                     BlockPos.unpackLongZ(this.startPos)) +
-                          ", width=" + this.width +
-                          ", height=" + this.height +
-                          ", side=" + this.side + '}';
-        }
     }
 }
