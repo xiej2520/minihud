@@ -57,7 +57,8 @@ public class Configs
         public static final DoubleConfig  LIGHT_LEVEL_RENDER_OFFSET             = new DoubleConfig( "lightLevelRenderOffset", 0.005, 0.0, 1.0);
         public static final BooleanConfig LIGHT_LEVEL_RENDER_THROUGH            = new BooleanConfig("lightLevelRenderThrough", false);
         public static final BooleanConfig LIGHT_LEVEL_SKIP_BLOCK_CHECK          = new BooleanConfig("lightLevelSkipBlockCheck", false);
-        public static final IntegerConfig LIGHT_LEVEL_THRESHOLD                 = new IntegerConfig("lightLevelThreshold", 8, 0, 15);
+        public static final IntegerConfig LIGHT_LEVEL_THRESHOLD_DIM             = new IntegerConfig("lightLevelThresholdDim", 7, 0, 15);
+        public static final IntegerConfig LIGHT_LEVEL_THRESHOLD_SAFE            = new IntegerConfig("lightLevelThresholdSafe", 8, 0, 15);
         public static final BooleanConfig LIGHT_LEVEL_UNDER_WATER               = new BooleanConfig("lightLevelUnderWater", false);
         public static final BooleanConfig MAP_PREVIEW                           = new BooleanConfig("mapPreview", false);
         public static final BooleanConfig MAP_PREVIEW_REQUIRE_SHIFT             = new BooleanConfig("mapPreviewRequireShift", true);
@@ -121,7 +122,8 @@ public class Configs
                 LIGHT_LEVEL_RENDER_OFFSET,
                 LIGHT_LEVEL_RENDER_THROUGH,
                 LIGHT_LEVEL_SKIP_BLOCK_CHECK,
-                LIGHT_LEVEL_THRESHOLD,
+                LIGHT_LEVEL_THRESHOLD_DIM,
+                LIGHT_LEVEL_THRESHOLD_SAFE,
                 LIGHT_LEVEL_UNDER_WATER,
                 MAP_PREVIEW,
                 MAP_PREVIEW_REQUIRE_SHIFT,
@@ -163,10 +165,13 @@ public class Configs
         public static final ColorConfig BLOCK_GRID_OVERLAY_COLOR            = new ColorConfig("blockGrid",                  "#80FFFFFF");
         public static final ColorConfig LIGHT_LEVEL_MARKER_BLOCK_LIT        = new ColorConfig("lightLevelMarkerBlockLit",   "#FFFFFF33");
         public static final ColorConfig LIGHT_LEVEL_MARKER_DARK             = new ColorConfig("lightLevelMarkerDark",       "#FFFF4848");
+        public static final ColorConfig LIGHT_LEVEL_MARKER_DIM              = new ColorConfig("lightLevelMarkerDim",        "#FFC0C040");
         public static final ColorConfig LIGHT_LEVEL_MARKER_SKY_LIT          = new ColorConfig("lightLevelMarkerSkyLit",     "#FFFFFF33");
         public static final ColorConfig LIGHT_LEVEL_NUMBER_BLOCK_DARK       = new ColorConfig("lightLevelNumberBlockDark",  "#FFC03030");
+        public static final ColorConfig LIGHT_LEVEL_NUMBER_BLOCK_DIM        = new ColorConfig("lightLevelNumberBlockDim",   "#FFC0C040");
         public static final ColorConfig LIGHT_LEVEL_NUMBER_BLOCK_LIT        = new ColorConfig("lightLevelNumberBlockLit",   "#FF209040");
         public static final ColorConfig LIGHT_LEVEL_NUMBER_SKY_DARK         = new ColorConfig("lightLevelNumberSkyDark",    "#FFFFF030");
+        public static final ColorConfig LIGHT_LEVEL_NUMBER_SKY_DIM          = new ColorConfig("lightLevelNumberSkyDim",     "#FFC0C030");
         public static final ColorConfig LIGHT_LEVEL_NUMBER_SKY_LIT          = new ColorConfig("lightLevelNumberSkyLit",     "#FF20FF40");
         public static final ColorConfig RANDOM_TICKS_FIXED_OVERLAY_COLOR    = new ColorConfig("randomTicksFixed",           "#40F9F225");
         public static final ColorConfig RANDOM_TICKS_PLAYER_OVERLAY_COLOR   = new ColorConfig("randomTicksPlayer",          "#4030FE73");
@@ -194,11 +199,14 @@ public class Configs
                 BEACON_RANGE_LVL4_OVERLAY_COLOR,
                 BLOCK_GRID_OVERLAY_COLOR,
                 LIGHT_LEVEL_MARKER_DARK,
+                LIGHT_LEVEL_MARKER_DIM,
                 LIGHT_LEVEL_MARKER_BLOCK_LIT,
                 LIGHT_LEVEL_MARKER_SKY_LIT,
                 LIGHT_LEVEL_NUMBER_BLOCK_DARK,
+                LIGHT_LEVEL_NUMBER_BLOCK_DIM,
                 LIGHT_LEVEL_NUMBER_BLOCK_LIT,
                 LIGHT_LEVEL_NUMBER_SKY_DARK,
+                LIGHT_LEVEL_NUMBER_SKY_DIM,
                 LIGHT_LEVEL_NUMBER_SKY_LIT,
                 RANDOM_TICKS_FIXED_OVERLAY_COLOR,
                 RANDOM_TICKS_PLAYER_OVERLAY_COLOR,

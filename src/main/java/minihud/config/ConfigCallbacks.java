@@ -57,7 +57,8 @@ public class ConfigCallbacks
         Configs.Generic.LIGHT_LEVEL_RENDER_OFFSET.addValueChangeListener(lightLevelUpdateCallback);
         Configs.Generic.LIGHT_LEVEL_RENDER_THROUGH.setValueChangeCallback((newValue, oldValue) -> RenderContainer.LIGHT_LEVEL_OVERLAY.setDisableDepthTest(newValue));
         Configs.Generic.LIGHT_LEVEL_RENDER_THROUGH.setValueLoadCallback(newValue -> RenderContainer.LIGHT_LEVEL_OVERLAY.setDisableDepthTest(newValue));
-        Configs.Generic.LIGHT_LEVEL_THRESHOLD.addValueChangeListener(lightLevelUpdateCallback);
+        Configs.Generic.LIGHT_LEVEL_THRESHOLD_DIM.addValueChangeListener(lightLevelUpdateCallback);
+        Configs.Generic.LIGHT_LEVEL_THRESHOLD_SAFE.addValueChangeListener(lightLevelUpdateCallback);
         Configs.Generic.STRUCTURES_RENDER_THROUGH.setValueChangeCallback((newValue, oldValue) -> RenderContainer.STRUCTURE_BOUNDING_BOXES_OVERLAY.setDisableDepthTest(newValue));
         Configs.Generic.STRUCTURES_RENDER_THROUGH.setValueLoadCallback(newValue -> RenderContainer.STRUCTURE_BOUNDING_BOXES_OVERLAY.setDisableDepthTest(newValue));
         Configs.Generic.WOOL_COUNTER_TYPES.setValueLoadCallback(WoolCounters.INSTANCE::updateEnabledCounters);
