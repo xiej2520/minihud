@@ -1,6 +1,9 @@
 package fi.dy.masa.minihud.renderer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -46,6 +49,11 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     //private long lastUpdateTime = System.nanoTime();
     private boolean needsUpdate;
     private boolean needsRenderUpdate;
+
+    private OverlayRendererBiomeBorders()
+    {
+        this.useCulling = true;
+    }
 
     public void setNeedsUpdate()
     {
@@ -125,14 +133,6 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     {
         this.allocateBuffer(GL11.GL_QUADS);
         this.allocateBuffer(GL11.GL_LINES);
-    }
-
-    @Override
-    protected void preRender()
-    {
-        super.preRender();
-
-        RenderSystem.enableCull();
     }
 
     protected void renderQuads(List<ColoredQuad> quads, BufferBuilder quadBuffer,
