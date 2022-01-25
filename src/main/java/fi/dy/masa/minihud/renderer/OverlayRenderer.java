@@ -43,7 +43,9 @@ public class OverlayRenderer
 
         if (RendererToggle.OVERLAY_BEACON_RANGE.getBooleanValue())
         {
+            mc.getProfiler().push(() -> "BeaconRangeHeldItem");
             OverlayRendererBeaconRange.renderBeaconBoxForPlayerIfHoldingItem(entity, matrixStack, mc);
+            mc.getProfiler().pop();
         }
 
         RenderContainer.INSTANCE.render(entity, matrixStack, mc, partialTicks);

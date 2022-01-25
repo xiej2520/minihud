@@ -78,12 +78,13 @@ public class RenderContainer
 
     protected void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
+        mc.getProfiler().push(() -> "RenderContainer#update()");
         this.allocateResourcesIfNeeded();
         this.countActive = 0;
 
-        for (int i = 0; i < this.renderers.size(); ++i)
+        for (OverlayRendererBase renderer : this.renderers)
         {
-            OverlayRendererBase renderer = this.renderers.get(i);
+            mc.getProfiler().push(() -> renderer.getClass().getName());
 
             if (renderer.shouldRender(mc))
             {
@@ -96,14 +97,18 @@ public class RenderContainer
 
                 ++this.countActive;
             }
+
+            mc.getProfiler().pop();
         }
+
+        mc.getProfiler().pop();
     }
 
     protected void draw(Vec3d cameraPos, MatrixStack matrixStack, MinecraftClient mc, float partialTicks)
     {
         if (this.resourcesAllocated && this.countActive > 0)
         {
-            RenderSystem.pushMatrix();
+            mc.getProfiler().push(() -> "RenderContainer#draw()");
 
             RenderSystem.disableTexture();
             RenderSystem.alphaFunc(GL11.GL_GREATER, 0.01F);
@@ -120,9 +125,9 @@ public class RenderContainer
             GlStateManager.enableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.enableClientState(GL11.GL_COLOR_ARRAY);
 
-            for (int i = 0; i < this.renderers.size(); ++i)
+            for (IOverlayRenderer renderer : this.renderers)
             {
-                IOverlayRenderer renderer = this.renderers.get(i);
+                mc.getProfiler().push(() -> renderer.getClass().getName());
 
                 if (renderer.shouldRender(mc))
                 {
@@ -134,6 +139,8 @@ public class RenderContainer
 
                     matrixStack.pop();
                 }
+
+                mc.getProfiler().pop();
             }
 
             VertexBuffer.unbind();
@@ -163,7 +170,8 @@ public class RenderContainer
             RenderSystem.enableCull();
             RenderSystem.depthMask(true);
             RenderSystem.enableTexture();
-            RenderSystem.popMatrix();
+
+            mc.getProfiler().pop();
         }
     }
 
@@ -180,9 +188,9 @@ public class RenderContainer
     {
         if (this.resourcesAllocated == false)
         {
-            for (int i = 0; i < this.renderers.size(); ++i)
+            for (OverlayRendererBase renderer : this.renderers)
             {
-                this.renderers.get(i).allocateGlResources();
+                renderer.allocateGlResources();
             }
 
             this.resourcesAllocated = true;
@@ -193,9 +201,9 @@ public class RenderContainer
     {
         if (this.resourcesAllocated)
         {
-            for (int i = 0; i < this.renderers.size(); ++i)
+            for (OverlayRendererBase renderer : this.renderers)
             {
-                this.renderers.get(i).deleteGlResources();
+                renderer.deleteGlResources();
             }
 
             this.resourcesAllocated = false;
@@ -206,9 +214,8 @@ public class RenderContainer
     {
         JsonObject obj = new JsonObject();
 
-        for (int i = 0; i < this.renderers.size(); ++i)
+        for (OverlayRendererBase renderer : this.renderers)
         {
-            OverlayRendererBase renderer = this.renderers.get(i);
             String id = renderer.getSaveId();
 
             if (id.isEmpty() == false)
@@ -222,9 +229,8 @@ public class RenderContainer
 
     public void fromJson(JsonObject obj)
     {
-        for (int i = 0; i < this.renderers.size(); ++i)
+        for (OverlayRendererBase renderer : this.renderers)
         {
-            OverlayRendererBase renderer = this.renderers.get(i);
             String id = renderer.getSaveId();
 
             if (id.isEmpty() == false && JsonUtils.hasObject(obj, id))
