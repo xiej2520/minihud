@@ -17,7 +17,6 @@ import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.minihud.config.RendererToggle;
-import fi.dy.masa.minihud.renderer.shapes.ShapeBase;
 
 public class RenderContainer
 {
@@ -43,7 +42,7 @@ public class RenderContainer
         this.addRenderer(OverlayRendererStructures.INSTANCE);
     }
 
-    private void addRenderer(OverlayRendererBase renderer)
+    public void addRenderer(OverlayRendererBase renderer)
     {
         if (this.resourcesAllocated)
         {
@@ -53,12 +52,7 @@ public class RenderContainer
         this.renderers.add(renderer);
     }
 
-    public void addShapeRenderer(ShapeBase renderer)
-    {
-        this.addRenderer(renderer);
-    }
-
-    public void removeShapeRenderer(ShapeBase renderer)
+    public void removeRenderer(OverlayRendererBase renderer)
     {
         this.renderers.remove(renderer);
 
