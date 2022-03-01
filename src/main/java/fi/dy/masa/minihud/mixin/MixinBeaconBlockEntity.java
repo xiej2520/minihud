@@ -18,28 +18,37 @@ public abstract class MixinBeaconBlockEntity extends BlockEntity
     private int level;
 
     @Unique
-    private int levelPre;
+    private int levelPre = -1;
 
     public MixinBeaconBlockEntity(BlockEntityType<?> type) {
         super(type);
     }
 
 
+    @Inject(method = "markRemoved", at = @At("RETURN"))
+    private void minihud_onRemoved(CallbackInfo ci)
+    {
+        OverlayRendererBeaconRange.INSTANCE.onBeaconLevelChange(this.getPos());
+    }
+
     @Inject(method = "tick",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/block/entity/BeaconBlockEntity;updateLevel(III)V"
             ))
-    private void onUpdateSegmentsPre(CallbackInfo ci)
+    private void minihud_onUpdateSegmentsPre(CallbackInfo ci)
     {
-        this.levelPre = this.level;
+        if (this.levelPre != -1) {
+            this.levelPre = this.level;
+        }
     }
 
     @Inject(method = "tick", at = @At("RETURN"))
-    private void onUpdateSegmentsPost(CallbackInfo ci)
+    private void minihud_onUpdateSegmentsPost(CallbackInfo ci)
     {
         if (this.levelPre != this.level)
         {
-            OverlayRendererBeaconRange.setNeedsUpdate();
+            OverlayRendererBeaconRange.INSTANCE.onBeaconLevelChange(pos);
+            this.levelPre = this.level;
         }
     }
 }
