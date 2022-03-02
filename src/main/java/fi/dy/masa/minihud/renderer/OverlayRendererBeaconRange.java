@@ -1,25 +1,14 @@
 package fi.dy.masa.minihud.renderer;
 
 import net.minecraft.block.entity.BeaconBlockEntity;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.world.ClientChunkManager;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.WorldChunk;
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
 import fi.dy.masa.minihud.mixin.IMixinBeaconBlockEntity;
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 public class OverlayRendererBeaconRange extends BaseBlockRangeOverlay<BeaconBlockEntity>
 {
@@ -31,19 +20,18 @@ public class OverlayRendererBeaconRange extends BaseBlockRangeOverlay<BeaconBloc
     }
 
     @Override
-    protected void renderBlockRange(World world, BlockPos pos, BeaconBlockEntity be,
-                                    Vec3d cameraPos, BufferBuilder bufferQuads, BufferBuilder bufferLines)
+    protected void renderBlockRange(World world, BlockPos pos, BeaconBlockEntity be, Vec3d cameraPos)
     {
         int level = ((IMixinBeaconBlockEntity) be).minihud_getLevel();
 
         if (level >= 1 && level <= 4)
         {
-            this.renderBeaconBox(world, pos, level, cameraPos, getColorForLevel(level), bufferQuads, bufferLines);
+            this.renderBeaconBox(world, pos, level, cameraPos, getColorForLevel(level));
         }
     }
 
-    protected void renderBeaconBox(World world, BlockPos pos, int level, Vec3d cameraPos, Color4f color,
-                                   BufferBuilder bufferQuads, BufferBuilder bufferLines) {
+    protected void renderBeaconBox(World world, BlockPos pos, int level, Vec3d cameraPos, Color4f color)
+    {
         double x = pos.getX() - cameraPos.x;
         double y = pos.getY() - cameraPos.y;
         double z = pos.getZ() - cameraPos.z;
@@ -56,8 +44,8 @@ public class OverlayRendererBeaconRange extends BaseBlockRangeOverlay<BeaconBloc
         double maxY = this.getTopYOverTerrain(world, pos, range);
         double maxZ = z + range + 1;
 
-        fi.dy.masa.malilib.render.RenderUtils.drawBoxAllSidesBatchedQuads(minX, minY, minZ, maxX, maxY, maxZ, color, bufferQuads);
-        fi.dy.masa.malilib.render.RenderUtils.drawBoxAllEdgesBatchedLines(minX, minY, minZ, maxX, maxY, maxZ, Color4f.fromColor(color, 1f), bufferLines);
+        fi.dy.masa.malilib.render.RenderUtils.drawBoxAllSidesBatchedQuads(minX, minY, minZ, maxX, maxY, maxZ, color, BUFFER_1);
+        fi.dy.masa.malilib.render.RenderUtils.drawBoxAllEdgesBatchedLines(minX, minY, minZ, maxX, maxY, maxZ, Color4f.fromColor(color, 1f), BUFFER_2);
     }
 
     public static Color4f getColorForLevel(int level)
