@@ -1,16 +1,12 @@
 package fi.dy.masa.minihud.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonObject;
@@ -27,11 +23,13 @@ import net.minecraft.structure.StructureStart;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -597,7 +595,7 @@ public class DataStorage
             {
                 synchronized (this.structures)
                 {
-                    this.addStructureDataFromGenerator(world, dimId, playerPos, maxChunkRange);
+                    this.addStructureDataFromGenerator(world, playerPos, maxChunkRange);
                 }
             }));
         }
@@ -658,61 +656,41 @@ public class DataStorage
     private void removeExpiredStructures(long currentTime, int timeout)
     {
         long maxAge = timeout;
-        Iterator<StructureData> iter = this.structures.values().iterator();
-
-        while (iter.hasNext())
-        {
-            StructureData data = iter.next();
-
-            if (currentTime > (data.getRefreshTime() + maxAge))
-            {
-                iter.remove();
-            }
-        }
+        this.structures.values().removeIf(data -> currentTime > (data.getRefreshTime() + maxAge));
     }
 
-    private void addStructureDataFromGenerator(ServerWorld world, DimensionType dimId, BlockPos playerPos, int maxChunkRange)
+    private void addStructureDataFromGenerator(ServerWorld world, BlockPos playerPos, int maxChunkRange)
     {
         this.structures.clear();
 
-        List<StructureType> enabledTypes = new ArrayList<>();
+        int minCX = (playerPos.getX() >> 4) - maxChunkRange;
+        int minCZ = (playerPos.getZ() >> 4) - maxChunkRange;
+        int maxCX = (playerPos.getX() >> 4) + maxChunkRange;
+        int maxCZ = (playerPos.getZ() >> 4) + maxChunkRange;
 
-        for (StructureType type : StructureType.VALUES)
+        for (int cz = minCZ; cz <= maxCZ; ++cz)
         {
-            if (type.isEnabled() && type.existsInDimension(dimId))
+            for (int cx = minCX; cx <= maxCX; ++cx)
             {
-                enabledTypes.add(type);
-            }
-        }
+                // Don't load the chunk
+                Chunk chunk = world.getChunk(cx, cz, ChunkStatus.FULL, false);
 
-        if (enabledTypes.isEmpty() == false)
-        {
-            int minCX = (playerPos.getX() >> 4) - maxChunkRange;
-            int minCZ = (playerPos.getZ() >> 4) - maxChunkRange;
-            int maxCX = (playerPos.getX() >> 4) + maxChunkRange;
-            int maxCZ = (playerPos.getZ() >> 4) + maxChunkRange;
-
-            for (int cz = minCZ; cz <= maxCZ; ++cz)
-            {
-                for (int cx = minCX; cx <= maxCX; ++cx)
+                if (chunk == null)
                 {
-                    // Don't load the chunk
-                    Chunk chunk = world.getChunk(cx, cz, ChunkStatus.FULL, false);
+                    continue;
+                }
 
-                    if (chunk != null)
+                for (Map.Entry<String, StructureStart> entry : chunk.getStructureStarts().entrySet())
+                {
+                    String structure = entry.getKey();
+                    StructureStart start = entry.getValue();
+                    StructureType type = StructureType.fromStructureId(structure != null ? structure : "?");
+
+                    if (type.isEnabled() &&
+                        start.hasChildren() &&
+                        MiscUtils.isStructureWithinRange(start.getBoundingBox(), playerPos, maxChunkRange << 4))
                     {
-                        for (StructureType type : enabledTypes)
-                        {
-                            StructureStart start = chunk.getStructureStart(type.getStructureName());
-
-                            if (start != null)
-                            {
-                                if (MiscUtils.isStructureWithinRange(start.getBoundingBox(), playerPos, maxChunkRange << 4))
-                                {
-                                    this.structures.put(type, StructureData.fromStructureStart(type, start));
-                                }
-                            }
-                        }
+                        this.structures.put(type, StructureData.fromStructureStart(type, start));
                     }
                 }
             }
@@ -720,7 +698,7 @@ public class DataStorage
 
         this.structureRendererNeedsUpdate = true;
 
-        //MiniHUD.logger.info("Structure data updated from the integrated server");
+        //MiniHUD.printDebug("Structure data updated from the integrated server ({} structures)", this.structures.size());
     }
 
     public void handleCarpetServerTPSData(Text textComponent)
