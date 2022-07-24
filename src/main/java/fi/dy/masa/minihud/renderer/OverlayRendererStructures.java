@@ -2,6 +2,8 @@ package fi.dy.masa.minihud.renderer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import fi.dy.masa.minihud.config.StructureToggle;
 import org.lwjgl.opengl.GL11;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
@@ -60,7 +62,7 @@ public class OverlayRendererStructures extends OverlayRendererBase
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
         int maxRange = (mc.options.viewDistance + 4) * 16;
-        List<WrappedData> data = this.getStructuresToRender(this.lastUpdatePos, maxRange);
+        List<StructureData> data = this.getStructuresToRender(this.lastUpdatePos, maxRange);
 
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);
@@ -79,18 +81,20 @@ public class OverlayRendererStructures extends OverlayRendererBase
         renderLines.uploadData(BUFFER_2);
     }
 
-    @Override
     public void allocateGlResources()
     {
         this.allocateBuffer(GL11.GL_QUADS);
         this.allocateBuffer(GL11.GL_LINES);
     }
 
-    private void renderStructureBoxes(List<WrappedData> wrappedData, Vec3d cameraPos)
+    private void renderStructureBoxes(List<StructureData> wrappedData, Vec3d cameraPos)
     {
-        for (WrappedData wrapped : wrappedData)
+        for (StructureData data : wrappedData)
         {
-            this.renderStructure(wrapped.data, wrapped.mainColor, wrapped.componentColor, cameraPos);
+            StructureToggle toggle = data.getStructureType().getToggle();
+            Color4f mainColor = toggle.getColorMain().getColor();
+            Color4f componentColor = toggle.getColorComponents().getColor();
+            this.renderStructure(data, mainColor, componentColor, cameraPos);
         }
     }
 
@@ -112,10 +116,10 @@ public class OverlayRendererStructures extends OverlayRendererBase
         }
     }
 
-    private List<WrappedData> getStructuresToRender(BlockPos playerPos, int maxRange)
+    private List<StructureData> getStructuresToRender(BlockPos playerPos, int maxRange)
     {
         ArrayListMultimap<StructureType, StructureData> structures = DataStorage.getInstance().getCopyOfStructureData();
-        List<WrappedData> data = new ArrayList<>();
+        List<StructureData> data = new ArrayList<>();
 
         for (StructureType type : structures.keySet())
         {
@@ -128,24 +132,11 @@ public class OverlayRendererStructures extends OverlayRendererBase
             {
                 if (MiscUtils.isStructureWithinRange(structure.getBoundingBox(), playerPos, maxRange))
                 {
-                    Color4f mainColor = type.getToggle().getColorMain().getColor();
-                    Color4f componentColor = type.getToggle().getColorComponents().getColor();
-                    data.add(new WrappedData(structure, mainColor, componentColor));
+                    data.add(structure);
                 }
             }
         }
 
         return data;
-    }
-
-    private class WrappedData {
-        StructureData data;
-        Color4f mainColor;
-        Color4f componentColor;
-        public WrappedData(StructureData data, Color4f mainColor, Color4f componentColor) {
-            this.data = data;
-            this.mainColor = mainColor;
-            this.componentColor = componentColor;
-        }
     }
 }
