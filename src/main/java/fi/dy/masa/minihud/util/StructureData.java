@@ -1,8 +1,11 @@
 package fi.dy.masa.minihud.util;
 
+import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
+import fi.dy.masa.minihud.MiniHUD;
+import fi.dy.masa.minihud.config.Configs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.structure.StructurePiece;
@@ -39,7 +42,7 @@ public class StructureData
     private StructureData(StructureType type, IntBoundingBox mainBox, ImmutableList<IntBoundingBox> componentBoxes)
     {
         this.type = type;
-        this.mainBox = mainBox;
+        this.mainBox = encompass(componentBoxes);
         this.componentBoxes = componentBoxes;
     }
 
@@ -83,6 +86,12 @@ public class StructureData
             tag.contains("Children", Constants.NBT.TAG_LIST))
         {
             StructureType type = StructureType.fromStructureId(tag.getString("id"));
+
+            if (type == StructureType.UNKNOWN && Configs.Generic.DEBUG_MESSAGES.getBooleanValue())
+            {
+                MiniHUD.logger.warn("StructureData.fromStructureStartTag(): Unknown structure type '{}'", tag.getString("id"));
+            }
+
             ImmutableList.Builder<IntBoundingBox> builder = ImmutableList.builder();
             ListTag pieces = tag.getList("Children", Constants.NBT.TAG_COMPOUND);
             final int count = pieces.size();
@@ -155,5 +164,36 @@ public class StructureData
         }
 
         return true;
+    }
+
+    public static IntBoundingBox encompass(Iterable<IntBoundingBox> boxes)
+    {
+        Iterator<IntBoundingBox> iterator = boxes.iterator();
+
+        if (iterator.hasNext())
+        {
+            IntBoundingBox box = iterator.next();
+            int minX = box.minX;
+            int minY = box.minY;
+            int minZ = box.minZ;
+            int maxX = box.maxX;
+            int maxY = box.maxY;
+            int maxZ = box.maxZ;
+
+            while (iterator.hasNext())
+            {
+                box = iterator.next();
+                minX = Math.min(minX, box.minX);
+                minY = Math.min(minY, box.minY);
+                minZ = Math.min(minZ, box.minZ);
+                maxX = Math.max(maxX, box.maxX);
+                maxY = Math.max(maxY, box.maxY);
+                maxZ = Math.max(maxZ, box.maxZ);
+            }
+
+            return new IntBoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
+        }
+
+        return new IntBoundingBox(0, 0, 0, 0, 0, 0);
     }
 }
