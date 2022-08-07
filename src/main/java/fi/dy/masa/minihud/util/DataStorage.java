@@ -356,7 +356,7 @@ public class DataStorage
     {
         String[] parts = message.split(" ");
 
-        if (parts[0].equals("minihud-seed") || parts[0].equals("/minihud-seed"))
+        if (parts.length > 0 && (parts[0].equals("minihud-seed") || parts[0].equals("/minihud-seed")))
         {
             if (parts.length == 2)
             {
