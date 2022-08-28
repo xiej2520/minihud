@@ -21,11 +21,13 @@ import org.lwjgl.opengl.GL11;
 
 public class ShapeBox extends ShapeBase
 {
-    public static final Box EMPTY_BOX = new Box(0, 0, 0, 0, 0, 0);
+    public static final Box DEFAULT_BOX = new Box(0, 0, 0, 1, 1, 1);
+    protected static final double MAX_DIMENSIONS = 10000.0;
 
-    protected Box box = EMPTY_BOX;
-    protected Box renderPerimeter = EMPTY_BOX;
+    protected Box box = DEFAULT_BOX;
+    protected Box renderPerimeter = DEFAULT_BOX;
     protected int enabledSidesMask = 0x3F;
+    protected double maxDimensions = MAX_DIMENSIONS;
     protected boolean gridEnabled = true;
     protected Vec3d gridSize = new Vec3d(16.0, 16.0, 16.0);
     protected Vec3d gridStartOffset = Vec3d.ZERO;
@@ -68,11 +70,23 @@ public class ShapeBox extends ShapeBase
 
     public void setBox(Box box)
     {
-        this.box = box;
+        this.box = this.clampBox(box, this.maxDimensions);
 
         double margin = MinecraftClient.getInstance().options.viewDistance * 16 * 2;
         this.renderPerimeter = box.expand(margin);
         this.setNeedsUpdate();
+    }
+
+    protected Box clampBox(Box box, double maxSize)
+    {
+        if (Math.abs(box.maxX - box.minX) > maxSize ||
+            Math.abs(box.maxY - box.minY) > maxSize ||
+            Math.abs(box.maxZ - box.minZ) > maxSize)
+        {
+            box = DEFAULT_BOX;
+        }
+
+        return box;
     }
 
     public void setEnabledSidesMask(int enabledSidesMask)
