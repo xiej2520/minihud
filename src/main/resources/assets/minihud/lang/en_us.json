@@ -52,7 +52,20 @@
     "minihud.gui.title.shape_editor": "Shape Editor (%s)",
     "minihud.gui.title.shape_manager": "Shape Manager",
 
-    "minihud.label.bee_tooltip.count": "§7Contains §b%s§7 bee(s)",
+    "minihud.info_line.mobcap.data": "Mob Caps: Ho: %s Pa: %s Am: %s, WC: %s, Mi: %s",
+    "minihud.info_line.mobcap.no_data": "Mob Caps: <no valid data>",
+    "minihud.info_line.mobcap.cap.ambient.full": "§7§l%s§r§7 / %s§r",
+    "minihud.info_line.mobcap.cap.ambient.nonfull": "§7%s / %s§r",
+    "minihud.info_line.mobcap.cap.creature.full": "§a§l%s§r§a / %s§r",
+    "minihud.info_line.mobcap.cap.creature.nonfull": "§a%s / %s§r",
+    "minihud.info_line.mobcap.cap.misc.full": "§f§l%s§r§b / %s§r",
+    "minihud.info_line.mobcap.cap.misc.nonfull": "§f%s / %s§r",
+    "minihud.info_line.mobcap.cap.monster.full": "§c§l%s§r§c / %s§r",
+    "minihud.info_line.mobcap.cap.monster.nonfull": "§c%s / %s§r",
+    "minihud.info_line.mobcap.cap.water_creature.full": "§b§l%s§r§b / %s§r",
+    "minihud.info_line.mobcap.cap.water_creature.nonfull": "§b%s / %s§r",
+
+  "minihud.label.bee_tooltip.count": "§7Contains §b%s§7 bee(s)",
     "minihud.label.bee_tooltip.count_babies": "§7Contains §b%s§7 bee(s), (§b%s§7 babies)",
     "minihud.label.bee_tooltip.name": "§7- %s",
 

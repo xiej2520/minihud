@@ -42,6 +42,7 @@ import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
+import fi.dy.masa.minihud.data.MobCapDataHandler;
 import fi.dy.masa.minihud.network.StructurePacketHandlerCarpet;
 import fi.dy.masa.minihud.network.StructurePacketHandlerServux;
 import fi.dy.masa.minihud.renderer.OverlayRendererBeaconRange;
@@ -64,6 +65,7 @@ public class DataStorage
     public static final int CARPET_ID_LARGE_BOUNDINGBOX_MARKERS_START = 7;
     public static final int CARPET_ID_LARGE_BOUNDINGBOX_MARKERS = 8;
 
+    private final MobCapDataHandler mobCapData = new MobCapDataHandler();
     private boolean worldSeedValid;
     private boolean serverTPSValid;
     private boolean hasSyncedTime;
@@ -103,6 +105,11 @@ public class DataStorage
         return INSTANCE;
     }
 
+    public MobCapDataHandler getMobCapData()
+    {
+        return this.mobCapData;
+    }
+
     public void reset(boolean isLogout)
     {
         if (isLogout)
@@ -127,6 +134,7 @@ public class DataStorage
             MiniHUD.printDebug("DataStorage#reset() - dimension change or log-in");
         }
 
+        this.mobCapData.clear();
         this.serverTPSValid = false;
         this.hasSyncedTime = false;
         this.carpetServer = false;

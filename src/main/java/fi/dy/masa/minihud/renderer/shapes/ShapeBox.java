@@ -79,9 +79,9 @@ public class ShapeBox extends ShapeBase
 
     protected Box clampBox(Box box, double maxSize)
     {
-        if (Math.abs(box.maxX - box.minX) > maxSize ||
-            Math.abs(box.maxY - box.minY) > maxSize ||
-            Math.abs(box.maxZ - box.minZ) > maxSize)
+        if (Math.abs(box.x2 - box.x1) > maxSize ||
+            Math.abs(box.y2 - box.y1) > maxSize ||
+            Math.abs(box.z2 - box.z1) > maxSize)
         {
             box = DEFAULT_BOX;
         }
