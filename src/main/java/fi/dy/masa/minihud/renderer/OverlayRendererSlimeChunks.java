@@ -3,6 +3,7 @@ package fi.dy.masa.minihud.renderer;
 import org.lwjgl.opengl.GL11;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.entity.Entity;
@@ -10,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
 import fi.dy.masa.malilib.util.Color4f;
 import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
@@ -34,13 +36,21 @@ public class OverlayRendererSlimeChunks extends OverlayRendererBase
 
     public static void onEnabled()
     {
-        Entity entity = EntityUtils.getCameraEntity();
-
-        if (entity != null)
+        if (Configs.Generic.SLIME_CHUNK_TOP_TO_PLAYER.getBooleanValue())
         {
-            overlayTopY = entity.getY();
-            setNeedsUpdate();
+            Entity entity = EntityUtils.getCameraEntity();
+
+            if (entity != null)
+            {
+                overlayTopY = entity.getY();
+            }
         }
+        else
+        {
+            overlayTopY = 40;
+        }
+
+        setNeedsUpdate();
     }
 
     @Override
