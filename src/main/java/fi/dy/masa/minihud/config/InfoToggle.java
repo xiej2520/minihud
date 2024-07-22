@@ -48,6 +48,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     MEMORY_USAGE            ("infoMemoryUsage",             false,  0, "", "Show the memory usage and allocation"),
     MOB_CAPS                ("infoMobCaps",                 false, 10, "", "Show the mob caps\n\n§dNote: Works in single player and Carpet servers.\n§6On Carpet servers the data is parsed from the player list footer,\n§6if you have subscribed to the data with '/log mobcaps'"),
     LOADED_CHUNKS_COUNT     ("infoLoadedChunksCount",       false, 31, "", "Show the number of loaded chunks on the client"),
+    PANDA_GENE              ("infoPandaGene",               false, 41, "", "Show the genes of the panda being looked at"),
     PARTICLE_COUNT          ("infoParticleCount",           false, 17, "", "Show the currently renderer particle count (P from F3)"),
     PING                    ("infoPing",                    false, 36, "", "Show the current ping to the server"),
     REGION_FILE             ("infoRegionFile",              false, 29, "", "Show the region file the player is currently within"),

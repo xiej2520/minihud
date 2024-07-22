@@ -25,6 +25,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.entity.passive.PandaEntity;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -598,6 +599,19 @@ public class RenderHandler implements IRenderer
         else if (type == InfoToggle.SPRINTING && mc.player.isSprinting())
         {
             this.addLine("§6Sprinting");
+        }
+        else if (type == InfoToggle.PANDA_GENE)
+        {
+            // Genes are synced to the client in 1.15, so this works on servers too
+            Entity target = this.getTargetedEntity(this.mc);
+            if (target instanceof PandaEntity)
+            {
+                PandaEntity panda = (PandaEntity) target;
+                this.addLine(String.format("Main gene: %s%s%s (%s)", GuiBase.TXT_AQUA, panda.getMainGene().getName(), GuiBase.TXT_RST,
+                    panda.getMainGene().isRecessive() ? "recessive" : "dominant"));
+                this.addLine(String.format("Hidden gene: %s%s%s (%s)", GuiBase.TXT_AQUA, panda.getHiddenGene().getName(), GuiBase.TXT_RST,
+                    panda.getHiddenGene().isRecessive() ? "recessive" : "dominant"));
+            }
         }
         else if (type == InfoToggle.DISTANCE)
         {
