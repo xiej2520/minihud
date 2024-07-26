@@ -18,6 +18,7 @@ import fi.dy.masa.minihud.gui.GuiShapeEditor;
 import fi.dy.masa.minihud.gui.GuiShapeManager;
 import fi.dy.masa.minihud.renderer.OverlayRendererBeaconRange;
 import fi.dy.masa.minihud.renderer.OverlayRendererLightLevel;
+import fi.dy.masa.minihud.renderer.OverlayRendererSpawnChunks;
 import fi.dy.masa.minihud.renderer.OverlayRendererStructures;
 import fi.dy.masa.minihud.renderer.shapes.ShapeBase;
 import fi.dy.masa.minihud.renderer.shapes.ShapeManager;
@@ -44,6 +45,21 @@ public class KeyCallbacks
         Configs.Generic.LIGHT_LEVEL_RANGE.setValueChangeCallback((config) -> OverlayRendererLightLevel.setNeedsUpdate());
         Configs.Generic.LIGHT_LEVEL_RENDER_THROUGH.setValueChangeCallback((config) -> OverlayRendererLightLevel.INSTANCE.setRenderThrough(config.getBooleanValue()));
         Configs.Generic.STRUCTURES_RENDER_THROUGH.setValueChangeCallback((config) -> OverlayRendererStructures.INSTANCE.setRenderThrough(config.getBooleanValue()));
+
+        Configs.Generic.SPAWN_PLAYER_OUTER_OVERLAY_ENABLED.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+        Configs.Generic.SPAWN_PLAYER_REDSTONE_OVERLAY_ENABLED.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+        Configs.Generic.SPAWN_REAL_OUTER_OVERLAY_ENABLED.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+        Configs.Generic.SPAWN_REAL_REDSTONE_OVERLAY_ENABLED.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+
+        Configs.Colors.SPAWN_PLAYER_ENTITY_OVERLAY_COLOR.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+        Configs.Colors.SPAWN_PLAYER_REDSTONE_OVERLAY_COLOR.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+        Configs.Colors.SPAWN_PLAYER_LAZY_OVERLAY_COLOR.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+        Configs.Colors.SPAWN_PLAYER_OUTER_OVERLAY_COLOR.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+
+        Configs.Colors.SPAWN_REAL_ENTITY_OVERLAY_COLOR.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+        Configs.Colors.SPAWN_REAL_REDSTONE_OVERLAY_COLOR.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+        Configs.Colors.SPAWN_REAL_LAZY_OVERLAY_COLOR.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
+        Configs.Colors.SPAWN_REAL_OUTER_OVERLAY_COLOR.setValueChangeCallback((config) -> OverlayRendererSpawnChunks.setNeedsUpdate());
 
         RendererToggle.OVERLAY_SLIME_CHUNKS_OVERLAY.getKeybind().setCallback(new KeyCallbackAdjustable(RendererToggle.OVERLAY_SLIME_CHUNKS_OVERLAY, new KeyCallbackToggleBooleanConfigWithMessage(RendererToggle.OVERLAY_SLIME_CHUNKS_OVERLAY)));
 

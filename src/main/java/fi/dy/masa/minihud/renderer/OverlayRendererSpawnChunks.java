@@ -85,23 +85,43 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
         final Color4f colorEntity = this.isPlayerFollowing ?
                 Configs.Colors.SPAWN_PLAYER_ENTITY_OVERLAY_COLOR.getColor() :
                 Configs.Colors.SPAWN_REAL_ENTITY_OVERLAY_COLOR.getColor();
+        final Color4f colorRedstone = this.isPlayerFollowing ?
+                Configs.Colors.SPAWN_PLAYER_REDSTONE_OVERLAY_COLOR.getColor() :
+                Configs.Colors.SPAWN_REAL_REDSTONE_OVERLAY_COLOR.getColor();
         final Color4f colorLazy = this.isPlayerFollowing ?
                 Configs.Colors.SPAWN_PLAYER_LAZY_OVERLAY_COLOR.getColor() :
                 Configs.Colors.SPAWN_REAL_LAZY_OVERLAY_COLOR.getColor();
         final Color4f colorOuter = this.isPlayerFollowing ?
                 Configs.Colors.SPAWN_PLAYER_OUTER_OVERLAY_COLOR.getColor() :
                 Configs.Colors.SPAWN_REAL_OUTER_OVERLAY_COLOR.getColor();
+        final boolean renderOuter = this.isPlayerFollowing ?
+               Configs.Generic.SPAWN_PLAYER_OUTER_OVERLAY_ENABLED.getBooleanValue() :
+               Configs.Generic.SPAWN_REAL_OUTER_OVERLAY_ENABLED.getBooleanValue();
+        final boolean renderRedstone = this.isPlayerFollowing ?
+                Configs.Generic.SPAWN_PLAYER_REDSTONE_OVERLAY_ENABLED.getBooleanValue() :
+                Configs.Generic.SPAWN_REAL_REDSTONE_OVERLAY_ENABLED.getBooleanValue();
 
         fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(spawn, cameraPos, colorEntity, 0.001, BUFFER_2);
         drawBlockBoundingBoxSidesBatchedQuads(spawn, cameraPos, colorEntity, 0.001, BUFFER_1);
 
-        Pair<BlockPos, BlockPos> corners = this.getSpawnChunkCorners(spawn, 22);
-        RenderUtils.renderWallsWithLines(corners.getLeft(), corners.getRight(), cameraPos, 16, 16, true, colorOuter, BUFFER_1, BUFFER_2);
+        Pair<BlockPos, BlockPos> corners;
 
-        corners = this.getSpawnChunkCorners(spawn, 11);
+        if (renderOuter)
+        {
+            corners = this.getSpawnChunkCorners(spawn, 22);   // Brown / WorldGen Only
+            RenderUtils.renderWallsWithLines(corners.getLeft(), corners.getRight(), cameraPos, 16, 16, true, colorOuter, BUFFER_1, BUFFER_2);
+        }
+
+        corners = this.getSpawnChunkCorners(spawn, 11);       // Red / Mob Caps Only
         RenderUtils.renderWallsWithLines(corners.getLeft(), corners.getRight(), cameraPos, 16, 16, true, colorLazy, BUFFER_1, BUFFER_2);
 
-        corners = this.getSpawnChunkCorners(spawn, 9);
+        if (renderRedstone)
+        {
+            corners = this.getSpawnChunkCorners(spawn, 10);   // Yellow / Redstone Processing
+            RenderUtils.renderWallsWithLines(corners.getLeft(), corners.getRight(), cameraPos, 16, 16, true, colorRedstone, BUFFER_1, BUFFER_2);
+        }
+
+        corners = this.getSpawnChunkCorners(spawn, 9);        // Green / Entity Processing
         RenderUtils.renderWallsWithLines(corners.getLeft(), corners.getRight(), cameraPos, 16, 16, true, colorEntity, BUFFER_1, BUFFER_2);
 
         BUFFER_1.end();

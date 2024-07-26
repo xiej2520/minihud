@@ -93,6 +93,10 @@ public class Configs implements IConfigHandler
         public static final ConfigInteger       SLIME_CHUNK_OVERLAY_RADIUS          = new ConfigInteger("slimeChunkOverlayRadius", -1, -1, 40, "The radius of chunks to render the slime chunk overlay in.\nValid range: -1 ... 40, where -1 = render distance");
         public static final ConfigBoolean       SORT_LINES_BY_LENGTH                = new ConfigBoolean("sortLinesByLength", false, "Sort the lines by their text's length");
         public static final ConfigBoolean       SORT_LINES_REVERSED                 = new ConfigBoolean("sortLinesReversed", false, "Reverse the line sorting order");
+        public static final ConfigBoolean       SPAWN_PLAYER_OUTER_OVERLAY_ENABLED  = new ConfigBoolean("spawnPlayerOuterOverlayEnabled", false, "Enables the Player-Following render for the Outer Spawn Radius Border (Purple)");
+        public static final ConfigBoolean       SPAWN_PLAYER_REDSTONE_OVERLAY_ENABLED = new ConfigBoolean("spawnPlayerRedstoneOverlayEnabled", false, "Enables the Player-Following render for the Redstone Spawn Radius Border (Yellow)");
+        public static final ConfigBoolean       SPAWN_REAL_OUTER_OVERLAY_ENABLED    = new ConfigBoolean("spawnRealOuterOverlayEnabled", false, "Enables the Real World Spawn render for the Outer Spawn Radius Border (Brown)");
+        public static final ConfigBoolean       SPAWN_REAL_REDSTONE_OVERLAY_ENABLED = new ConfigBoolean("spawnRealRedstoneOverlayEnabled", false, "Enables the Real World Spawn render for the Redstone Spawn Radius Border (Yellow)");
         public static final ConfigInteger       SPAWNABLE_COLUMNS_OVERLAY_RADIUS    = new ConfigInteger("spawnableColumnHeightsOverlayRadius", 40, 0, 128, "The radius (in blocks) to render the spawnable\ncolumn heights overlay in. Valid range: 0 - 128");
         public static final ConfigBoolean       STRUCTURES_RENDER_THROUGH           = new ConfigBoolean("structuresRenderThrough", false, "If enabled, then the Structure Bounding Boxes\nwill be rendered through blocks");
         public static final ConfigInteger       TEXT_POS_X                          = new ConfigInteger("textPosX", 4, 0, 8192, "Text X position from the screen edge (default: 4)");
@@ -128,6 +132,10 @@ public class Configs implements IConfigHandler
                 SLIME_CHUNK_TOP_TO_PLAYER,
                 SORT_LINES_BY_LENGTH,
                 SORT_LINES_REVERSED,
+                SPAWN_PLAYER_OUTER_OVERLAY_ENABLED,
+                SPAWN_PLAYER_REDSTONE_OVERLAY_ENABLED,
+                SPAWN_REAL_OUTER_OVERLAY_ENABLED,
+                SPAWN_REAL_REDSTONE_OVERLAY_ENABLED,
                 STRUCTURES_RENDER_THROUGH,
                 USE_CUSTOMIZED_COORDINATES,
                 USE_FONT_SHADOW,
@@ -215,9 +223,11 @@ public class Configs implements IConfigHandler
         public static final ConfigColor SLIME_CHUNKS_OVERLAY_COLOR              = new ConfigColor("slimeChunksOverlayColor",            "#3020F020", "Color for the slime chunks overlay");
         public static final ConfigColor SPAWN_PLAYER_ENTITY_OVERLAY_COLOR       = new ConfigColor("spawnPlayerEntityOverlayColor",      "#302050D0", "Color for the entity-processing would-be spawn chunks overlay of\nhow the spawn chunks would be if the spawn were\nto be at the player's current position");
         public static final ConfigColor SPAWN_PLAYER_LAZY_OVERLAY_COLOR         = new ConfigColor("spawnPlayerLazyOverlayColor",        "#30D030D0", "Color for the \"lazy-loaded\" would-be spawn chunks overlay of\nhow the spawn chunks would be if the spawn were\nto be at the player's current position");
+        public static final ConfigColor SPAWN_PLAYER_REDSTONE_OVERLAY_COLOR     = new ConfigColor("spawnPlayerRedstoneOverlayColor",    "#30F8D641", "Color for the \"redstone-only\" (ticking, but not entity-processing) would-be spawn chunks overlay of\nhow the spawn chunks would be if the spawn were\nto be at the player's current position");
         public static final ConfigColor SPAWN_PLAYER_OUTER_OVERLAY_COLOR        = new ConfigColor("spawnPlayerOuterOverlayColor",       "#306900D2", "Color for the 1.14+ outer loaded would-be spawn chunks overlay of\nhow the spawn chunks would be if the spawn were\nto be at the player's current position");
         public static final ConfigColor SPAWN_REAL_ENTITY_OVERLAY_COLOR         = new ConfigColor("spawnRealEntityOverlayColor",        "#3030FF20", "Color for the entity-processing real spawn chunks overlay");
         public static final ConfigColor SPAWN_REAL_LAZY_OVERLAY_COLOR           = new ConfigColor("spawnRealLazyOverlayColor",          "#30FF3020", "Color for the \"lazy-loaded\" real spawn chunks overlay");
+        public static final ConfigColor SPAWN_REAL_REDSTONE_OVERLAY_COLOR       = new ConfigColor("spawnRealRedstoneOverlayColor",      "#30F8D641", "Color for the \"redstone-only\" (ticking, but not entity-processing) real spawn chunks overlay");
         public static final ConfigColor SPAWN_REAL_OUTER_OVERLAY_COLOR          = new ConfigColor("spawnRealOuterOverlayColor",         "#309D581A", "Color for the 1.14+ outer loaded real spawn chunks overlay");
         public static final ConfigColor SPAWNABLE_COLUMNS_OVERLAY_COLOR         = new ConfigColor("spawnableColumnHeightsOverlayColor", "#A0FF00FF", "Color for the spawnable sub-chunks overlay");
         public static final ConfigColor TEXT_BACKGROUND_COLOR                   = new ConfigColor("textBackgroundColor",                "#A0505050", "Text background color");
@@ -253,9 +263,11 @@ public class Configs implements IConfigHandler
                 SHAPE_SPHERE_BLOCKY,
                 SLIME_CHUNKS_OVERLAY_COLOR,
                 SPAWN_PLAYER_ENTITY_OVERLAY_COLOR,
+                SPAWN_PLAYER_REDSTONE_OVERLAY_COLOR,
                 SPAWN_PLAYER_LAZY_OVERLAY_COLOR,
                 SPAWN_PLAYER_OUTER_OVERLAY_COLOR,
                 SPAWN_REAL_ENTITY_OVERLAY_COLOR,
+                SPAWN_REAL_REDSTONE_OVERLAY_COLOR,
                 SPAWN_REAL_LAZY_OVERLAY_COLOR,
                 SPAWN_REAL_OUTER_OVERLAY_COLOR,
                 SPAWNABLE_COLUMNS_OVERLAY_COLOR,
