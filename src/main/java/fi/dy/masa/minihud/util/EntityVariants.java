@@ -2,6 +2,7 @@ package fi.dy.masa.minihud.util;
 
 import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.painting.PaintingEntity;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.passive.HorseEntity;
@@ -11,6 +12,7 @@ import net.minecraft.entity.passive.ParrotEntity;
 import net.minecraft.entity.passive.RabbitEntity;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.entity.passive.TropicalFishEntity;
+import net.minecraft.util.registry.Registry;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.util.StringUtils;
 
@@ -69,6 +71,15 @@ public class EntityVariants
         else if (entity instanceof FoxEntity)
         {
             return String.format("Fox Variant: %s%s%s", a, ((FoxEntity) entity).getFoxType().getKey(), r);
+        }
+        else if (entity instanceof PaintingEntity)
+        {
+            PaintingEntity painting = (PaintingEntity) entity;
+
+            if (painting.motive != null)
+            {
+                return String.format("Painting Variant: %s%s%s", a, Registry.PAINTING_MOTIVE.getId(painting.motive).getPath(), r);
+            }
         }
         else if (entity instanceof ParrotEntity)
         {
