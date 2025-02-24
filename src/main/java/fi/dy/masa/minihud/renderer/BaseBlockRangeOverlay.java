@@ -80,12 +80,14 @@ public abstract class BaseBlockRangeOverlay<T extends BlockEntity> extends Overl
     {
         return this.needsUpdate || this.lastUpdatePos == null ||
                Math.abs(cameraEntity.getX() - this.lastUpdatePos.getX()) > this.updateDistance ||
-               Math.abs(cameraEntity.getZ() - this.lastUpdatePos.getZ()) > this.updateDistance;
+               Math.abs(cameraEntity.getZ() - this.lastUpdatePos.getZ()) > this.updateDistance ||
+               Math.abs(cameraEntity.getY() - this.lastUpdatePos.getY()) > this.updateDistance;
     }
 
     @Override
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
+        if (mc.world == null) return;
         this.startBuffers();
 
         synchronized (this.blockPositions)
@@ -138,7 +140,10 @@ public abstract class BaseBlockRangeOverlay<T extends BlockEntity> extends Overl
                     {
                         if (be.getType() == this.blockEntityType)
                         {
-                            this.blockPositions.add(be.getPos().asLong());
+                            synchronized (this.blockPositions)
+                            {
+                                this.blockPositions.add(be.getPos().asLong());
+                            }
                         }
                     }
                 }

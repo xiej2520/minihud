@@ -86,8 +86,8 @@ public class RenderContainer
                 if (renderer.needsUpdate(entity, mc))
                 {
                     renderer.lastUpdatePos = PositionUtils.getEntityBlockPos(entity);
-                    renderer.setUpdatePosition(cameraPos);
                     renderer.update(cameraPos, entity, mc);
+                    renderer.setUpdatePosition(cameraPos);
                 }
 
                 ++this.countActive;
