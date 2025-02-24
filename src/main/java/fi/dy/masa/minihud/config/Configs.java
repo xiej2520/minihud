@@ -57,6 +57,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       FIX_VANILLA_DEBUG_RENDERERS         = new ConfigBoolean("enableVanillaDebugRendererFix", true, "If true, then the vanilla debug renderer OpenGL state is fixed.");
         public static final ConfigDouble        FONT_SCALE                          = new ConfigDouble("fontScale", 0.5, 0.01, 100.0, "Font scale factor for the info line HUD. Default: 0.5\n");
         public static final ConfigOptionList    HUD_ALIGNMENT                       = new ConfigOptionList("hudAlignment", HudAlignment.TOP_LEFT, "The alignment of the info line HUD");
+        public static final ConfigBooleanHotkeyed HUD_STATUS_EFFECTS_SHIFT          = new ConfigBooleanHotkeyed("hudStatusEffectsShift", true, "", "Enable the shifting of text lines rendering on the\nTOP_RIGHT while Status Effects are active.\nIf this is disabled, status effects may\ncover up the text at the top right.\nThis is meant for special cases when various\nGUI or Inventory mods modify the location\nof the vanilla Status Effects.", "HUD Status Effects Shift");
         public static final ConfigBoolean       LIGHT_LEVEL_AUTO_HEIGHT             = new ConfigBoolean("lightLevelAutoHeight", false, "If enabled, then the Light Level overlay will be\nautomatically raised to render on top of the block's shape.\n§6Note: This will make the overlay also render\n§6on top of things like slabs, where mobs will not be able to spawn,\n§6unless you turn on the collision check option as well.");
         public static final ConfigBoolean       LIGHT_LEVEL_COLORED_NUMBERS         = new ConfigBoolean("lightLevelColoredNumbers", true, "Whether to use colored or white numbers\nfor the Light Level overlay numbers");
         public static final ConfigBoolean       LIGHT_LEVEL_COLLISION_CHECK         = new ConfigBoolean("lightLevelCollisionCheck", false, "If enabled, then the Light Level overlay is not rendered\nif there is any block with a collision box in the way.\n§6Note: This is not a proper check for spawnability!\n§6This would omit any block even partially sticking into the lower spawn block!\n§6For example open trapdoors or doors would prevent the overlay from showing.");
@@ -119,6 +120,7 @@ public class Configs implements IConfigHandler
                 DEBUG_RENDERER_PATH_MAX_DIST,
                 DONT_RESET_SEED_ON_DIMENSION_CHANGE,
                 FIX_VANILLA_DEBUG_RENDERERS,
+                HUD_STATUS_EFFECTS_SHIFT,
                 LIGHT_LEVEL_AUTO_HEIGHT,
                 LIGHT_LEVEL_COLLISION_CHECK,
                 LIGHT_LEVEL_COLORED_NUMBERS,
@@ -188,6 +190,7 @@ public class Configs implements IConfigHandler
 
         public static final List<IHotkey> HOTKEY_LIST = ImmutableList.of(
                 MAIN_RENDERING_TOGGLE,
+                HUD_STATUS_EFFECTS_SHIFT,
                 MOVE_SHAPE_TO_PLAYER,
                 OPEN_CONFIG_GUI,
                 REQUIRED_KEY,
