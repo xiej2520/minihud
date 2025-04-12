@@ -21,6 +21,7 @@ import fi.dy.masa.minihud.renderer.OverlayRendererRandomTickableChunks;
 import fi.dy.masa.minihud.renderer.OverlayRendererRegion;
 import fi.dy.masa.minihud.renderer.OverlayRendererSlimeChunks;
 import fi.dy.masa.minihud.renderer.OverlayRendererSpawnChunks;
+import fi.dy.masa.minihud.renderer.shapes.ShapeManager;
 import fi.dy.masa.minihud.util.DataStorage;
 
 public class RendererCallbacks
@@ -122,6 +123,14 @@ public class RendererCallbacks
             String message = StringUtils.translate("minihud.message.toggled_using_world_spawn", config.getPrettyName(), strStatus, strPos);
 
             InfoUtils.printActionbarMessage(message);
+        }
+    }
+
+    public static void onShapeRendererToggled(IConfigBoolean config)
+    {
+        if (config.getBooleanValue())
+        {
+            ShapeManager.INSTANCE.setAllNeedsUpdate();
         }
     }
 
