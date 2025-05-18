@@ -106,7 +106,7 @@ public class RenderHandler implements IRenderer
     }
 
     @Override
-    public void onRenderGameOverlayPost(float partialTicks, MatrixStack matrixStack)
+    public void onRenderGameOverlayPost(float partialTicks)
     {
         if (Configs.Generic.ENABLED.getBooleanValue() == false)
         {
@@ -142,7 +142,7 @@ public class RenderHandler implements IRenderer
             boolean useBackground = Configs.Generic.USE_TEXT_BACKGROUND.getBooleanValue();
             boolean useShadow = Configs.Generic.USE_FONT_SHADOW.getBooleanValue();
 
-            RenderUtils.renderText(x, y, Configs.Generic.FONT_SCALE.getDoubleValue(), textColor, bgColor, alignment, useBackground, useShadow, this.lines, matrixStack);
+            RenderUtils.renderText(x, y,  Configs.Generic.FONT_SCALE.getDoubleValue(), textColor, bgColor, alignment, useBackground, useShadow, this.lines);
         }
     }
 
@@ -278,7 +278,7 @@ public class RenderHandler implements IRenderer
         MinecraftClient mc = this.mc;
         Entity entity = mc.getCameraEntity();
         World world = entity.getEntityWorld();
-        double y = entity.getBoundingBox().minY;
+        double y = entity.getBoundingBox().y1;
         BlockPos pos = new BlockPos(entity.getX(), y, entity.getZ());
         ChunkPos chunkPos = new ChunkPos(pos);
 
@@ -442,7 +442,7 @@ public class RenderHandler implements IRenderer
 
             if (InfoToggle.DIMENSION.getBooleanValue())
             {
-                String dimName = world.getRegistryKey().getValue().toString();
+                String dimName = world.dimension.getType().toString();
                 str.append(String.format(String.format("%sdim: %s", pre, dimName)));
             }
 
@@ -681,7 +681,7 @@ public class RenderHandler implements IRenderer
                 if (clientChunk.isEmpty() == false)
                 {
                     Biome biome = mc.world.getBiome(pos);
-                    Identifier id = mc.world.getRegistryManager().get(Registry.BIOME_KEY).getId(biome);
+                    Identifier id = Registry.BIOME.getId(biome);
                     this.addLine("Biome: " + StringUtils.translate("biome." + id.toString().replace(":", ".")));
                 }
             }
@@ -696,7 +696,7 @@ public class RenderHandler implements IRenderer
                 if (clientChunk.isEmpty() == false)
                 {
                     Biome biome = mc.world.getBiome(pos);
-                    Identifier rl = mc.world.getRegistryManager().get(Registry.BIOME_KEY).getId(biome);
+                    Identifier rl = Registry.BIOME.getId(biome);
                     String name = rl != null ? rl.toString() : "?";
                     this.addLine("Biome reg name: " + name);
                 }
@@ -776,7 +776,7 @@ public class RenderHandler implements IRenderer
                 {
                     LivingEntity living = (LivingEntity) lookedEntity;
                     this.addLine(String.format("Entity: %s - HP: %.1f / %.1f",
-                            living.getName().getString(), living.getHealth(), living.getMaxHealth()));
+                            living.getName().getString(), living.getHealth(), living.getMaximumHealth()));
                 }
                 else
                 {
@@ -902,7 +902,7 @@ public class RenderHandler implements IRenderer
 
         if (server != null)
         {
-            ServerWorld world = server.getWorld(this.mc.world.getRegistryKey());
+            ServerWorld world = server.getWorld(this.mc.world.dimension.getType());
 
             if (world != null)
             {

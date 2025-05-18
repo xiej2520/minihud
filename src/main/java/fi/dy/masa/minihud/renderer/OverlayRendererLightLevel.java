@@ -74,7 +74,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
     @Override
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
-        BlockPos pos = PositionUtils.getEntityBlockPos(entity);
+        BlockPos pos = new BlockPos(entity);
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);
         BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_TEXTURE_COLOR);
@@ -400,13 +400,13 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
                 return isClearForSpawnWrapper(world, this.mutablePos, stateUp1, state.getFluidState(), EntityType.WITHER_SKELETON);
             }
 
-            if (state.getFluidState().isIn(FluidTags.WATER))
+            if (state.getFluidState().matches(FluidTags.WATER))
             {
                 this.mutablePos.set(x, y + 1, z);
                 BlockState stateUp1 = chunk.getBlockState(this.mutablePos);
 
-                return stateUp1.getFluidState().isIn(FluidTags.WATER) &&
-                       chunk.getBlockState(this.mutablePos.set(x, y + 2, z)).isSolidBlock(world, this.mutablePos) == false;
+                return stateUp1.getFluidState().matches(FluidTags.WATER) &&
+                       chunk.getBlockState(this.mutablePos.set(x, y + 2, z)).isSimpleFullBlock(world, this.mutablePos) == false;
             }
         }
 
@@ -415,7 +415,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
 
     public static boolean isClearForSpawnWrapper(BlockView blockView, BlockPos pos, BlockState state, FluidState fluidState, EntityType<?> entityType)
     {
-        return tagsBroken ? isClearForSpawnStripped(blockView, pos, state, fluidState, entityType) : SpawnHelper.isClearForSpawn(blockView, pos, state, fluidState, entityType);
+        return tagsBroken ? isClearForSpawnStripped(blockView, pos, state, fluidState, entityType) : SpawnHelper.isClearForSpawn(blockView, pos, state, fluidState);
     }
 
     /**

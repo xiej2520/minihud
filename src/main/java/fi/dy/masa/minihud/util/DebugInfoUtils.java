@@ -16,7 +16,7 @@ import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -152,13 +152,13 @@ public class DebugInfoUtils
         if (pathfindingEnabled && mc.world != null && ++tickCounter >= 10)
         {
             tickCounter = 0;
-            ServerWorld world = server.getWorld(mc.world.getRegistryKey());
+            ServerWorld world = server.getWorld(mc.world.dimension.getType());
 
             if (world != null)
             {
                 Predicate<Entity> predicate = (entity) -> (entity instanceof MobEntity) && entity.isAlive();
 
-                for (Entity entity : world.getEntitiesByType(null, predicate))
+                for (Entity entity : world.getEntities(null, predicate))
                 {
                     EntityNavigation navigator = ((MobEntity) entity).getNavigation();
 
@@ -231,7 +231,7 @@ public class DebugInfoUtils
         }
         else if (config == RendererToggle.DEBUG_CHUNK_OCCLUSION)
         {
-            MinecraftClient.getInstance().debugChunkOcclusion = config.getBooleanValue();
+            MinecraftClient.getInstance().debugChunkOcculsion = config.getBooleanValue();
         }
     }
 

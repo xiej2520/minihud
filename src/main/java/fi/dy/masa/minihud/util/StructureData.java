@@ -3,8 +3,8 @@ package fi.dy.masa.minihud.util;
 import java.util.List;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureStart;
 import fi.dy.masa.malilib.util.Constants;
@@ -63,7 +63,7 @@ public class StructureData
         return this.refreshTime;
     }
 
-    public static StructureData fromStructureStart(StructureType type, StructureStart<?> structure)
+    public static StructureData fromStructureStart(StructureType type, StructureStart structure)
     {
         ImmutableList.Builder<IntBoundingBox> builder = ImmutableList.builder();
         List<StructurePiece> components = structure.getChildren();
@@ -77,7 +77,7 @@ public class StructureData
     }
 
     @Nullable
-    public static StructureData fromStructureStartTag(NbtCompound tag, long currentTime)
+    public static StructureData fromStructureStartTag(CompoundTag tag, long currentTime)
     {
         if (tag.contains("BB", Constants.NBT.TAG_INT_ARRAY) &&
             tag.contains("Children", Constants.NBT.TAG_LIST))
@@ -85,12 +85,12 @@ public class StructureData
             StructureType type = StructureType.byStructureId(tag.getString("id"));
 
             ImmutableList.Builder<IntBoundingBox> builder = ImmutableList.builder();
-            NbtList pieces = tag.getList("Children", Constants.NBT.TAG_COMPOUND);
+            ListTag pieces = tag.getList("Children", Constants.NBT.TAG_COMPOUND);
             final int count = pieces.size();
 
             for (int i = 0; i < count; ++i)
             {
-                NbtCompound pieceTag = pieces.getCompound(i);
+                CompoundTag pieceTag = pieces.getCompound(i);
                 builder.add(IntBoundingBox.fromArray(pieceTag.getIntArray("BB")));
             }
 

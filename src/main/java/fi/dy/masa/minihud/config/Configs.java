@@ -240,8 +240,6 @@ public class Configs implements IConfigHandler
                 }
             }
         }
-
-        RenderHandler.getInstance().setFontScale(Configs.Generic.FONT_SCALE.getDoubleValue());
     }
 
     public static void saveToFile()

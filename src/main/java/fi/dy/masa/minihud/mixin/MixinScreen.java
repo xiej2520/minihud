@@ -10,7 +10,7 @@ import fi.dy.masa.minihud.util.DataStorage;
 @Mixin(net.minecraft.client.gui.screen.Screen.class)
 public abstract class MixinScreen extends net.minecraft.client.gui.AbstractParentElement
 {
-    @Shadow protected net.minecraft.client.MinecraftClient client;
+    @Shadow protected net.minecraft.client.MinecraftClient minecraft;
 
     @Inject(method = "sendMessage(Ljava/lang/String;Z)V", at = @At(
             value = "INVOKE",
@@ -18,7 +18,7 @@ public abstract class MixinScreen extends net.minecraft.client.gui.AbstractParen
             cancellable = true)
     private void onSendMessage(String msg, boolean addToChat, CallbackInfo ci)
     {
-        if (DataStorage.getInstance().onSendChatMessage(this.client.player, msg))
+        if (DataStorage.getInstance().onSendChatMessage(this.minecraft.player, msg))
         {
             ci.cancel();
         }

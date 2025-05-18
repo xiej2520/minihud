@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockBox;
@@ -13,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.IntBoundingBox;
+import net.minecraft.world.dimension.DimensionType;
 
 public class MiscUtils
 {
@@ -55,7 +56,7 @@ public class MiscUtils
 
     public static boolean isOverworld(World world)
     {
-        return world.getDimension().isNatural();
+        return world.getDimension().getType() == DimensionType.OVERWORLD;
     }
 
     public static boolean isStructureWithinRange(@Nullable BlockBox bb, BlockPos playerPos, int maxRange)
@@ -94,12 +95,12 @@ public class MiscUtils
 
     public static void addBeeTooltip(ItemStack stack, List<Text> lines)
     {
-        NbtCompound tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
 
         if (tag != null && tag.contains("BlockEntityTag", Constants.NBT.TAG_COMPOUND))
         {
             tag = tag.getCompound("BlockEntityTag");
-            NbtList bees = tag.getList("Bees", Constants.NBT.TAG_COMPOUND);
+            ListTag bees = tag.getList("Bees", Constants.NBT.TAG_COMPOUND);
             int count = bees.size();
             int babyCount = 0;
 
@@ -139,7 +140,7 @@ public class MiscUtils
 
     public static void addHoneyTooltip(ItemStack stack, List<Text> lines)
     {
-        NbtCompound tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
 
         if (tag != null && tag.contains("BlockStateTag", Constants.NBT.TAG_COMPOUND))
         {

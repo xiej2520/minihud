@@ -26,7 +26,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -164,7 +163,7 @@ public class DataStorage
         else if (this.mc.isIntegratedServerRunning())
         {
             MinecraftServer server = this.mc.getServer();
-            World worldTmp = server.getWorld(world.getRegistryKey());
+            World worldTmp = server.getWorld(world.getDimension().getType());
             return worldTmp != null;
         }
 
@@ -181,7 +180,7 @@ public class DataStorage
         if (this.worldSeedValid == false && this.mc.isIntegratedServerRunning())
         {
             MinecraftServer server = this.mc.getServer();
-            ServerWorld worldTmp = server.getWorld(world.getRegistryKey());
+            ServerWorld worldTmp = server.getWorld(world.getDimension().getType());
 
             if (worldTmp != null)
             {
@@ -453,7 +452,7 @@ public class DataStorage
             {
                 if (this.mc.isIntegratedServerRunning())
                 {
-                    BlockPos playerPos = PositionUtils.getEntityBlockPos(this.mc.player);
+                    BlockPos playerPos = new BlockPos(this.mc.player);
 
                     if (this.structuresNeedUpdating(playerPos, 32))
                     {
@@ -505,9 +504,8 @@ public class DataStorage
 
     private void updateStructureDataFromIntegratedServer(final BlockPos playerPos)
     {
-        final DimensionType dimId = this.mc.player.getEntityWorld().getDimension();
-        final RegistryKey<World> worldId = this.mc.player.getEntityWorld().getRegistryKey();
-        final ServerWorld world = this.mc.getServer().getWorld(worldId);
+        final DimensionType dimId = this.mc.player.getEntityWorld().getDimension().getType();
+        final ServerWorld world = this.mc.getServer().getWorld(dimId);
 
         if (world != null)
         {
@@ -534,7 +532,7 @@ public class DataStorage
         this.structuresNeedUpdating = false;
     }
 
-    public void addOrUpdateStructuresFromServer(ListTag structures, int timeout)
+    public void addOrUpdateStructuresFromServer(ListTag structures, int timeout, boolean isServux)
     {
         MiniHUD.printDebug("DataStorage#addOrUpdateStructuresFromServer(): start");
 
@@ -544,7 +542,7 @@ public class DataStorage
             return;
         }
 
-        if (structures.getHeldType() == Constants.NBT.TAG_COMPOUND)
+        if (structures.getElementType() == Constants.NBT.TAG_COMPOUND)
         {
             MiniHUD.printDebug("DataStorage#addOrUpdateStructuresFromServer(): count: " + structures.size());
             this.structureDataTimeout = timeout + 200;
@@ -624,7 +622,7 @@ public class DataStorage
                     {
                         for (StructureType type : enabledTypes)
                         {
-                            StructureStart<?> start = chunk.getStructureStart(type.getFeature());
+                            StructureStart start = chunk.getStructureStart(type.getStructureName());
 
                             if (start != null)
                             {

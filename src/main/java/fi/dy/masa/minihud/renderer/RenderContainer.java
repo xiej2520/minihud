@@ -2,6 +2,8 @@ package fi.dy.masa.minihud.renderer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -86,7 +88,7 @@ public class RenderContainer
             {
                 if (renderer.needsUpdate(entity, mc))
                 {
-                    renderer.lastUpdatePos = PositionUtils.getEntityBlockPos(entity);
+                    renderer.lastUpdatePos = new BlockPos(entity);
                     renderer.setUpdatePosition(cameraPos);
                     renderer.update(cameraPos, entity, mc);
                 }

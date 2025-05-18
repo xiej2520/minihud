@@ -36,7 +36,7 @@ public class OverlayRendererStructures extends OverlayRendererBase
 
         for (StructureType type : StructureType.VALUES)
         {
-            if (type.isEnabled() && type.existsInDimension(mc.world.getDimension()))
+            if (type.isEnabled() && type.existsInDimension(mc.world.getDimension().getType()))
             {
                 return true;
             }
@@ -64,7 +64,7 @@ public class OverlayRendererStructures extends OverlayRendererBase
         BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_COLOR);
         BUFFER_2.begin(renderLines.getGlMode(), VertexFormats.POSITION_COLOR);
 
-        this.updateStructures(mc.world.getDimension(), this.lastUpdatePos, cameraPos, mc);
+        this.updateStructures(mc.world.getDimension().getType(), this.lastUpdatePos, cameraPos, mc);
 
         BUFFER_1.end();
         BUFFER_2.end();

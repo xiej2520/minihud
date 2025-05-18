@@ -507,13 +507,13 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         }
 
         @Override
-        public void postRenderHovered(int mouseX, int mouseY, boolean selected, MatrixStack matrixStack)
+        public void postRenderHovered(int mouseX, int mouseY, boolean selected)
         {
-            RenderUtils.drawHoverText(mouseX, mouseY, ImmutableList.of("Open Color Editor"), matrixStack);
+            RenderUtils.drawHoverText(mouseX, mouseY, ImmutableList.of("Open Color Editor"));
         }
 
         @Override
-        public void render(int mouseX, int mouseY, boolean selected, MatrixStack matrixStack)
+        public void render(int mouseX, int mouseY, boolean selected)
         {
             int x = this.getX();
             int y = this.getY();
