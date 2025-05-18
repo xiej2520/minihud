@@ -11,10 +11,12 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.tag.FluidTags;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.LightType;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
@@ -22,7 +24,10 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.light.LightingProvider;
 import fi.dy.masa.malilib.config.IConfigDouble;
 import fi.dy.masa.malilib.config.options.ConfigColor;
+import fi.dy.masa.malilib.gui.Message;
 import fi.dy.masa.malilib.util.Color4f;
+import fi.dy.masa.malilib.util.InfoUtils;
+import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.minihud.Reference;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
@@ -37,11 +42,17 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
     private final BlockPos.Mutable mutablePos = new BlockPos.Mutable();
     private Direction lastDirection = Direction.NORTH;
 
+    private static boolean tagsBroken;
     private static boolean needsUpdate;
 
     public static void setNeedsUpdate()
     {
         needsUpdate = true;
+    }
+
+    public static void reset()
+    {
+        tagsBroken = false;
     }
 
     @Override
@@ -63,7 +74,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
     @Override
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
-        BlockPos pos = new BlockPos(entity);
+        BlockPos pos = PositionUtils.getEntityBlockPos(entity);
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);
         BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_TEXTURE_COLOR);
@@ -158,6 +169,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
         double ox = cfgOffX.getDoubleValue();
         double oz = cfgOffZ.getDoubleValue();
         double tmpX, tmpZ;
+        double offsetY = Configs.Generic.LIGHT_LEVEL_Z_OFFSET.getDoubleValue();
         Color4f colorLit, colorDark;
 
         switch (numberFacing)
@@ -180,7 +192,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
             colorDark = Color4f.fromColor(0xFFFFFFFF);
         }
 
-        this.renderLightLevelNumbers(tmpX + cameraPos.x, cameraPos.y, tmpZ + cameraPos.z, numberFacing, lightThreshold, mode, colorLit, colorDark, buffer);
+        this.renderLightLevelNumbers(tmpX + cameraPos.x, cameraPos.y - offsetY, tmpZ + cameraPos.z, numberFacing, lightThreshold, mode, colorLit, colorDark, buffer);
     }
 
     private void renderMarkers(IMarkerRenderer renderer, Vec3d cameraPos, int lightThreshold, BufferBuilder buffer)
@@ -188,6 +200,9 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
         double markerSize = Configs.Generic.LIGHT_LEVEL_MARKER_SIZE.getDoubleValue();
         Color4f colorLit = Configs.Colors.LIGHT_LEVEL_MARKER_LIT.getColor();
         Color4f colorDark = Configs.Colors.LIGHT_LEVEL_MARKER_DARK.getColor();
+        double offsetX = cameraPos.x;
+        double offsetY = cameraPos.y - Configs.Generic.LIGHT_LEVEL_Z_OFFSET.getDoubleValue();
+        double offsetZ = cameraPos.z;
         double offset1 = (1.0 - markerSize) / 2.0;
         double offset2 = (1.0 - offset1);
         final int count = this.lightInfos.size();
@@ -200,7 +215,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
             {
                 BlockPos pos = info.pos;
                 Color4f color = info.sky >= lightThreshold ? colorLit : colorDark;
-                renderer.render(pos.getX() - cameraPos.x, pos.getY() - cameraPos.y, pos.getZ() - cameraPos.z, color, offset1, offset2, buffer);
+                renderer.render(pos.getX() - offsetX, pos.getY() - offsetY, pos.getZ() - offsetZ, color, offset1, offset2, buffer);
             }
         }
     }
@@ -310,6 +325,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
         final int maxCX = (maxX >> 4);
         final int maxCZ = (maxZ >> 4);
         LightingProvider lightingProvider = world.getChunkManager().getLightingProvider();
+        final int worldHeight = world.getHeight();
 
         for (int cx = minCX; cx <= maxCX; ++cx)
         {
@@ -327,18 +343,17 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
                     for (int z = startZ; z <= endZ; ++z)
                     {
                         final int startY = Math.max(minY, 0);
-                        final int endY   = Math.min(maxY, chunk.getHighestNonEmptySectionYOffset() + 15);
+                        final int endY   = Math.min(maxY, chunk.getHighestNonEmptySectionYOffset() + 15 + 1);
 
                         for (int y = startY; y <= endY; ++y)
                         {
-                            if (this.canSpawnAt(x, y, z, chunk, world))
+                            if (this.canSpawnAtWrapper(x, y, z, chunk, world))
                             {
-                                this.mutablePos.set(x, y, z);
+                                BlockPos pos = new BlockPos(x, y, z);
+                                int block = y < worldHeight ? lightingProvider.get(LightType.BLOCK).getLightLevel(pos) : 0;
+                                int sky   = y < worldHeight ? lightingProvider.get(LightType.SKY).getLightLevel(pos) : 15;
 
-                                int block = lightingProvider.get(LightType.BLOCK).getLightLevel(this.mutablePos);
-                                int sky = lightingProvider.get(LightType.SKY).getLightLevel(this.mutablePos);
-
-                                this.lightInfos.add(new LightLevelInfo(new BlockPos(x, y, z), block, sky));
+                                this.lightInfos.add(new LightLevelInfo(pos, block, sky));
 
                                 //y += 2; // if the spot is spawnable, that means the next spawnable spot can be the third block up
                             }
@@ -349,46 +364,83 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
         }
     }
 
+    private boolean canSpawnAtWrapper(int x, int y, int z, Chunk chunk, World world)
+    {
+        try
+        {
+            return this.canSpawnAt(x, y, z, chunk, world);
+        }
+        catch (Exception e)
+        {
+            InfoUtils.showGuiOrInGameMessage(Message.MessageType.WARNING, 8000, "This dimension seems to have missing block tag data, the light level will not use the normal block spawnability checks in this dimension. This is known to happen on some Waterfall/BungeeCord/ViaVersion/whatever setups that have an older MC version at the back end.");
+            tagsBroken = true;
+
+            return false;
+        }
+    }
+
     /**
      * This method mimics the one from WorldEntitySpawner, but takes in the Chunk to avoid that lookup
-     * @param spawnPlacementTypeIn
-     * @param worldIn
-     * @param pos
-     * @return
      */
     private boolean canSpawnAt(int x, int y, int z, Chunk chunk, World world)
     {
         this.mutablePos.set(x, y - 1, z);
         BlockState stateDown = chunk.getBlockState(this.mutablePos);
 
-        if (stateDown.allowsSpawning(world, this.mutablePos, EntityType.CREEPER) == false)
-        {
-            return false;
-        }
-        else
+        if (stateDown.allowsSpawning(world, this.mutablePos, EntityType.CREEPER))
         {
             this.mutablePos.set(x, y, z);
             BlockState state = chunk.getBlockState(this.mutablePos);
 
-            if (SpawnHelper.isClearForSpawn(world, this.mutablePos, state, state.getFluidState()))
+            if (isClearForSpawnWrapper(world, this.mutablePos, state, state.getFluidState(), EntityType.WITHER_SKELETON))
             {
                 this.mutablePos.set(x, y + 1, z);
                 BlockState stateUp1 = chunk.getBlockState(this.mutablePos);
 
-                return SpawnHelper.isClearForSpawn(world, this.mutablePos, stateUp1, state.getFluidState());
+                return isClearForSpawnWrapper(world, this.mutablePos, stateUp1, state.getFluidState(), EntityType.WITHER_SKELETON);
             }
 
-            if (state.getFluidState().matches(FluidTags.WATER))
+            if (state.getFluidState().isIn(FluidTags.WATER))
             {
                 this.mutablePos.set(x, y + 1, z);
                 BlockState stateUp1 = chunk.getBlockState(this.mutablePos);
 
-                return stateUp1.getFluidState().matches(FluidTags.WATER) &&
-                       chunk.getBlockState(this.mutablePos.set(x, y + 2, z)).isSimpleFullBlock(world, this.mutablePos) == false;
+                return stateUp1.getFluidState().isIn(FluidTags.WATER) &&
+                       chunk.getBlockState(this.mutablePos.set(x, y + 2, z)).isSolidBlock(world, this.mutablePos) == false;
             }
+        }
 
+        return false;
+    }
+
+    public static boolean isClearForSpawnWrapper(BlockView blockView, BlockPos pos, BlockState state, FluidState fluidState, EntityType<?> entityType)
+    {
+        return tagsBroken ? isClearForSpawnStripped(blockView, pos, state, fluidState, entityType) : SpawnHelper.isClearForSpawn(blockView, pos, state, fluidState, entityType);
+    }
+
+    /**
+     * This method is basically a copy of SpawnHelper.isClearForSpawn(), except that
+     * it removes any calls to BlockState.isIn(), which causes an exception on certain
+     * ViaVersion servers that have old 1.12.2 worlds.
+     * (or possibly newer versions as well, but older than 1.16 or 1.15 or whenever the tag syncing was added)
+     */
+    public static boolean isClearForSpawnStripped(BlockView blockView, BlockPos pos, BlockState state, FluidState fluidState, EntityType<?> entityType)
+    {
+        if (state.isFullCube(blockView, pos) || state.emitsRedstonePower() || fluidState.isEmpty() == false)
+        {
             return false;
         }
+        /*
+        else if (state.isIn(BlockTags.PREVENT_MOB_SPAWNING_INSIDE))
+        {
+            return false;
+        }
+
+        // this also calls BlockState isIn()
+        return entityType.method_29496(state) == false;
+        */
+
+        return true;
     }
 
     public static class LightLevelInfo

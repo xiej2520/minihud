@@ -1,6 +1,7 @@
 package fi.dy.masa.minihud.hotkeys;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.malilib.config.IConfigBoolean;
@@ -37,6 +38,7 @@ public class KeyCallbackToggleRenderer extends KeyCallbackToggleBooleanConfigWit
                 return true;
             }
 
+            Entity entity = mc.getCameraEntity() != null ? mc.getCameraEntity() : mc.player;
             String green = GuiBase.TXT_GREEN;
             String rst = GuiBase.TXT_RST;
             String strStatus = green + StringUtils.translate("malilib.message.value.on") + rst;
@@ -55,7 +57,7 @@ public class KeyCallbackToggleRenderer extends KeyCallbackToggleBooleanConfigWit
             }
             else if (key == RendererToggle.OVERLAY_SLIME_CHUNKS_OVERLAY.getKeybind())
             {
-                OverlayRendererSlimeChunks.overlayTopY = mc.player.getY();
+                OverlayRendererSlimeChunks.overlayTopY = entity.getY();
                 OverlayRendererSlimeChunks.setNeedsUpdate();
             }
             else if (key == RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER.getKeybind())
@@ -74,7 +76,7 @@ public class KeyCallbackToggleRenderer extends KeyCallbackToggleBooleanConfigWit
             }
             else if (key == RendererToggle.OVERLAY_RANDOM_TICKS_FIXED.getKeybind())
             {
-                Vec3d pos = mc.player.getPos();
+                Vec3d pos = entity.getPos();
                 OverlayRendererRandomTickableChunks.newPos = pos;
                 String strPos = String.format("x: %.2f, y: %.2f, z: %.2f", pos.x, pos.y, pos.z);
                 String message = StringUtils.translate("minihud.message.toggled_using_position", this.config.getPrettyName(), strStatus, strPos);

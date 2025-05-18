@@ -12,9 +12,9 @@ import net.minecraft.client.render.VertexFormatElement;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.minihud.config.RendererToggle;
 import fi.dy.masa.minihud.renderer.shapes.ShapeBase;
 
@@ -37,7 +37,7 @@ public class RenderContainer
         this.addRenderer(new OverlayRendererSpawnableColumnHeights());
         this.addRenderer(new OverlayRendererSpawnChunks(RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_REAL));
         this.addRenderer(new OverlayRendererSpawnChunks(RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER));
-        this.addRenderer(new OverlayRendererStructures());
+        this.addRenderer(OverlayRendererStructures.INSTANCE);
     }
 
     private void addRenderer(OverlayRendererBase renderer)
@@ -86,7 +86,7 @@ public class RenderContainer
             {
                 if (renderer.needsUpdate(entity, mc))
                 {
-                    renderer.lastUpdatePos = new BlockPos(entity);
+                    renderer.lastUpdatePos = PositionUtils.getEntityBlockPos(entity);
                     renderer.setUpdatePosition(cameraPos);
                     renderer.update(cameraPos, entity, mc);
                 }
@@ -157,7 +157,6 @@ public class RenderContainer
             fi.dy.masa.malilib.render.RenderUtils.color(1f, 1f, 1f, 1f);
             RenderSystem.disableBlend();
             RenderSystem.enableDepthTest();
-            RenderSystem.enableLighting();
             RenderSystem.enableCull();
             RenderSystem.depthMask(true);
             RenderSystem.enableTexture();

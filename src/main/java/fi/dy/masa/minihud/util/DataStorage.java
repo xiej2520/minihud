@@ -10,6 +10,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,6 +26,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -33,6 +35,7 @@ import fi.dy.masa.malilib.network.ClientPacketChannelHandler;
 import fi.dy.masa.malilib.util.Constants;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.config.RendererToggle;
 import fi.dy.masa.minihud.network.StructurePacketHandlerCarpet;
@@ -40,7 +43,6 @@ import fi.dy.masa.minihud.network.StructurePacketHandlerServux;
 import fi.dy.masa.minihud.renderer.OverlayRendererLightLevel;
 import fi.dy.masa.minihud.renderer.OverlayRendererSpawnableColumnHeights;
 import fi.dy.masa.minihud.renderer.shapes.ShapeManager;
-import fi.dy.masa.minihud.util.StructureTypes.StructureType;
 
 public class DataStorage
 {
@@ -53,6 +55,7 @@ public class DataStorage
 
     private boolean worldSeedValid;
     private boolean serverTPSValid;
+    private boolean hasSyncedTime;
     private boolean carpetServer;
     private boolean servuxServer;
     private boolean worldSpawnValid;
@@ -69,7 +72,8 @@ public class DataStorage
     private double serverMSPT;
     private BlockPos worldSpawn = BlockPos.ORIGIN;
     private Vec3d distanceReferencePoint = Vec3d.ZERO;
-    private final Multimap<StructureType, StructureData> structures = MultimapBuilder.hashKeys().hashSetValues().build();
+    private int[] blockBreakCounter = new int[100];
+    private final ArrayListMultimap<StructureType, StructureData> structures = ArrayListMultimap.create();
     private final MinecraftClient mc = MinecraftClient.getInstance();
 
     public static DataStorage getInstance()
@@ -90,6 +94,7 @@ public class DataStorage
 
         this.worldSeedValid = false;
         this.serverTPSValid = false;
+        this.hasSyncedTime = false;
         this.carpetServer = false;
         this.worldSpawnValid = false;
         this.structuresNeedUpdating = true;
@@ -104,6 +109,7 @@ public class DataStorage
         StructurePacketHandlerCarpet.INSTANCE.reset();
         StructurePacketHandlerServux.INSTANCE.reset();
         ShapeManager.INSTANCE.clear();
+        OverlayRendererLightLevel.reset();
 
         if (isLogout)
         {
@@ -149,7 +155,7 @@ public class DataStorage
         }
     }
 
-    public boolean isWorldSeedKnown(DimensionType dimension)
+    public boolean isWorldSeedKnown(World world)
     {
         if (this.worldSeedValid)
         {
@@ -158,19 +164,24 @@ public class DataStorage
         else if (this.mc.isIntegratedServerRunning())
         {
             MinecraftServer server = this.mc.getServer();
-            World worldTmp = server.getWorld(dimension);
+            World worldTmp = server.getWorld(world.getRegistryKey());
             return worldTmp != null;
         }
 
         return false;
     }
 
-    public long getWorldSeed(DimensionType dimension)
+    public boolean hasStoredWorldSeed()
+    {
+        return this.worldSeedValid;
+    }
+
+    public long getWorldSeed(World world)
     {
         if (this.worldSeedValid == false && this.mc.isIntegratedServerRunning())
         {
             MinecraftServer server = this.mc.getServer();
-            World worldTmp = server.getWorld(dimension);
+            ServerWorld worldTmp = server.getWorld(world.getRegistryKey());
 
             if (worldTmp != null)
             {
@@ -191,7 +202,7 @@ public class DataStorage
         return this.worldSpawn;
     }
 
-    public boolean isServerTPSValid()
+    public boolean hasTPSData()
     {
         return this.serverTPSValid;
     }
@@ -253,6 +264,29 @@ public class DataStorage
                 OverlayRendererLightLevel.setNeedsUpdate();
             }
         }
+    }
+
+    public void onClientTickPre(MinecraftClient mc)
+    {
+        if (mc.world != null)
+        {
+            int tick = (int) (mc.world.getTime() % this.blockBreakCounter.length);
+            this.blockBreakCounter[tick] = 0;
+        }
+    }
+
+    public void onPlayerBlockBreak(MinecraftClient mc)
+    {
+        if (mc.world != null)
+        {
+            int tick = (int) (mc.world.getTime() % this.blockBreakCounter.length);
+            ++this.blockBreakCounter[tick];
+        }
+    }
+
+    public double getBlockBreakingSpeed()
+    {
+        return MiscUtils.intAverage(this.blockBreakCounter) * 20;
     }
 
     public boolean onSendChatMessage(PlayerEntity player, String message)
@@ -356,7 +390,7 @@ public class DataStorage
         {
             long currentTime = System.nanoTime();
 
-            if (this.serverTPSValid)
+            if (this.hasSyncedTime)
             {
                 long elapsedTicks = totalWorldTime - this.lastServerTick;
 
@@ -364,12 +398,13 @@ public class DataStorage
                 {
                     this.serverMSPT = ((double) (currentTime - this.lastServerTimeUpdate) / (double) elapsedTicks) / 1000000D;
                     this.serverTPS = this.serverMSPT <= 50 ? 20D : (1000D / this.serverMSPT);
+                    this.serverTPSValid = true;
                 }
             }
 
             this.lastServerTick = totalWorldTime;
             this.lastServerTimeUpdate = currentTime;
-            this.serverTPSValid = true;
+            this.hasSyncedTime = true;
         }
     }
 
@@ -377,7 +412,7 @@ public class DataStorage
     {
         if (this.mc != null && this.mc.player != null && this.mc.getServer() != null)
         {
-            this.serverMSPT = (double) MathHelper.average(this.mc.getServer().lastTickLengths) / 1000000D;
+            this.serverMSPT = MathHelper.average(this.mc.getServer().lastTickLengths) / 1000000D;
             this.serverTPS = this.serverMSPT <= 50 ? 20D : (1000D / this.serverMSPT);
             this.serverTPSValid = true;
         }
@@ -385,7 +420,6 @@ public class DataStorage
 
     /**
      * Gets a copy of the structure data map, and clears the dirty flag
-     * @return
      */
     public ArrayListMultimap<StructureType, StructureData> getCopyOfStructureData()
     {
@@ -419,7 +453,7 @@ public class DataStorage
             {
                 if (this.mc.isIntegratedServerRunning())
                 {
-                    BlockPos playerPos = new BlockPos(this.mc.player);
+                    BlockPos playerPos = PositionUtils.getEntityBlockPos(this.mc.player);
 
                     if (this.structuresNeedUpdating(playerPos, 32))
                     {
@@ -471,8 +505,9 @@ public class DataStorage
 
     private void updateStructureDataFromIntegratedServer(final BlockPos playerPos)
     {
-        final DimensionType dimension = this.mc.player.dimension;
-        final ServerWorld world = this.mc.getServer().getWorld(dimension);
+        final DimensionType dimId = this.mc.player.getEntityWorld().getDimension();
+        final RegistryKey<World> worldId = this.mc.player.getEntityWorld().getRegistryKey();
+        final ServerWorld world = this.mc.getServer().getWorld(worldId);
 
         if (world != null)
         {
@@ -483,7 +518,7 @@ public class DataStorage
             {
                 synchronized (this.structures)
                 {
-                    this.addStructureDataFromGenerator(world, dimension, playerPos, maxChunkRange);
+                    this.addStructureDataFromGenerator(world, dimId, playerPos, maxChunkRange);
                 }
             }));
         }
@@ -499,7 +534,7 @@ public class DataStorage
         this.structuresNeedUpdating = false;
     }
 
-    public void addOrUpdateStructuresFromServer(ListTag structures, int timeout, boolean isServux)
+    public void addOrUpdateStructuresFromServer(ListTag structures, int timeout)
     {
         MiniHUD.printDebug("DataStorage#addOrUpdateStructuresFromServer(): start");
 
@@ -509,7 +544,7 @@ public class DataStorage
             return;
         }
 
-        if (structures.getElementType() == Constants.NBT.TAG_COMPOUND)
+        if (structures.getHeldType() == Constants.NBT.TAG_COMPOUND)
         {
             MiniHUD.printDebug("DataStorage#addOrUpdateStructuresFromServer(): count: " + structures.size());
             this.structureDataTimeout = timeout + 200;
@@ -557,7 +592,7 @@ public class DataStorage
         }
     }
 
-    private void addStructureDataFromGenerator(ServerWorld world, DimensionType dimensionType, BlockPos playerPos, int maxChunkRange)
+    private void addStructureDataFromGenerator(ServerWorld world, DimensionType dimId, BlockPos playerPos, int maxChunkRange)
     {
         this.structures.clear();
 
@@ -565,7 +600,7 @@ public class DataStorage
 
         for (StructureType type : StructureType.values())
         {
-            if (type.isEnabled() && type.existsInDimension(dimensionType))
+            if (type.isEnabled() && type.existsInDimension(dimId))
             {
                 enabledTypes.add(type);
             }
@@ -589,7 +624,7 @@ public class DataStorage
                     {
                         for (StructureType type : enabledTypes)
                         {
-                            StructureStart start = chunk.getStructureStart(type.getStructureName());
+                            StructureStart<?> start = chunk.getStructureStart(type.getFeature());
 
                             if (start != null)
                             {
@@ -611,7 +646,7 @@ public class DataStorage
 
     public void handleCarpetServerTPSData(Text textComponent)
     {
-        if (textComponent.asFormattedString().isEmpty() == false)
+        if (textComponent.getString().isEmpty() == false)
         {
             String text = Formatting.strip(textComponent.getString());
             String[] lines = text.split("\n");
@@ -630,7 +665,7 @@ public class DataStorage
                         this.carpetServer = true;
                         return;
                     }
-                    catch (NumberFormatException e)
+                    catch (NumberFormatException ignore)
                     {
                     }
                 }
@@ -646,6 +681,11 @@ public class DataStorage
 
         obj.add("distance_pos", JsonUtils.vec3dToJson(this.distanceReferencePoint));
 
+        if (this.worldSeedValid)
+        {
+            obj.add("seed", new JsonPrimitive(this.worldSeed));
+        }
+
         return obj;
     }
 
@@ -660,6 +700,12 @@ public class DataStorage
         else
         {
             this.distanceReferencePoint = Vec3d.ZERO;
+        }
+
+        if (JsonUtils.hasLong(obj, "seed"))
+        {
+            this.worldSeed = JsonUtils.getLong(obj, "seed");
+            this.worldSeedValid = true;
         }
     }
 }

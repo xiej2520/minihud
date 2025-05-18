@@ -71,7 +71,7 @@ public class OverlayRendererRandomTickableChunks extends OverlayRendererBase
     {
         if (this.toggle == RendererToggle.OVERLAY_RANDOM_TICKS_PLAYER)
         {
-            this.pos = entity.getPosVector();
+            this.pos = entity.getPos();
         }
         else if (newPos != null)
         {

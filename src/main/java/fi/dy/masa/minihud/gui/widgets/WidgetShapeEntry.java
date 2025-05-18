@@ -14,6 +14,7 @@ import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.minihud.gui.GuiShapeEditor;
 import fi.dy.masa.minihud.renderer.shapes.ShapeBase;
 import fi.dy.masa.minihud.renderer.shapes.ShapeManager;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class WidgetShapeEntry extends WidgetListEntryBase<ShapeBase>
 {
@@ -60,7 +61,13 @@ public class WidgetShapeEntry extends WidgetListEntryBase<ShapeBase>
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean selected)
+    public boolean canSelectAt(int mouseX, int mouseY, int mouseButton)
+    {
+        return super.canSelectAt(mouseX, mouseY, mouseButton) && mouseX < this.buttonsStartX;
+    }
+
+    @Override
+    public void render(int mouseX, int mouseY, boolean selected, MatrixStack matrixStack)
     {
         RenderUtils.color(1f, 1f, 1f, 1f);
 
@@ -86,26 +93,26 @@ public class WidgetShapeEntry extends WidgetListEntryBase<ShapeBase>
             RenderUtils.drawOutline(this.x, this.y, this.width, this.height, 0xFFE0E0E0);
         }
 
-        String name = this.shape.getType().getDisplayName();
-        this.drawString(this.x + 4, this.y + 7, 0xFFFFFFFF, name);
+        String name = this.shape.getDisplayName();
+        this.drawString(this.x + 4, this.y + 7, 0xFFFFFFFF, name, matrixStack);
 
         RenderUtils.color(1f, 1f, 1f, 1f);
         RenderSystem.disableBlend();
 
-        super.render(mouseX, mouseY, selected);
+        super.render(mouseX, mouseY, selected, matrixStack);
 
         RenderUtils.disableDiffuseLighting();
         RenderSystem.disableLighting();
     }
 
     @Override
-    public void postRenderHovered(int mouseX, int mouseY, boolean selected)
+    public void postRenderHovered(int mouseX, int mouseY, boolean selected, MatrixStack matrixStack)
     {
-        super.postRenderHovered(mouseX, mouseY, selected);
+        super.postRenderHovered(mouseX, mouseY, selected, matrixStack);
 
         if (mouseX >= this.x && mouseX < this.buttonsStartX && mouseY >= this.y && mouseY <= this.y + this.height)
         {
-            RenderUtils.drawHoverText(mouseX, mouseY, this.hoverLines);
+            RenderUtils.drawHoverText(mouseX, mouseY, this.hoverLines, matrixStack);
         }
     }
 

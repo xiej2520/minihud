@@ -7,11 +7,12 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.dimension.OverworldDimension;
 import fi.dy.masa.malilib.util.Color4f;
+import fi.dy.masa.malilib.util.PositionUtils;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
 import fi.dy.masa.minihud.util.DataStorage;
+import fi.dy.masa.minihud.util.MiscUtils;
 
 public class OverlayRendererSpawnChunks extends OverlayRendererBase
 {
@@ -34,7 +35,7 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
     {
         return this.toggle.getBooleanValue() &&
                 (this.toggle == RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER ||
-                 (mc.world != null && mc.world.dimension instanceof OverworldDimension &&
+                 (mc.world != null && MiscUtils.isOverworld(mc.world) &&
                   DataStorage.getInstance().isWorldSpawnKnown()));
     }
 
@@ -66,7 +67,7 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
         DataStorage data = DataStorage.getInstance();
-        BlockPos spawn = this.toggle == RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER ? new BlockPos(entity) : data.getWorldSpawn();
+        BlockPos spawn = this.toggle == RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER ? PositionUtils.getEntityBlockPos(entity) : data.getWorldSpawn();
 
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);
@@ -82,6 +83,9 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
         final Color4f colorOuter = this.toggle == RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_REAL ?
                 Configs.Colors.SPAWN_REAL_OUTER_OVERLAY_COLOR.getColor() :
                 Configs.Colors.SPAWN_PLAYER_OUTER_OVERLAY_COLOR.getColor();
+
+        fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(spawn, colorEntity, 0.001, BUFFER_2);
+        fi.dy.masa.malilib.render.RenderUtils.drawBlockBoundingBoxSidesBatchedQuads(spawn, colorEntity, 0.001, BUFFER_1);
 
         Pair<BlockPos, BlockPos> corners = this.getSpawnChunkCorners(spawn, 22);
         RenderUtils.renderWallsWithLines(corners.getLeft(), corners.getRight(), cameraPos, 16, 16, true, colorOuter, BUFFER_1, BUFFER_2);
