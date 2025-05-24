@@ -11,6 +11,7 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL11;
 
 public abstract class OverlayRendererBase implements IOverlayRenderer
 {
@@ -45,6 +46,8 @@ public abstract class OverlayRendererBase implements IOverlayRenderer
         {
             RenderSystem.disableDepthTest();
             //RenderSystem.depthMask(false);
+        } else {
+            RenderSystem.enableDepthTest();
         }
 
         if (this.useCulling)
@@ -112,6 +115,13 @@ public abstract class OverlayRendererBase implements IOverlayRenderer
         RenderObjectBase obj = new RenderObjectVbo(glMode, format);
         this.renderObjects.add(obj);
         return obj;
+    }
+
+    @Override
+    public void allocateGlResources()
+    {
+        this.allocateBuffer(GL11.GL_QUADS);
+        this.allocateBuffer(GL11.GL_LINES);
     }
 
     public void setRenderThrough(boolean renderThrough)

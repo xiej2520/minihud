@@ -131,13 +131,6 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         this.needsRenderUpdate = false;
     }
 
-    @Override
-    public void allocateGlResources()
-    {
-        this.allocateBuffer(GL11.GL_QUADS);
-        this.allocateBuffer(GL11.GL_LINES);
-    }
-
     protected void renderQuads(List<ColoredQuad> quads, BufferBuilder quadBuffer,
                                BufferBuilder lineBuffer, Vec3d cameraPos)
     {

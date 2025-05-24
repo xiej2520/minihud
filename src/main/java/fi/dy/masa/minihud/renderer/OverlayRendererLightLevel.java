@@ -1,7 +1,6 @@
 package fi.dy.masa.minihud.renderer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -12,8 +11,8 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.tag.FluidTags;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.tag.FluidTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
