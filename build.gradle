@@ -3,8 +3,9 @@ plugins {
 }
 
 repositories {
-    maven { url 'https://masa.dy.fi/maven' }
+    //maven { url 'https://masa.dy.fi/maven' }
     maven { url "https://maven.terraformersmc.com/releases/" }
+    mavenLocal()
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8

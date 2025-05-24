@@ -74,7 +74,7 @@ public class OverlayRendererLightLevel extends OverlayRendererBase
     @Override
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
-        BlockPos pos = new BlockPos(entity);
+        BlockPos pos = PositionUtils.getEntityBlockPos(entity);
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);
         BUFFER_1.begin(renderQuads.getGlMode(), VertexFormats.POSITION_TEXTURE_COLOR);

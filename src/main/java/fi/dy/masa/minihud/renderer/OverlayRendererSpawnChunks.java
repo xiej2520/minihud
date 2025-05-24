@@ -67,7 +67,7 @@ public class OverlayRendererSpawnChunks extends OverlayRendererBase
     public void update(Vec3d cameraPos, Entity entity, MinecraftClient mc)
     {
         DataStorage data = DataStorage.getInstance();
-        BlockPos spawn = this.toggle == RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER ? new BlockPos(entity) : data.getWorldSpawn();
+        BlockPos spawn = this.toggle == RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER ? PositionUtils.getEntityBlockPos(entity) : data.getWorldSpawn();
 
         RenderObjectBase renderQuads = this.renderObjects.get(0);
         RenderObjectBase renderLines = this.renderObjects.get(1);

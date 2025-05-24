@@ -452,7 +452,7 @@ public class DataStorage
             {
                 if (this.mc.isIntegratedServerRunning())
                 {
-                    BlockPos playerPos = new BlockPos(this.mc.player);
+                    BlockPos playerPos = PositionUtils.getEntityBlockPos(this.mc.player);
 
                     if (this.structuresNeedUpdating(playerPos, 32))
                     {

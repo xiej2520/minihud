@@ -88,7 +88,7 @@ public class RenderContainer
             {
                 if (renderer.needsUpdate(entity, mc))
                 {
-                    renderer.lastUpdatePos = new BlockPos(entity);
+                    renderer.lastUpdatePos = PositionUtils.getEntityBlockPos(entity);
                     renderer.setUpdatePosition(cameraPos);
                     renderer.update(cameraPos, entity, mc);
                 }
