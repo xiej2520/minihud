@@ -7,7 +7,6 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Direction;
 import fi.dy.masa.malilib.config.IConfigInteger;
@@ -89,7 +88,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         this.nextY = y + 20;
         this.colorY = y - 1;
 
-        this.addWidget(new WidgetColorIndicator(x + 74, this.colorY, 19, 19, this.shape.getColor(), (val) -> this.shape.setColor(val) ));
+        this.addWidget(new WidgetColorIndicator(x + 74, this.colorY, 19, 19, this.shape.getColor(), this.shape::setColor));
     }
 
     private void createShapeEditorElements(int x, int y)
@@ -113,7 +112,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
             {
                 ShapeSpawnSphere shape = (ShapeSpawnSphere) this.shape;
                 this.createShapeEditorElementsSphereBase(x, y, false);
-                this.createShapeEditorElementDoubleField(x + 150, y + 2, () -> shape.getMargin(), (val) -> shape.setMargin(val), "minihud.gui.label.margin_colon", false);
+                this.createShapeEditorElementDoubleField(x + 150, y + 2, shape::getMargin, shape::setMargin, "minihud.gui.label.margin_colon", false);
                 break;
             }
 
@@ -121,15 +120,15 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
             {
                 ShapeCircle shape = (ShapeCircle) this.shape;
                 this.createShapeEditorElementsSphereBase(x, y, true);
-                this.createShapeEditorElementIntField(x + 150, y + 36, () -> shape.getHeight(), (val) -> shape.setHeight(val), "minihud.gui.label.height_colon", true);
-                this.createDirectionButton(x + 230, y + 36, () -> shape.getMainAxis(), (val) -> shape.setMainAxis(val), "minihud.gui.label.circle.main_axis_colon");
-                this.createRenderTypeButton(renderTypeX, renderTypeY, () -> this.shape.getRenderType(), (val) -> this.shape.setRenderType(val), "minihud.gui.label.render_type_colon");
+                this.createShapeEditorElementIntField(x + 150, y + 36, shape::getHeight, shape::setHeight, "minihud.gui.label.height_colon", true);
+                this.createDirectionButton(x + 230, y + 36, shape::getMainAxis, shape::setMainAxis, "minihud.gui.label.circle.main_axis_colon");
+                this.createRenderTypeButton(renderTypeX, renderTypeY, this.shape::getRenderType, this.shape::setRenderType, "minihud.gui.label.render_type_colon");
                 break;
             }
 
             case SPHERE_BLOCKY:
                 this.createShapeEditorElementsSphereBase(x, y, true);
-                this.createRenderTypeButton(renderTypeX, renderTypeY, () -> this.shape.getRenderType(), (val) -> this.shape.setRenderType(val), "minihud.gui.label.render_type_colon");
+                this.createRenderTypeButton(renderTypeX, renderTypeY, this.shape::getRenderType, this.shape::setRenderType, "minihud.gui.label.render_type_colon");
                 break;
         }
     }
@@ -142,7 +141,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
 
         if (addRadiusInput)
         {
-            this.createShapeEditorElementDoubleField(x + 150, y + 2, () -> shape.getRadius(), (val) -> shape.setRadius(val), "minihud.gui.label.radius_colon", true);
+            this.createShapeEditorElementDoubleField(x + 150, y + 2, shape::getRadius, shape::setRadius, "minihud.gui.label.radius_colon", true);
         }
 
         y += 12;
@@ -259,7 +258,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
                 this.shape.setCenter(PositionUtils.setValue(type, this.shape.getCenter(), Double.parseDouble(newValue)));
                 return true;
             }
-            catch (Exception e) {}
+            catch (Exception ignore) {}
 
             return false;
         }
@@ -342,7 +341,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
                 this.consumer.accept(Integer.parseInt(textField.getText()));
                 return true;
             }
-            catch (Exception e) {}
+            catch (Exception ignore) {}
 
             return false;
         }
@@ -365,7 +364,7 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
                 this.consumer.accept(Double.parseDouble(textField.getText()));
                 return true;
             }
-            catch (Exception e) {}
+            catch (Exception ignore) {}
 
             return false;
         }
