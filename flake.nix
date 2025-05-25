@@ -21,7 +21,8 @@
           let
             pkgs = import nixpkgs { inherit system; };
             deps = with pkgs; [
-              openjdk # change java version as necessary
+              jdk8 # change java version as necessary
+              openjdk
               gradle
               libpulseaudio
               libGL
@@ -51,6 +52,11 @@
             shellHook = ''
               export BASE_DIR=$(pwd)
               mkdir -p $BASE_DIR/.share
+
+              if [ -L "$BASE_DIR/.share/java8" ]; then
+                unlink "$BASE_DIR/.share/java8"
+              fi
+              ln -sf ${pkgs.jdk8}/lib/openjdk $BASE_DIR/.share/java8
 
               if [ -L "$BASE_DIR/.share/java" ]; then
                 unlink "$BASE_DIR/.share/java"

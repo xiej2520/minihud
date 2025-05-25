@@ -3,6 +3,8 @@ package fi.dy.masa.minihud.gui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.ConfigType;
 import fi.dy.masa.malilib.config.ConfigUtils;
@@ -130,7 +132,7 @@ public class GuiConfigs extends GuiConfigsBase
         {
             List<IConfigBase> list = new ArrayList<>();
             list.add(Configs.Generic.MAIN_RENDERING_TOGGLE);
-            list.addAll(INFO_LINE_LIST.stream().map(this::wrapConfig).toList());
+            list.addAll(INFO_LINE_LIST.stream().map(this::wrapConfig).collect(Collectors.toList()));
             list.addAll(ConfigUtils.createConfigWrapperForType(ConfigType.INTEGER, INFO_LINE_LIST));
             return ConfigOptionWrapper.createFor(list);
         }
@@ -139,7 +141,7 @@ public class GuiConfigs extends GuiConfigsBase
             List<IConfigBase> list = new ArrayList<>();
             list.add(Configs.Generic.MAIN_RENDERING_TOGGLE);
             list.add(this.wrapConfig(RendererToggle.OVERLAY_STRUCTURE_MAIN_TOGGLE));
-            list.addAll(StructureToggle.VALUES.stream().map(this::wrapConfig).toList());
+            list.addAll(StructureToggle.VALUES.stream().map(this::wrapConfig).collect(Collectors.toList()));
             list.addAll(StructureToggle.COLOR_CONFIGS);
             return ConfigOptionWrapper.createFor(list);
         }
@@ -147,7 +149,7 @@ public class GuiConfigs extends GuiConfigsBase
         {
             List<IConfigBase> list = new ArrayList<>();
             list.add(Configs.Generic.MAIN_RENDERING_TOGGLE);
-            list.addAll(RENDERER_LIST.stream().map(this::wrapConfig).toList());
+            list.addAll(RENDERER_LIST.stream().map(this::wrapConfig).collect(Collectors.toList()));
             return ConfigOptionWrapper.createFor(list);
         }
 

@@ -8,6 +8,8 @@ import fi.dy.masa.malilib.config.options.ConfigHotkey;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.minihud.util.DataStorage;
 
+import java.util.stream.Collectors;
+
 public enum StructureToggle
 {
     OVERLAY_STRUCTURE_BASTION_REMNANT   ("Bastion Remnant", "", "#302171F5", "#302171F5", "Toggle Bastion Remnant structure bounding boxes rendering", "Bastion Remnant"),
@@ -32,8 +34,8 @@ public enum StructureToggle
     OVERLAY_STRUCTURE_UNKNOWN           ("Unknown",         "", "#50FFFFFF", "#50FFFFFF", "Toggle Unknown structure bounding boxes rendering", "Unknown Structure");
 
     public static final ImmutableList<StructureToggle> VALUES = ImmutableList.copyOf(values());
-    public static final ImmutableList<IConfigBoolean> TOGGLE_CONFIGS = ImmutableList.copyOf(VALUES.stream().map(StructureToggle::getToggleOption).toList());
-    public static final ImmutableList<IHotkey> HOTKEY_CONFIGS = ImmutableList.copyOf(VALUES.stream().map(StructureToggle::getHotkey).toList());
+    public static final ImmutableList<IConfigBoolean> TOGGLE_CONFIGS = ImmutableList.copyOf(VALUES.stream().map(StructureToggle::getToggleOption).collect(Collectors.toList()));
+    public static final ImmutableList<IHotkey> HOTKEY_CONFIGS = ImmutableList.copyOf(VALUES.stream().map(StructureToggle::getHotkey).collect(Collectors.toList()));
     public static final ImmutableList<ConfigColor> COLOR_CONFIGS = getColorConfigs();
 
     private final ConfigBoolean toggleOption;

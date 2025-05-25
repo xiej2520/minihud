@@ -76,12 +76,12 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     private boolean valueBoolean;
     private int linePosition;
 
-    private InfoToggle(String name, boolean defaultValue, int linePosition, String defaultHotkey, String comment)
+    InfoToggle(String name, boolean defaultValue, int linePosition, String defaultHotkey, String comment)
     {
         this(name, defaultValue, linePosition, defaultHotkey, comment, KeybindSettings.DEFAULT);
     }
 
-    private InfoToggle(String name, boolean defaultValue, int linePosition, String defaultHotkey, String comment, KeybindSettings settings)
+    InfoToggle(String name, boolean defaultValue, int linePosition, String defaultHotkey, String comment, KeybindSettings settings)
     {
         this.name = name;
         this.prettyName = name;
