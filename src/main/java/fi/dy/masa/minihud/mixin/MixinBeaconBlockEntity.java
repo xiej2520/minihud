@@ -1,5 +1,6 @@
 package fi.dy.masa.minihud.mixin;
 
+import java.util.List;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,6 +17,12 @@ public abstract class MixinBeaconBlockEntity extends BlockEntity
 {
     @Shadow
     private int level;
+
+    @Shadow
+    private List<BeaconBlockEntity.BeamSegment> beamSegments;
+
+    @Unique
+    private boolean hadBeamPre;
 
     @Unique
     private int levelPre = -1;
@@ -45,10 +52,13 @@ public abstract class MixinBeaconBlockEntity extends BlockEntity
     @Inject(method = "tick", at = @At("RETURN"))
     private void minihud_onUpdateSegmentsPost(CallbackInfo ci)
     {
-        if (this.levelPre != this.level)
+        boolean hasBeam = this.beamSegments.isEmpty() == false;
+
+        if (this.levelPre != this.level || this.hadBeamPre != hasBeam)
         {
             OverlayRendererBeaconRange.INSTANCE.onBlockStatusChange(pos);
             this.levelPre = this.level;
+            this.hadBeamPre = hasBeam;
         }
     }
 }

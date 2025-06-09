@@ -24,7 +24,8 @@ public class OverlayRendererBeaconRange extends BaseBlockRangeOverlay<BeaconBloc
     {
         int level = ((IMixinBeaconBlockEntity) be).minihud_getLevel();
 
-        if (level >= 1 && level <= 4)
+        // getBeamSegments() is empty while the beam is blocked, but the level stays
+        if (level >= 1 && level <= 4 && be.getBeamSegments().isEmpty() == false)
         {
             this.renderBeaconBox(world, pos, level, cameraPos, getColorForLevel(level));
         }
