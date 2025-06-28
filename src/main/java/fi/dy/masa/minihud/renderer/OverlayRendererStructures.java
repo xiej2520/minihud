@@ -100,7 +100,11 @@ public class OverlayRendererStructures extends OverlayRendererBase
 
     private void renderStructure(StructureData structure, Color4f mainColor, Color4f componentColor, Vec3d cameraPos)
     {
-        fi.dy.masa.malilib.render.RenderUtils.drawBox(structure.getBoundingBox(), cameraPos, mainColor, BUFFER_1, BUFFER_2);
+        Color4f colorLines = Color4f.fromColor(mainColor, 1.0F);
+        IntBoundingBox mainBoundingBox = structure.getBoundingBox();
+        BlockPos pos1 = new BlockPos(mainBoundingBox.minX, mainBoundingBox.minY, mainBoundingBox.minZ);
+        BlockPos pos2 = new BlockPos(mainBoundingBox.maxX, mainBoundingBox.maxY, mainBoundingBox.maxZ);
+        fi.dy.masa.malilib.render.RenderUtils.drawBoxWithEdgesBatched(pos1, pos2, cameraPos, colorLines, mainColor, BUFFER_1, BUFFER_2);
 
         ImmutableList<IntBoundingBox> components = structure.getComponents();
 
@@ -108,9 +112,12 @@ public class OverlayRendererStructures extends OverlayRendererBase
         {
             if (components.size() > 1 || MiscUtils.areBoxesEqual(components.get(0), structure.getBoundingBox()) == false)
             {
+                colorLines = Color4f.fromColor(componentColor, 1.0F);
                 for (IntBoundingBox bb : components)
                 {
-                    fi.dy.masa.malilib.render.RenderUtils.drawBox(bb, cameraPos, componentColor, BUFFER_1, BUFFER_2);
+                    pos1 = new BlockPos(bb.minX, bb.minY, bb.minZ);
+                    pos2 = new BlockPos(bb.maxX, bb.maxY, bb.maxZ);
+                    fi.dy.masa.malilib.render.RenderUtils.drawBoxWithEdgesBatched(pos1, pos2, cameraPos, colorLines, mainColor, BUFFER_1, BUFFER_2);
                 }
             }
         }
