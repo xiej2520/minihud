@@ -11,6 +11,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.malilib.util.BlockSnap;
+import fi.dy.masa.malilib.util.EntityUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.IntBoundingBox;
 import fi.dy.masa.malilib.util.JsonUtils;
@@ -32,6 +33,7 @@ public class ShapeLineBlock extends ShapeBlocky
     protected Vec3d endPos = Vec3d.ZERO;
     protected Vec3d effectiveStartPos = Vec3d.ZERO;
     protected Vec3d effectiveEndPos = Vec3d.ZERO;
+	protected Vec3d initialSize = new Vec3d(16.0D, 16.0D, 16.0D);
 
     public ShapeLineBlock()
     {
@@ -39,6 +41,24 @@ public class ShapeLineBlock extends ShapeBlocky
 
         this.setBlockSnap(BlockSnap.CENTER);
     }
+
+	@Override
+	public void onShapeInit()
+	{
+		super.onShapeInit();
+
+		Entity cameraEntity = EntityUtils.getCameraEntity();
+
+		if (cameraEntity != null &&
+			this.startPos == Vec3d.ZERO)
+		{
+			Vec3d pos = cameraEntity.getPos();
+
+			this.startPos = pos;
+			this.endPos = pos.add(this.initialSize);
+			this.updateEffectivePositions();
+		}
+	}
 
     public Vec3d getStartPos()
     {

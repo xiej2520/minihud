@@ -43,7 +43,12 @@ public abstract class ShapeBase extends OverlayRendererBase implements IRangeCha
         this.needsUpdate = true;
     }
 
-    public ShapeType getType()
+	/**
+	 * Called when a shape is added to the list
+	 */
+	public void onShapeInit() {}
+
+	public ShapeType getType()
     {
         return this.type;
     }
