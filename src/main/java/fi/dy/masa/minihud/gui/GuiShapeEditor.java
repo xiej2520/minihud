@@ -45,8 +45,10 @@ import fi.dy.masa.minihud.renderer.shapes.ShapeBox;
 import fi.dy.masa.minihud.renderer.shapes.ShapeCenteredBox;
 import fi.dy.masa.minihud.renderer.shapes.ShapeCircle;
 import fi.dy.masa.minihud.renderer.shapes.ShapeCircleBase;
+import fi.dy.masa.minihud.renderer.shapes.ShapeEllipsoidSpawn;
 import fi.dy.masa.minihud.renderer.shapes.ShapeLineBlock;
 import fi.dy.masa.minihud.renderer.shapes.ShapeSpawnSphere;
+import fi.dy.masa.minihud.renderer.shapes.ShapeSpawnSphereClippedY;
 import fi.dy.masa.minihud.renderer.shapes.ShapeType;
 import fi.dy.masa.minihud.util.ShapeRenderType;
 
@@ -167,6 +169,28 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
                 this.createRenderTypeButton(renderTypeX, renderTypeY, this.shape::getRenderType, this.shape::setRenderType, "minihud.gui.label.shape.render_type_colon");
                 this.createLayerEditControls(146, 162, this.getLayerRange());
                 break;
+
+            case ELLIPSOID_SPAWN:
+            {
+                ShapeEllipsoidSpawn shape = (ShapeEllipsoidSpawn) this.shape;
+                this.createShapeEditorElementsSphereBase(x, y, true);
+                this.createShapeEditorElementDoubleField(x + 150, y + 36, shape::getRadiusY, shape::setRadiusY, "minihud.gui.label.radius_y_colon", true);
+                this.createShapeEditorElementDoubleField(x + 220, y + 36, shape::getRadiusZ, shape::setRadiusZ, "minihud.gui.label.radius_z_colon", true);
+                this.createRenderTypeButton(renderTypeX, renderTypeY, this.shape::getRenderType, this.shape::setRenderType, "minihud.gui.label.shape.render_type_colon");
+                this.createLayerEditControls(146, 162, this.getLayerRange());
+                break;
+            }
+
+            case CLIPPED_SPAWN_SPHERE_Y:
+            {
+                ShapeSpawnSphereClippedY shape = (ShapeSpawnSphereClippedY) this.shape;
+                this.createShapeEditorElementsSphereBase(x, y, true);
+                this.createShapeEditorElementDoubleField(x + 150, y + 36, shape::getTopTrim, shape::setTopTrim, "minihud.gui.label.clip_top_colon", true);
+                this.createShapeEditorElementDoubleField(x + 220, y + 36, shape::getBottomTrim, shape::setBottomTrim, "minihud.gui.label.clip_bottom_colon", true);
+                this.createRenderTypeButton(renderTypeX, renderTypeY, this.shape::getRenderType, this.shape::setRenderType, "minihud.gui.label.shape.render_type_colon");
+                this.createLayerEditControls(146, 162, this.getLayerRange());
+                break;
+            }
         }
     }
 
