@@ -19,6 +19,7 @@ public class NotificationUtils
     {
         DataStorage.getInstance().onBlocksChangedInChunk(pos.getX() >> 4, pos.getZ() >> 4);
         RenderContainer.BEACON_OVERLAY.checkNeedsUpdate(pos, stateNew);
+        RenderContainer.FIRE_OVERLAY.checkNeedsUpdate(pos, stateNew);
     }
 
     public static void onMultiBlockChange(ChunkPos chunkPos, SPacketMultiBlockChange.BlockUpdateData[] data)
@@ -33,6 +34,13 @@ public class NotificationUtils
                 RenderContainer.BEACON_OVERLAY.checkNeedsUpdate(BlockPos.of(d.getPos()), d.getBlockState());
             }
         }
+        if (RendererToggle.FIRE.isRendererEnabled())
+        {
+            for (SPacketMultiBlockChange.BlockUpdateData d : data)
+            {
+                RenderContainer.FIRE_OVERLAY.checkNeedsUpdate(BlockPos.of(d.getPos()), d.getBlockState());
+            }
+        }
     }
 
     public static void onChunkData(int chunkX, int chunkZ, List<NBTTagCompound> blockEntities)
@@ -43,6 +51,11 @@ public class NotificationUtils
             Configs.Generic.BEACON_RANGE_AUTO_UPDATE.getBooleanValue())
         {
             RenderContainer.BEACON_OVERLAY.checkNeedsUpdate(new ChunkPos(chunkX, chunkZ));
+        }
+
+        if (RendererToggle.FIRE.isRendererEnabled())
+        {
+            RenderContainer.FIRE_OVERLAY.checkNeedsUpdate(new ChunkPos(chunkX, chunkZ));
         }
     }
 }

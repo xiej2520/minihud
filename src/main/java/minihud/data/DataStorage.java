@@ -72,6 +72,7 @@ public class DataStorage
     public void afterWorldLoad()
     {
         RenderContainer.BEACON_OVERLAY.setNeedsUpdate();
+        RenderContainer.FIRE_OVERLAY.setNeedsUpdate();
         RenderHandler.INSTANCE.setReady(true);
     }
 

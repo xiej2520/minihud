@@ -163,6 +163,7 @@ public class Configs
         public static final ColorConfig BEACON_RANGE_LVL3_OVERLAY_COLOR     = new ColorConfig("beaconRangeLvl3",            "#20FFF040");
         public static final ColorConfig BEACON_RANGE_LVL4_OVERLAY_COLOR     = new ColorConfig("beaconRangeLvl4",            "#2060FF40");
         public static final ColorConfig BLOCK_GRID_OVERLAY_COLOR            = new ColorConfig("blockGrid",                  "#80FFFFFF");
+        public static final ColorConfig FIRE_POSITIONS_OVERLAY_COLOR        = new ColorConfig("firePositions",              "#B000FF00");
         public static final ColorConfig LIGHT_LEVEL_MARKER_BLOCK_LIT        = new ColorConfig("lightLevelMarkerBlockLit",   "#FFFFFF33");
         public static final ColorConfig LIGHT_LEVEL_MARKER_DARK             = new ColorConfig("lightLevelMarkerDark",       "#FFFF4848");
         public static final ColorConfig LIGHT_LEVEL_MARKER_DIM              = new ColorConfig("lightLevelMarkerDim",        "#FFC0C040");
@@ -198,6 +199,7 @@ public class Configs
                 BEACON_RANGE_LVL3_OVERLAY_COLOR,
                 BEACON_RANGE_LVL4_OVERLAY_COLOR,
                 BLOCK_GRID_OVERLAY_COLOR,
+                FIRE_POSITIONS_OVERLAY_COLOR,
                 LIGHT_LEVEL_MARKER_DARK,
                 LIGHT_LEVEL_MARKER_DIM,
                 LIGHT_LEVEL_MARKER_BLOCK_LIT,
