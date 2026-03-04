@@ -11,3 +11,5 @@ libs/
 run/
 .idea/
 .vscode/
+
+.share
