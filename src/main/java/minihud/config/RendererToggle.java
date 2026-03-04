@@ -22,6 +22,7 @@ public enum RendererToggle implements ConfigInfo
     BEACON_RANGE                        ("beaconRange"),
     BLOCK_GRID                          ("blockGrid"),
     CHUNK_UNLOAD_BUCKET                 ("chunkUnloadBucket", KeyBindSettings.INGAME_BOTH),
+    FIRE                                ("fire"),
     LIGHT_LEVEL                         ("lightLevel"),
     RANDOM_TICKS_FIXED                  ("randomTicksFixed"),
     RANDOM_TICKS_PLAYER                 ("randomTicksPlayer"),

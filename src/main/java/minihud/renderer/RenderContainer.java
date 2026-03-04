@@ -9,6 +9,7 @@ public class RenderContainer
 {
     public static final OverlayRendererBeaconRange BEACON_OVERLAY                              = register(new OverlayRendererBeaconRange());
     public static final OverlayRendererBlockGrid BLOCK_GRID_OVERLAY                            = register(new OverlayRendererBlockGrid());
+    public static final OverlayRendererFire FIRE_OVERLAY                                       = register(new OverlayRendererFire());
     public static final OverlayRendererLightLevel LIGHT_LEVEL_OVERLAY                          = register(new OverlayRendererLightLevel());
     public static final OverlayRendererRandomTickableChunks RANDOM_TICKS_FIXED_OVERLAY         = register(new OverlayRendererRandomTickableChunks(RendererToggle.RANDOM_TICKS_FIXED));
     public static final OverlayRendererRandomTickableChunks RANDOM_TICKS_PLAYER_OVERLAY        = register(new OverlayRendererRandomTickableChunks(RendererToggle.RANDOM_TICKS_PLAYER));

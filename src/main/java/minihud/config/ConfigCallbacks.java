@@ -41,11 +41,13 @@ public class ConfigCallbacks
                 RendererToggle.SLIME_CHUNKS.getBooleanConfig(), Configs.Internal.SLIME_CHUNKS_OVERLAY_TOP_Y));
 
         EventListener beaconUpdateCallback = RenderContainer.BEACON_OVERLAY::setNeedsUpdate;
+        EventListener fireUpdateCallback = RenderContainer.FIRE_OVERLAY::setNeedsUpdate;
         EventListener lightLevelUpdateCallback = RenderContainer.LIGHT_LEVEL_OVERLAY::setNeedsUpdate;
         Configs.Colors.BEACON_RANGE_LVL1_OVERLAY_COLOR.addValueChangeListener(beaconUpdateCallback);
         Configs.Colors.BEACON_RANGE_LVL2_OVERLAY_COLOR.addValueChangeListener(beaconUpdateCallback);
         Configs.Colors.BEACON_RANGE_LVL3_OVERLAY_COLOR.addValueChangeListener(beaconUpdateCallback);
         Configs.Colors.BEACON_RANGE_LVL4_OVERLAY_COLOR.addValueChangeListener(beaconUpdateCallback);
+        Configs.Colors.FIRE_POSITIONS_OVERLAY_COLOR.addValueChangeListener(fireUpdateCallback);
         Configs.Generic.LIGHT_LEVEL_COLORED_NUMBERS.addValueChangeListener(lightLevelUpdateCallback);
         Configs.Generic.LIGHT_LEVEL_MARKER_MODE.addValueChangeListener(lightLevelUpdateCallback);
         Configs.Generic.LIGHT_LEVEL_MARKER_SIZE.addValueChangeListener(lightLevelUpdateCallback);
@@ -90,6 +92,7 @@ public class ConfigCallbacks
         RendererToggle.DEBUG_WATER.addValueChangeListener(           () -> DebugInfoUtils.toggleDebugRenderer(RendererToggle.DEBUG_WATER));
 
         RendererToggle.BEACON_RANGE.addValueChangeListener(beaconUpdateCallback);
+        RendererToggle.FIRE.addValueChangeListener(fireUpdateCallback);
         RendererToggle.LIGHT_LEVEL.addValueChangeListener(lightLevelUpdateCallback);
         RendererToggle.STRUCTURE_BOUNDING_BOXES.addValueChangeListener(StructureDataUtils::requestStructureDataUpdates);
 
