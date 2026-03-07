@@ -34,6 +34,7 @@ public class RenderContainer
         this.addRenderer(OverlayRendererRandomTickableChunks.INSTANCE_FIXED);
         this.addRenderer(OverlayRendererRandomTickableChunks.INSTANCE_PLAYER);
         this.addRenderer(OverlayRendererRegion.INSTANCE);
+        this.addRenderer(OverlayRendererSimulationDistance.INSTANCE);
         this.addRenderer(OverlayRendererSlimeChunks.INSTANCE);
         this.addRenderer(OverlayRendererSpawnableColumnHeights.INSTANCE);
         this.addRenderer(OverlayRendererSpawnChunks.INSTANCE_PLAYER);

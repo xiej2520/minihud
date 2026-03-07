@@ -72,6 +72,7 @@ public class KeyCallbacks
         RendererToggle.OVERLAY_RANDOM_TICKS_FIXED.setValueChangeCallback(RendererCallbacks::onRandomTicksFixedToggled);
         RendererToggle.OVERLAY_RANDOM_TICKS_PLAYER.setValueChangeCallback(RendererCallbacks::onRandomTicksPlayerToggled);
         RendererToggle.OVERLAY_REGION_FILE.setValueChangeCallback(RendererCallbacks::onRegionFileToggled);
+        RendererToggle.OVERLAY_SIMULATION_DISTANCE.setValueChangeCallback(RendererCallbacks::onSimulationDistanceToggled);
         RendererToggle.OVERLAY_SLIME_CHUNKS_OVERLAY.setValueChangeCallback(RendererCallbacks::onSlimeChunksToggled);
         RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER.setValueChangeCallback(RendererCallbacks::onSpawnChunksPlayerToggled);
         RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_REAL.setValueChangeCallback(RendererCallbacks::onSpawnChunksRealToggled);

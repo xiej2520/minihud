@@ -118,6 +118,8 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean       SHULKER_DISPLAY_BACKGROUND_COLOR    = new ConfigBoolean("shulkerDisplayBgColor", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       SHULKER_DISPLAY_ENDER_CHEST         = new ConfigBoolean("shulkerDisplayEnderChest", false).apply(GENERIC_KEY);
         public static final ConfigBoolean       SHULKER_DISPLAY_REQUIRE_SHIFT       = new ConfigBoolean("shulkerDisplayRequireShift", true).apply(GENERIC_KEY);
+        public static final ConfigBoolean       SIMULATION_DISTANCE_OUTER_OVERLAY_ENABLED = new ConfigBoolean("simulationDistanceOuterOverlayEnabled", false).apply(GENERIC_KEY);
+        public static final ConfigBoolean       SIMULATION_DISTANCE_BLOCK_TICKING_OVERLAY_ENABLED = new ConfigBoolean("simulationDistanceBlockTickingOverlayEnabled", true).apply(GENERIC_KEY);
         public static final ConfigBoolean       SLIME_CHUNK_TOP_TO_PLAYER           = new ConfigBoolean("slimeChunkTopToPlayer", true).apply(GENERIC_KEY);
         public static final ConfigInteger       SLIME_CHUNK_OVERLAY_RADIUS          = new ConfigInteger("slimeChunkOverlayRadius", -1, -1, 40).apply(GENERIC_KEY);
         public static final ConfigBoolean       SLIME_CHUNK_RENDER_THROUGH          = new ConfigBoolean("slimeChunkRenderThrough", false).apply(GENERIC_KEY);
@@ -193,7 +195,8 @@ public class Configs implements IConfigHandler
                 SHULKER_DISPLAY_BACKGROUND_COLOR,
                 SHULKER_DISPLAY_ENDER_CHEST,
                 SHULKER_DISPLAY_REQUIRE_SHIFT,
-                SLIME_CHUNK_RENDER_THROUGH,
+                SIMULATION_DISTANCE_OUTER_OVERLAY_ENABLED,
+                SIMULATION_DISTANCE_BLOCK_TICKING_OVERLAY_ENABLED,
                 SLIME_CHUNK_TOP_TO_PLAYER,
                 SORT_LINES_BY_LENGTH,
                 SORT_LINES_REVERSED,
@@ -314,6 +317,10 @@ public class Configs implements IConfigHandler
         public static final ConfigColor SHAPE_DESPAWN_SPHERE                    = new ConfigColor("shapeDespawnSphere",                 "#60A04050").apply(COLORS_KEY);
         public static final ConfigColor SHAPE_LINE_BLOCKY                       = new ConfigColor("shapeLineBlocky",                    "#6030F0B0").apply(COLORS_KEY);
         public static final ConfigColor SHAPE_SPHERE_BLOCKY                     = new ConfigColor("shapeSphereBlocky",                  "#6030B0B0").apply(COLORS_KEY);
+        public static final ConfigColor SIMULATION_DISTANCE_ENTITY_TICKING_OVERLAY_COLOR = new ConfigColor("simulationDistanceEntityTickingOverlayColor","#3030FF20").apply(COLORS_KEY);
+        public static final ConfigColor SIMULATION_DISTANCE_BLOCK_TICKING_OVERLAY_COLOR  = new ConfigColor("simulationDistanceBlockTickingOverlayColor","#30F8D641").apply(COLORS_KEY);
+        public static final ConfigColor SIMULATION_DISTANCE_BORDER_OVERLAY_COLOR         = new ConfigColor("simulationDistanceBorderOverlayColor","#30FF3020").apply(COLORS_KEY);
+        public static final ConfigColor SIMULATION_DISTANCE_OUTER_OVERLAY_COLOR          = new ConfigColor("simulationDistanceOuterOverlayColor","#309D581A").apply(COLORS_KEY);
         public static final ConfigColor SLIME_CHUNKS_OVERLAY_COLOR              = new ConfigColor("slimeChunksOverlayColor",            "#3020F020").apply(COLORS_KEY);
         public static final ConfigColor SPAWN_PLAYER_ENTITY_OVERLAY_COLOR       = new ConfigColor("spawnPlayerEntityOverlayColor",      "#302050D0").apply(COLORS_KEY);
         public static final ConfigColor SPAWN_PLAYER_REDSTONE_OVERLAY_COLOR     = new ConfigColor("spawnPlayerRedstoneOverlayColor",    "#30F8D641").apply(COLORS_KEY);
@@ -358,6 +365,10 @@ public class Configs implements IConfigHandler
                 SHAPE_DESPAWN_SPHERE,
                 SHAPE_LINE_BLOCKY,
                 SHAPE_SPHERE_BLOCKY,
+                SIMULATION_DISTANCE_ENTITY_TICKING_OVERLAY_COLOR,
+                SIMULATION_DISTANCE_BLOCK_TICKING_OVERLAY_COLOR,
+                SIMULATION_DISTANCE_BORDER_OVERLAY_COLOR,
+                SIMULATION_DISTANCE_OUTER_OVERLAY_COLOR,
                 SLIME_CHUNKS_OVERLAY_COLOR,
                 SPAWN_PLAYER_ENTITY_OVERLAY_COLOR,
                 SPAWN_PLAYER_REDSTONE_OVERLAY_COLOR,

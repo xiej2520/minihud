@@ -11,6 +11,7 @@ import fi.dy.masa.minihud.renderer.*;
 import fi.dy.masa.minihud.renderer.shapes.ShapeManager;
 import fi.dy.masa.minihud.util.DataStorage;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -90,6 +91,27 @@ public class RendererCallbacks
         if (config.getBooleanValue())
         {
             OverlayRendererRegion.INSTANCE.setNeedsUpdate();
+        }
+    }
+
+    public static void onSimulationDistanceToggled(IConfigBoolean config)
+    {
+        Entity entity = EntityUtils.getCameraEntity();
+
+        if (config.getBooleanValue() && entity != null)
+        {
+            BlockPos pos = BlockPos.containing(entity.position());
+            OverlayRendererSimulationDistance.INSTANCE.setNewPos(pos);
+            OverlayRendererSimulationDistance.INSTANCE.setNeedsUpdate();
+            String green = GuiBase.TXT_GREEN;
+            String rst = GuiBase.TXT_RST;
+            String strStatus = green + StringUtils.translate("malilib.message.value.on") + rst;
+            String strPos = String.format("x: %d, y: %d, z: %d", pos.getX(), pos.getY(), pos.getZ());
+            String strDist = String.format("%d", DataStorage.getInstance().getSimulationDistance());
+            String message = StringUtils.translate("minihud.message.toggled_using_position_simulation_distance",
+                    config.getPrettyName(), strStatus, strPos, strDist);
+
+            InfoUtils.printActionbarMessage(message);
         }
     }
 
