@@ -28,6 +28,7 @@ public enum RendererToggle implements ConfigInfo
     RANDOM_TICKS_PLAYER                 ("randomTicksPlayer"),
     REGION_FILE                         ("regionFile"),
     SHAPE_RENDERER                      ("shapeRenderer"),
+    SIMULATION_DISTANCE                 ("simulationDistance"),
     SLIME_CHUNKS                        ("slimeChunks", KeyBindSettings.INGAME_BOTH),
     SPAWNABLE_CHUNKS_FIXED              ("spawnableChunksFixed"),
     SPAWNABLE_CHUNKS_PLAYER             ("spawnableChunksPlayer"),

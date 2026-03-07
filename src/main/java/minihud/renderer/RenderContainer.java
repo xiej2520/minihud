@@ -15,6 +15,7 @@ public class RenderContainer
     public static final OverlayRendererRandomTickableChunks RANDOM_TICKS_PLAYER_OVERLAY        = register(new OverlayRendererRandomTickableChunks(RendererToggle.RANDOM_TICKS_PLAYER));
     public static final OverlayRendererRegion REGION_FILES_OVERLAY                             = register(new OverlayRendererRegion());
     public static final OverlayRendererSlimeChunks SLIME_CHUNKS_OVERLAY                        = register(new OverlayRendererSlimeChunks());
+    public static final OverlayRendererSimulationDistance SIMULATION_DISTANCE                  = register(new OverlayRendererSimulationDistance(RendererToggle.SIMULATION_DISTANCE));
     public static final OverlayRendererSpawnableChunks SPAWNABLE_CHUNKS_FIXED_OVERLAY          = register(new OverlayRendererSpawnableChunks(RendererToggle.SPAWNABLE_CHUNKS_FIXED));
     public static final OverlayRendererSpawnableChunks SPAWNABLE_CHUNKS_PLAYER_OVERLAY         = register(new OverlayRendererSpawnableChunks(RendererToggle.SPAWNABLE_CHUNKS_PLAYER));
     public static final OverlayRendererSpawnableColumnHeights SPAWNABLE_COLUMN_HEIGHTS_OVERLAY = register(new OverlayRendererSpawnableColumnHeights());

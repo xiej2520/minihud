@@ -69,6 +69,7 @@ public class Configs
         public static final BooleanConfig REQUIRE_SNEAK                         = new BooleanConfig("requireSneak", false);
         public static final BooleanConfig SHULKER_BOX_PREVIEW                   = new BooleanConfig("shulkerBoxPreview", false);
         public static final BooleanConfig SHULKER_DISPLAY_BACKGROUND_COLOR      = new BooleanConfig("shulkerDisplayBgColor", true);
+        public static final BooleanConfig SIMULATION_DISTANCE_BLOCK_TICKING_OVERLAY_ENABLED = new BooleanConfig("simulationDistanceBlockTickingOverlayEnabled", true);
         public static final BooleanConfig SHULKER_DISPLAY_REQUIRE_SHIFT         = new BooleanConfig("shulkerDisplayRequireShift", true);
         public static final IntegerConfig SLIME_CHUNK_OVERLAY_RADIUS            = new IntegerConfig("slimeChunkOverlayRadius", -1, -1, 64);
         public static final BooleanConfig SORT_LINES_BY_LENGTH                  = new BooleanConfig("sortLinesByLength", false);
@@ -135,6 +136,7 @@ public class Configs
                 SHULKER_BOX_PREVIEW,
                 SHULKER_DISPLAY_BACKGROUND_COLOR,
                 SHULKER_DISPLAY_REQUIRE_SHIFT,
+                SIMULATION_DISTANCE_BLOCK_TICKING_OVERLAY_ENABLED,
                 SLIME_CHUNK_OVERLAY_RADIUS,
                 SORT_LINES_BY_LENGTH,
                 SORT_LINES_REVERSED,
@@ -183,6 +185,8 @@ public class Configs
         public static final ColorConfig SHAPE_CIRCLE                        = new ColorConfig("shapeCircle",                "#6030B0B0");
         public static final ColorConfig SHAPE_DESPAWN_SPHERE                = new ColorConfig("shapeDespawnSphere",         "#60A04050");
         public static final ColorConfig SHAPE_SPHERE_BLOCKY                 = new ColorConfig("shapeSphereBlocky",          "#6030B0B0");
+        public static final ColorConfig SIMULATION_DISTANCE_ENTITY_TICKING_OVERLAY_COLOR = new ColorConfig("simulationDistanceEntityTickingOverlayColor","#3030FF20");
+        public static final ColorConfig SIMULATION_DISTANCE_BLOCK_TICKING_OVERLAY_COLOR  = new ColorConfig("simulationDistanceBlockTickingOverlayColor","#30F8D641");
         public static final ColorConfig SLIME_CHUNKS_OVERLAY_COLOR          = new ColorConfig("slimeChunks",                "#B020F020");
         public static final ColorConfig SPAWN_PLAYER_ENTITY_OVERLAY_COLOR   = new ColorConfig("spawnPreviewAtPlayerEntity", "#402050D0");
         public static final ColorConfig SPAWN_PLAYER_LAZY_OVERLAY_COLOR     = new ColorConfig("spawnPreviewAtPlayerLazy",   "#40D030D0");
@@ -220,6 +224,8 @@ public class Configs
                 SHAPE_CIRCLE,
                 SHAPE_DESPAWN_SPHERE,
                 SHAPE_SPHERE_BLOCKY,
+                SIMULATION_DISTANCE_ENTITY_TICKING_OVERLAY_COLOR,
+                SIMULATION_DISTANCE_BLOCK_TICKING_OVERLAY_COLOR,
                 SLIME_CHUNKS_OVERLAY_COLOR,
                 SPAWN_PLAYER_ENTITY_OVERLAY_COLOR,
                 SPAWN_PLAYER_LAZY_OVERLAY_COLOR,

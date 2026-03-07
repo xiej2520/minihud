@@ -1,5 +1,6 @@
 package minihud.config;
 
+import malilib.util.data.DyeColorCode;
 import malilib.config.option.BooleanContainingConfig;
 import malilib.input.callback.AdjustableValueHotkeyCallback;
 import malilib.listener.EventListener;
@@ -8,6 +9,7 @@ import malilib.overlay.message.MessageUtils;
 import malilib.render.overlay.OverlayRendererContainer;
 import malilib.util.StringUtils;
 import malilib.util.game.wrap.EntityWrap;
+import malilib.util.game.wrap.GameWrap;
 import malilib.util.position.BlockPos;
 import malilib.util.position.Vec3d;
 import minihud.MiniHudActions;
@@ -18,6 +20,7 @@ import minihud.network.carpet.CarpetPubsubPacketHandler;
 import minihud.network.servux.ServuxInfoSubDataPacketHandler;
 import minihud.renderer.RenderContainer;
 import minihud.util.DebugInfoUtils;
+import net.minecraft.entity.Entity;
 
 public class ConfigCallbacks
 {
@@ -99,11 +102,13 @@ public class ConfigCallbacks
         RendererToggle.CHUNK_UNLOAD_BUCKET.addEnableListener(ConfigCallbacks::onChunkUnloadBucketOverlayEnabled);
         RendererToggle.RANDOM_TICKS_FIXED.addEnableListener(RenderContainer.RANDOM_TICKS_FIXED_OVERLAY::onEnabled);
         RendererToggle.SLIME_CHUNKS.addEnableListener(RenderContainer.SLIME_CHUNKS_OVERLAY::onEnabled);
+        RendererToggle.SIMULATION_DISTANCE.addEnableListener(RenderContainer.SIMULATION_DISTANCE::onEnabled);
         RendererToggle.SPAWNABLE_CHUNKS_FIXED.addEnableListener(RenderContainer.SPAWNABLE_CHUNKS_FIXED_OVERLAY::onEnabled);
         RendererToggle.SPAWNABLE_CHUNKS_PLAYER.addEnableListener(RenderContainer.SPAWNABLE_CHUNKS_PLAYER_OVERLAY::onEnabled);
         RendererToggle.SPAWN_CHUNKS_REAL.addEnableListener(RenderContainer.SPAWN_CHUNKS_REAL_OVERLAY::onEnabled);
 
         RendererToggle.RANDOM_TICKS_FIXED.setToggleMessageFactory(ConfigCallbacks::getRandomTicksMessage);
+        RendererToggle.SIMULATION_DISTANCE.setToggleMessageFactory(ConfigCallbacks::getSimulationDistanceMessage);
         RendererToggle.SPAWNABLE_CHUNKS_FIXED.setToggleMessageFactory(ConfigCallbacks::getSpawnableChunksMessage);
         RendererToggle.SPAWN_CHUNKS_REAL.setToggleMessageFactory(ConfigCallbacks::getSpawnChunksMessage);
     }
@@ -140,6 +145,28 @@ public class ConfigCallbacks
             return StringUtils.translate(key, name, b.getX(), b.getY(), b.getZ());
         }
 
+        return MessageHelpers.getBooleanConfigToggleMessage(config, null);
+    }
+
+    public static String getSimulationDistanceMessage(BooleanContainingConfig<?> config)
+    {
+        Entity entity = GameWrap.getCameraEntity();
+
+        if (config.getBooleanValue() && entity != null)
+        {
+            BlockPos pos = RenderContainer.SIMULATION_DISTANCE.newPos;
+            if (pos == null)
+            {
+                return "failed to set pos";
+            }
+            String green = DyeColorCode.GREEN.getTextColorCode();
+            String rst = DyeColorCode.WHITE.getTextColorCode();
+            String strStatus = green + StringUtils.translate("malilib.message.value.on") + rst;
+            String strPos = String.format("x: %d, y: %d, z: %d", pos.getX(), pos.getY(), pos.getZ());
+            String strDist = String.format("%d", GameWrap.getRenderDistanceChunks());
+            return StringUtils.translate("minihud.message.toggled_using_position_simulation_distance",
+                config.getPrettyName(), strStatus, strPos, strDist);
+        }
         return MessageHelpers.getBooleanConfigToggleMessage(config, null);
     }
 
