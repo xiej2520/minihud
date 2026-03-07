@@ -220,6 +220,7 @@ public class DataStorage
         OverlayRendererConduitRange.INSTANCE.setNeedsUpdate();
         OverlayRendererSpawnChunks.INSTANCE_REAL.setNeedsUpdate();
         OverlayRendererSpawnChunks.INSTANCE_PLAYER.setNeedsUpdate();
+        OverlayRendererSimulationDistance.INSTANCE.setNeedsUpdate();
 
         if (this.hasIntegratedServer == false)
         {
@@ -280,6 +281,7 @@ public class DataStorage
             {
                 OverlayRendererSpawnChunks.INSTANCE_REAL.setNeedsUpdate();
                 OverlayRendererSpawnChunks.INSTANCE_PLAYER.setNeedsUpdate();
+                OverlayRendererSimulationDistance.INSTANCE.setNeedsUpdate();
             }
             this.simulationDistance = distance;
             //MiniHUD.printDebug("DataStorage#setSimulationDistance(): set to: [{}]", distance);

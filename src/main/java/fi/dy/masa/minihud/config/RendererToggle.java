@@ -30,6 +30,7 @@ public enum RendererToggle implements IEnumBooleanHotkey
     OVERLAY_RANDOM_TICKS_FIXED          ("overlayRandomTicksFixed",     ""),
     OVERLAY_RANDOM_TICKS_PLAYER         ("overlayRandomTicksPlayer",    ""),
     OVERLAY_REGION_FILE                 ("overlayRegionFile",           ""),
+    OVERLAY_SIMULATION_DISTANCE         ("overlaySimulationDistance",   ""),
     OVERLAY_SLIME_CHUNKS_OVERLAY        ("overlaySlimeChunks",          "", KeybindSettings.INGAME_BOTH),
     OVERLAY_SPAWNABLE_COLUMN_HEIGHTS    ("overlaySpawnableColumnHeights",""),
     OVERLAY_SPAWN_CHUNK_OVERLAY_REAL    ("overlaySpawnChunkReal",       ""),
