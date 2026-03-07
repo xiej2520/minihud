@@ -320,6 +320,10 @@ public class Configs implements IConfigHandler
         public static final ConfigColor SHAPE_BOX                               = new ConfigColor("shapeBox",                           "#6050A0A0").apply(COLORS_KEY);
         public static final ConfigColor SHAPE_CAN_DESPAWN_SPHERE                = new ConfigColor("shapeCanDespawnSphere",              "#60A04050").apply(COLORS_KEY);
         public static final ConfigColor SHAPE_CAN_SPAWN_SPHERE                  = new ConfigColor("shapeCanSpawnSphere",                "#60A04050").apply(COLORS_KEY);
+        public static final ConfigColor SHAPE_CHUNK_TICKET_ENTITY_TICKING_OVERLAY_COLOR = new ConfigColor("shapeChunkTicketEntityTickingOverlayColor","#3030FF20").apply(COLORS_KEY);
+        public static final ConfigColor SHAPE_CHUNK_TICKET_BLOCK_TICKING_OVERLAY_COLOR  = new ConfigColor("shapeChunkTicketBlockTickingOverlayColor","#30F8D641").apply(COLORS_KEY);
+        public static final ConfigColor SHAPE_CHUNK_TICKET_BORDER_OVERLAY_COLOR         = new ConfigColor("shapeChunkTicketBorderOverlayColor","#30FF3020").apply(COLORS_KEY);
+        public static final ConfigColor SHAPE_CHUNK_TICKET_OUTER_OVERLAY_COLOR          = new ConfigColor("shapeChunkTicketOuterOverlayColor","#309D581A").apply(COLORS_KEY);
         public static final ConfigColor SHAPE_CIRCLE                            = new ConfigColor("shapeCircle",                        "#6030B0B0").apply(COLORS_KEY);
         public static final ConfigColor SHAPE_DESPAWN_SPHERE                    = new ConfigColor("shapeDespawnSphere",                 "#60A04050").apply(COLORS_KEY);
         public static final ConfigColor SHAPE_LINE_BLOCKY                       = new ConfigColor("shapeLineBlocky",                    "#6030F0B0").apply(COLORS_KEY);
@@ -364,6 +368,10 @@ public class Configs implements IConfigHandler
                 SHAPE_BOX,
                 SHAPE_CAN_DESPAWN_SPHERE,
                 SHAPE_CAN_SPAWN_SPHERE,
+                SHAPE_CHUNK_TICKET_ENTITY_TICKING_OVERLAY_COLOR,
+                SHAPE_CHUNK_TICKET_BLOCK_TICKING_OVERLAY_COLOR,
+                SHAPE_CHUNK_TICKET_BORDER_OVERLAY_COLOR,
+                SHAPE_CHUNK_TICKET_OUTER_OVERLAY_COLOR,
                 SHAPE_CIRCLE,
                 SHAPE_DESPAWN_SPHERE,
                 SHAPE_LINE_BLOCKY,

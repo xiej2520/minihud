@@ -18,6 +18,8 @@ import fi.dy.masa.malilib.gui.widgets.WidgetColorIndicator;
 import fi.dy.masa.malilib.gui.wrappers.TextFieldType;
 import fi.dy.masa.malilib.interfaces.ICoordinateValueModifier;
 import fi.dy.masa.malilib.util.*;
+import fi.dy.masa.malilib.util.data.BooleanConsumer;
+import fi.dy.masa.minihud.util.DataStorage;
 import fi.dy.masa.malilib.util.position.PositionUtils;
 import fi.dy.masa.malilib.util.position.PositionUtils.CoordinateType;
 import fi.dy.masa.malilib.util.position.Vec3d;
@@ -115,6 +117,9 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
            
             case BOX:
                 this.createShapeEditorElementsBox(x, y);
+                break;
+            case CHUNK_TICKET:
+                this.createShapeEditorElementsChunkTicket(x, y);
                 break;
             case CENTERED_BOX:
                 this.createShapeEditorElementsBoxWithDimension(x, y);
@@ -334,6 +339,51 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         this.addButton(button, (btn, mbtn) -> this.toggleGridEnabled(shape));
     }
 
+    private void createShapeEditorElementsChunkTicket(int xIn, int yIn)
+    {
+        ShapeChunkTicket shape = (ShapeChunkTicket) this.shape;
+
+        int x = xIn;
+        int y = yIn + 4;
+
+        int x1 = x;
+        int y1 = y;
+        this.addLabel(x1, y1, -1, 14, 0xFFFFFFFF, StringUtils.translate("minihud.gui.label.shape.chunk_ticket.position"));
+        y1 += 12;
+
+        GuiUtils.createBlockPosInputsVertical(x1, y1, 120, shape.getPos(), new BlockPosEditor(shape::getPos, shape::setPos, this), true, this);
+        x = x1 + 12;
+
+        // modify simulation distance and initGui to update ticket level text field
+        this.createShapeEditorElementIntField(x + 150, y + 12, shape::getRadius,
+            i -> { shape.setRadius(i); this.initGui(); },
+            "minihud.gui.label.shape.chunk_ticket.radius_colon", true
+        );
+
+        ButtonGeneric btn = new ButtonGeneric(x + 220, y + 22, -1, 14, StringUtils.translate("malilib.gui.button.reset"));
+        btn.setRenderDefaultBackground(false);
+        this.addButton(btn, (b, mb) -> { shape.setRadius(DataStorage.getInstance().getSimulationDistance()); this.initGui(); });
+
+        this.createShapeEditorElementIntField(x + 150, y + 40, shape::getTicketLevel,
+            i -> { shape.setTicketLevel(i); this.initGui(); },
+            "minihud.gui.label.shape.chunk_ticket.ticket_level_colon", true
+        );
+
+        y1 += 50;
+        btn = new ButtonGeneric(x, y1, -1, 14, StringUtils.translate("malilib.gui.button.render_layers_gui.set_to_player"));
+        btn.setRenderDefaultBackground(false);
+        this.addButton(btn, (b, mb) -> this.setBlockPosFromCamera(shape::setPos));
+
+        y1 += 13;
+        this.addChunkOverlayToggleCheckbox(x, y1, "minihud.gui.name.chunk_ticket.entity_ticking", shape::isEntityTickingEnabled, shape::setEntityTickingEnabled);
+        y1 += 11;
+        this.addChunkOverlayToggleCheckbox(x, y1, "minihud.gui.name.chunk_ticket.block_ticking", shape::isBlockTickingEnabled, shape::setBlockTickingEnabled);
+        y1 += 11;
+        this.addChunkOverlayToggleCheckbox(x, y1, "minihud.gui.name.chunk_ticket.border", shape::isBorderEnabled, shape::setBorderEnabled);
+        y1 += 11;
+        this.addChunkOverlayToggleCheckbox(x, y1, "minihud.gui.name.chunk_ticket.outer", shape::isOuterEnabled, shape::setOuterEnabled);
+    }
+
     private void createShapeEditorElementsBlockLine(int xIn, int yIn)
     {
         ShapeLineBlock shape = (ShapeLineBlock) this.shape;
@@ -400,6 +450,15 @@ public class GuiShapeEditor extends GuiRenderLayerEditBase
         WidgetCheckBox cb = new WidgetCheckBox(x, y, MaLiLibIcons.MINUS, MaLiLibIcons.PLUS, this.capitalize(sideName), StringUtils.translate("minihud.gui.hover.shape.box.box_side", sideName));
         cb.setChecked(shape.isSideEnabled(side));
         cb.setListener((w) -> this.toggleSideEnabled(side, shape));
+        this.addWidget(cb);
+    }
+
+    private void addChunkOverlayToggleCheckbox(int x, int y, String translationKey, BooleanSupplier supplier, BooleanConsumer consumer)
+    {
+        String name = StringUtils.translate(translationKey);
+        WidgetCheckBox cb = new WidgetCheckBox(x, y, MaLiLibIcons.MINUS, MaLiLibIcons.PLUS, this.capitalize(name), StringUtils.translate("minihud.gui.hover.shape.chunk_ticket.overlay", name));
+        cb.setChecked(supplier.getAsBoolean());
+        cb.setListener((w) -> consumer.accept(!supplier.getAsBoolean()));
         this.addWidget(cb);
     }
 
