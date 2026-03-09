@@ -44,6 +44,7 @@ import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.position.PositionUtils;
 import fi.dy.masa.malilib.util.time.TickUtils;
+import fi.dy.masa.malilib.util.WorldUtils;
 import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.Reference;
 import fi.dy.masa.minihud.config.RendererToggle;
@@ -269,6 +270,12 @@ public class DataStorage
     {
         if (distance >= 0)
         {
+            // singleplayer receives a packet with simulation distance 0, ignore it
+            if (distance == 0 && WorldUtils.getBestWorld(Minecraft.getInstance()) instanceof ServerLevel)
+            {
+                return;
+            }
+
             if (this.simulationDistance != distance)
             {
                 OverlayRendererSpawnChunks.INSTANCE_REAL.setNeedsUpdate();
