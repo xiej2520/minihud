@@ -43,6 +43,8 @@ dependencies {
 }
 
 loom {
+	accessWidenerPath = file("src/main/resources/minihud.accesswidener")
+
 	decompilers {
 		vineflower {
 			options.put("ind", "    ")

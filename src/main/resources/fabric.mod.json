@@ -32,6 +32,8 @@
 		}
 	],
 
+	"accessWidener": "minihud.accesswidener",
+
 	"depends": {
 		"minecraft": "1.12.x",
 		"malilib": ">=0.55.0",

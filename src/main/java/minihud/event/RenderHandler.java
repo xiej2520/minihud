@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
+import net.minecraft.block.BlockEndGateway;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -17,10 +18,13 @@ import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEndGateway;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.EnumSkyBlock;
@@ -864,6 +868,26 @@ public class RenderHandler implements PostGameOverlayRenderer, PostItemTooltipRe
                     this.addLine(String.format("Entity: %s - HP: %.1f / %.1f",
                             target.getName(), living.getHealth(), living.getMaxHealth()));
                 }
+                if (target instanceof EntityFallingBlock) {
+                    EntityFallingBlock fallingBlock = (EntityFallingBlock) target;
+                    World serverWorld = WorldWrap.getBestWorld();
+                    EntityFallingBlock serverFallingBlock = (EntityFallingBlock) serverWorld.getEntityByID(target.getEntityId());
+                    if (mc.isIntegratedServerRunning() && serverWorld instanceof WorldServer && serverFallingBlock != null)
+                    {
+                        fallingBlock = serverFallingBlock;
+                        // fallTime is only accurate on server
+                        this.addLine(String.format("Entity: %s %s Fall Time: %d Pos: %.3f %.3f %.3f Vel: %.3f %.3f %.3f",
+                            target.getName(), fallingBlock.getBlock(), fallingBlock.fallTime,
+                            fallingBlock.posX, fallingBlock.posY, fallingBlock.posZ,
+                            fallingBlock.motionX, fallingBlock.motionY, fallingBlock.motionZ));
+                    }
+                    else {
+                        this.addLine(String.format("Entity: %s %s Pos: %.3f %.3f %.3f Vel: %.3f %.3f %.3f",
+                            target.getName(), fallingBlock.getBlock(),
+                            fallingBlock.posX, fallingBlock.posY, fallingBlock.posZ,
+                            fallingBlock.motionX, fallingBlock.motionY, fallingBlock.motionZ));
+                    }
+                }
                 else
                 {
                     this.addLine(String.format("Entity: %s", target.getName()));
@@ -943,6 +967,19 @@ public class RenderHandler implements PostGameOverlayRenderer, PostItemTooltipRe
             for (String line : BlockUtils.getFormattedBlockStateProperties(state))
             {
                 this.addLine(line);
+            }
+            if (state.getBlock() instanceof BlockEndGateway)
+            {
+                // should be the same info on client and server?
+                TileEntity tileEntity = WorldWrap.getBestWorld().getTileEntity(posLooking);
+                if (tileEntity instanceof TileEntityEndGateway)
+                {
+                    TileEntityEndGateway entityEndGateway = (TileEntityEndGateway) tileEntity;
+
+                    this.addLine(String.format("End Gateway age: %d, exact tp: %s, exit portal %s",
+                        entityEndGateway.age, entityEndGateway.exactTeleport,
+                        entityEndGateway.exitPortal));
+                }
             }
         }
     }

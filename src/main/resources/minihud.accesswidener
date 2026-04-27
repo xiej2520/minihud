@@ -1,0 +1,5 @@
+accessWidener v2 named
+
+accessible field net/minecraft/tileentity/TileEntityEndGateway age J
+accessible field net/minecraft/tileentity/TileEntityEndGateway exactTeleport Z
+accessible field net/minecraft/tileentity/TileEntityEndGateway exitPortal Lnet/minecraft/util/math/BlockPos;
