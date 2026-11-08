@@ -31,6 +31,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     DIFFICULTY              ("infoDifficulty",              false, 18, "", "Show the local difficulty"),
     DIMENSION               ("infoDimensionId",             false,  5, "", "Show the current dimension ID\n(might not be accurate in every case,\ndepending on the server (Sponge?)!)"),
     DISTANCE                ("infoDistance",                false, 33, "", "Show the distance to the current reference point.\nSet the reference point with the setDistanceReferencePoint hotkey"),
+    DOLPHIN_TREASURE        ("infoDolphinTreasure",         false, 43, "", "Show the treasure location that the looked-at Dolphin is tracking,\nand how long it can still stay out of water"),
     ENTITIES                ("infoEntities",                false, 21, "", "Show the visible/loaded entity count"),
     ENTITIES_CLIENT_WORLD   ("infoEntitiesClientWorld",     false, 22, "", "Show the entity count in the world list/map"),
     ENTITY_VARIANT          ("infoEntityVariant",           false, 42, "", "Show the looked-at entity's variant, such as the\nhorse color and markings, cat type or sheep color"),

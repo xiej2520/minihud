@@ -25,6 +25,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.passive.DolphinEntity;
 import net.minecraft.entity.passive.HorseBaseEntity;
 import net.minecraft.entity.passive.PandaEntity;
 import net.minecraft.item.FilledMapItem;
@@ -630,6 +631,31 @@ public class RenderHandler implements IRenderer
             double dist = MathHelper.sqrt(ref.squaredDistanceTo(entity.getX(), entity.getY(), entity.getZ()));
             this.addLine(String.format("Distance: %.2f (x: %.2f y: %.2f z: %.2f) [to x: %.2f y: %.2f z: %.2f]",
                     dist, entity.getX() - ref.x, entity.getY() - ref.y, entity.getZ() - ref.z, ref.x, ref.y, ref.z));
+        }
+        else if (type == InfoToggle.DOLPHIN_TREASURE)
+        {
+            // The treasure position and the moistness are synced to the client
+            Entity target = this.getTargetedEntity(mc);
+
+            if (target instanceof DolphinEntity)
+            {
+                DolphinEntity dolphin = (DolphinEntity) target;
+                BlockPos treasure = dolphin.getTreasurePos();
+                int moistness = dolphin.getMoistness();
+                String drying = moistness >= 2400 ? "" :
+                                (moistness > 0 ? String.format("%s%s remains%s", GuiBase.TXT_YELLOW, String.format("%d:%02d", moistness / 60, moistness % 60), GuiBase.TXT_RST) :
+                                                 String.format("%s%s elapsed%s", GuiBase.TXT_RED, String.format("%d:%02d", -moistness / 60, -moistness % 60), GuiBase.TXT_RST));
+
+                if (treasure.equals(BlockPos.ORIGIN) == false)
+                {
+                    String treasurePos = String.format("%d, %d, %d", treasure.getX(), treasure.getY(), treasure.getZ());
+                    this.addLine(String.format("Dolphin Treasure: %s%s%s%s", GuiBase.TXT_AQUA, treasurePos, GuiBase.TXT_RST, drying.isEmpty() ? "" : ", " + drying));
+                }
+                else if (drying.isEmpty() == false)
+                {
+                    this.addLine("Dolphin: " + drying);
+                }
+            }
         }
         else if (type == InfoToggle.FACING)
         {
