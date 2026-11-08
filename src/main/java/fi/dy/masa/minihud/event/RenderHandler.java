@@ -23,6 +23,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.HorseBaseEntity;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.ItemStack;
@@ -663,43 +664,57 @@ public class RenderHandler implements IRenderer
             }
         }
         else if (type == InfoToggle.HORSE_SPEED ||
-                 type == InfoToggle.HORSE_JUMP)
+                 type == InfoToggle.HORSE_JUMP ||
+                 type == InfoToggle.HORSE_MAX_HEALTH)
         {
             if (this.addedTypes.contains(InfoToggle.HORSE_SPEED) ||
-                this.addedTypes.contains(InfoToggle.HORSE_JUMP))
+                this.addedTypes.contains(InfoToggle.HORSE_JUMP) ||
+                this.addedTypes.contains(InfoToggle.HORSE_MAX_HEALTH))
             {
                 return;
             }
 
-            Entity vehicle = this.mc.player.getVehicle();
+            Entity target = this.mc.player.getVehicle();
 
-            if (!(vehicle instanceof HorseBaseEntity))
+            if ((target instanceof HorseBaseEntity) == false)
+            {
+                target = this.getTargetedEntity(this.mc);
+            }
+
+            if ((target instanceof HorseBaseEntity) == false)
             {
                 return;
             }
 
-            HorseBaseEntity horse = (HorseBaseEntity) vehicle;
-            if (!horse.isSaddled()) return;
+            HorseBaseEntity horse = (HorseBaseEntity) target;
 
-
-            if (InfoToggle.HORSE_SPEED.getBooleanValue()) {
-                float speed = horse.getMovementSpeed();
-                speed *= 42.163f;
-                this.addLine(String.format("Horse Speed: %.3f m/s", speed));
+            if (InfoToggle.HORSE_SPEED.getBooleanValue())
+            {
+                // On ground, travel() adds speed * 0.98 (the ridden input) each tick and the friction keeps
+                // 0.6 * 0.91 of the velocity, so the top speed is speed * 0.98 / (1 - 0.546) blocks per tick
+                double speed = horse.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED).getValue();
+                this.addLine(String.format("Horse Speed: %.3f m/s", speed * 0.98 * 20.0 / (1.0 - 0.6 * 0.91)));
             }
 
-            if (InfoToggle.HORSE_JUMP.getBooleanValue()) {
+            if (InfoToggle.HORSE_JUMP.getBooleanValue())
+            {
                 double jump = horse.getJumpStrength();
                 double calculatedJumpHeight =
-                        -0.1817584952d * jump * jump * jump +
+                    -0.1817584952d * jump * jump * jump +
                         3.689713992d * jump * jump +
                         2.128599134d * jump +
                         -0.343930367;
                 this.addLine(String.format("Horse Jump: %.3f m", calculatedJumpHeight));
             }
 
+            if (InfoToggle.HORSE_MAX_HEALTH.getBooleanValue())
+            {
+                this.addLine(String.format("Horse Max Health: %.0f", horse.getMaximumHealth()));
+            }
+
             this.addedTypes.add(InfoToggle.HORSE_SPEED);
             this.addedTypes.add(InfoToggle.HORSE_JUMP);
+            this.addedTypes.add(InfoToggle.HORSE_MAX_HEALTH);
         }
         else if (type == InfoToggle.ROTATION_YAW ||
                  type == InfoToggle.ROTATION_PITCH ||
@@ -986,6 +1001,17 @@ public class RenderHandler implements IRenderer
         {
             BlockPos posLooking = ((BlockHitResult) mc.crosshairTarget).getBlockPos();
             return mc.world.getBlockState(posLooking);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private Entity getTargetedEntity(MinecraftClient mc)
+    {
+        if (mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.ENTITY)
+        {
+            return ((EntityHitResult) mc.crosshairTarget).getEntity();
         }
 
         return null;
