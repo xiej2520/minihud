@@ -64,6 +64,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     SPEED_AXIS              ("infoSpeedAxis",               false, 13, "", "Show the player's current moving speed per axis"),
     SPEED_HV                ("infoSpeedHV",                 false, 13, "", "Show the player's current moving speed both horizontally and vertically."),
     SPRINTING               ("infoSprinting",               false, 40, "", "Show the \"Sprinting\" info line if the player is sprinting"),
+    WEATHER                 ("infoWeather",                 false, 45, "", "Show the current weather.\nIn single player also the time until it changes."),
     TILE_ENTITIES           ("infoTileEntities",            false, 32, "", "Show the number of TileEntities in the client world"),
     TIME_DAY_MODULO         ("infoTimeDayModulo",           false, 35, "", "Show a modulo of the current day time.\nSee Generic configs for the divisor."),
     TIME_REAL               ("infoTimeIRL",                 true,   1, "", "Show the current real time formatted according to dateFormatReal"),

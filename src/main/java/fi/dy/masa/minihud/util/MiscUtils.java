@@ -256,4 +256,10 @@ public class MiscUtils
         double d = (double)Math.floorMod(l >> 24, 1024L) / 1024.0;
         return (d - 0.5) * 0.9;
     }
+
+    public static String formatTicks(int ticks)
+    {
+        int seconds = ticks / 20;
+        return String.format("%d:%02d", seconds / 60, seconds % 60);
+    }
 }

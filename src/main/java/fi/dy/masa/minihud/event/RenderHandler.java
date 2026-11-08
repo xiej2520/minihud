@@ -50,6 +50,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
+import net.minecraft.world.level.LevelProperties;
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.interfaces.IRenderer;
@@ -634,6 +635,10 @@ public class RenderHandler implements IRenderer
         {
             this.addLine(mc.options.sneakToggled ? "§6Sneaking §7[§dToggled§7]§r" : "§6Sneaking");
         }
+        else if (type == InfoToggle.WEATHER)
+        {
+            this.addWeatherLine(mc, world);
+        }
         else if (type == InfoToggle.DISTANCE)
         {
             Vec3d ref = DataStorage.getInstance().getDistanceReferencePoint();
@@ -1036,6 +1041,43 @@ public class RenderHandler implements IRenderer
         else if (type == InfoToggle.BLOCK_PROPS)
         {
             this.getBlockProperties(mc);
+        }
+    }
+
+    private void addWeatherLine(MinecraftClient mc, World world)
+    {
+        IntegratedServer server = mc.getServer();
+        ServerWorld overworld = server != null ? server.getWorld(DimensionType.OVERWORLD) : null;
+        boolean inOverworld = world.dimension.getType() == DimensionType.OVERWORLD;
+        String title = inOverworld ? "Weather" : "Weather (Overworld)";
+
+        if (overworld != null)
+        {
+            LevelProperties props = overworld.getLevelProperties();
+            boolean raining = props.isRaining();
+            boolean thundering = raining && props.isThundering();
+            StringBuilder str = new StringBuilder();
+            str.append(title).append(": ").append(thundering ? "Thundering" : (raining ? "Raining" : "Clear"));
+
+            if (props.getClearWeatherTime() > 0)
+            {
+                str.append(String.format(", clear for %s", MiscUtils.formatTicks(props.getClearWeatherTime())));
+            }
+            else
+            {
+                str.append(String.format(", rain %s in %s", raining ? "stops" : "starts", MiscUtils.formatTicks(props.getRainTime())));
+
+                if (raining)
+                {
+                    str.append(String.format(", thunder %s in %s", props.isThundering() ? "stops" : "starts", MiscUtils.formatTicks(props.getThunderTime())));
+                }
+            }
+
+            this.addLine(str.toString());
+        }
+        else if (inOverworld)
+        {
+            this.addLine(title + ": " + (world.isThundering() ? "Thundering" : (world.isRaining() ? "Raining" : "Clear")));
         }
     }
 
