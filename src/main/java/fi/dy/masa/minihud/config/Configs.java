@@ -38,7 +38,6 @@ public class Configs implements IConfigHandler
 
     public static class Generic
     {
-        public static final ConfigBoolean       BEACON_RANGE_AUTO_UPDATE            = new ConfigBoolean("beaconRangeAutoUpdate", false, "This enables the Beacon Range renderer to update automatically\nwhen block or chunk change packets are received.\nThose updates can have a performance impact if tons of blocks are changing often.\nYou can toggle off/on the renderer to update to those changes manually.");
         public static final ConfigBoolean       BEE_TOOLTIPS                        = new ConfigBoolean("beeTooltips", false, "Adds the number of contained bees to the tooltip of Bee Hive and Bee Nest items");
         public static final ConfigBoolean       HONEY_TOOLTIPS                      = new ConfigBoolean("honeyTooltips", false, "Adds the honey level to the tooltip of Bee Hive and Bee Nest items");
         public static final ConfigInteger       BIOME_OVERLAY_RANGE                 = new ConfigInteger("biomeOverlayRange", 4, 0, 32, "The horizontal chunk radius to render for the Biome Border Overlay");
@@ -107,7 +106,6 @@ public class Configs implements IConfigHandler
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 BEE_TOOLTIPS,
                 HONEY_TOOLTIPS,
-                BEACON_RANGE_AUTO_UPDATE,
                 BIOME_OVERLAY_SINGLE_COLOR,
                 DEBUG_MESSAGES,
                 DEBUG_RENDERER_PATH_MAX_DIST,
