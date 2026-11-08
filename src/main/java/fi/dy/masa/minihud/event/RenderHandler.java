@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
+import fi.dy.masa.minihud.util.EntityVariants;
 import net.minecraft.block.BeehiveBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
@@ -611,6 +612,16 @@ public class RenderHandler implements IRenderer
                     panda.getMainGene().isRecessive() ? "recessive" : "dominant"));
                 this.addLine(String.format("Hidden gene: %s%s%s (%s)", GuiBase.TXT_AQUA, panda.getHiddenGene().getName(), GuiBase.TXT_RST,
                     panda.getHiddenGene().isRecessive() ? "recessive" : "dominant"));
+            }
+        }
+        else if (type == InfoToggle.ENTITY_VARIANT)
+        {
+            Entity target = this.getTargetedEntity(mc);
+            String line = target != null ? EntityVariants.getVariantLine(target) : null;
+
+            if (line != null)
+            {
+                this.addLine(line);
             }
         }
         else if (type == InfoToggle.DISTANCE)
