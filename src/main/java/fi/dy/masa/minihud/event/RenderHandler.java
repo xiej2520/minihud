@@ -630,6 +630,10 @@ public class RenderHandler implements IRenderer
             this.addLine(String.format("Experience: %d / %.2f%% (total %d)",
                                        mc.player.experienceLevel, mc.player.experienceProgress * 100.0F, mc.player.totalExperience));
         }
+        else if (type == InfoToggle.SNEAKING && mc.player.isSneaking())
+        {
+            this.addLine(mc.options.sneakToggled ? "§6Sneaking §7[§dToggled§7]§r" : "§6Sneaking");
+        }
         else if (type == InfoToggle.DISTANCE)
         {
             Vec3d ref = DataStorage.getInstance().getDistanceReferencePoint();
