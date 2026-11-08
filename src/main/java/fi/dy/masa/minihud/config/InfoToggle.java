@@ -49,6 +49,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     LOOKING_AT_ENTITY       ("infoLookingAtEntity",         false, 23, "", "Show the entity name and health when looked at"),
     MEMORY_USAGE            ("infoMemoryUsage",             false,  0, "", "Show the memory usage and allocation"),
     MOB_CAPS                ("infoMobCaps",                 false, 10, "", "Show the mob caps\n\n§dNote: Works in single player and Carpet servers.\n§6On Carpet servers the data is parsed from the player list footer,\n§6if you have subscribed to the data with '/log mobcaps'"),
+    ZOMBIE_CONVERSION       ("infoZombieConversion",        false, 46, "", "Show the time until the looked-at Zombie Villager is cured,\nor until the looked-at Zombie or Husk converts in water.\n§6Note: The timers are only known in single player."),
     LOADED_CHUNKS_COUNT     ("infoLoadedChunksCount",       false, 31, "", "Show the number of loaded chunks on the client"),
     PANDA_GENE              ("infoPandaGene",               false, 41, "", "Show the genes of the panda being looked at"),
     PARTICLE_COUNT          ("infoParticleCount",           false, 17, "", "Show the currently renderer particle count (P from F3)"),

@@ -25,6 +25,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.mob.DrownedEntity;
+import net.minecraft.entity.mob.HuskEntity;
+import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.DolphinEntity;
 import net.minecraft.entity.passive.HorseBaseEntity;
 import net.minecraft.entity.passive.PandaEntity;
@@ -64,6 +68,8 @@ import fi.dy.masa.minihud.config.RendererToggle;
 import fi.dy.masa.minihud.data.MobCapDataHandler;
 import fi.dy.masa.minihud.mixin.IMixinServerWorld;
 import fi.dy.masa.minihud.mixin.IMixinWorldRenderer;
+import fi.dy.masa.minihud.mixin.IMixinZombieEntity;
+import fi.dy.masa.minihud.mixin.IMixinZombieVillagerEntity;
 import fi.dy.masa.minihud.renderer.OverlayRenderer;
 import fi.dy.masa.minihud.util.DataStorage;
 import fi.dy.masa.minihud.util.MiscUtils;
@@ -639,6 +645,10 @@ public class RenderHandler implements IRenderer
         {
             this.addWeatherLine(mc, world);
         }
+        else if (type == InfoToggle.ZOMBIE_CONVERSION)
+        {
+            this.addZombieConversionLine(mc);
+        }
         else if (type == InfoToggle.DISTANCE)
         {
             Vec3d ref = DataStorage.getInstance().getDistanceReferencePoint();
@@ -1079,6 +1089,58 @@ public class RenderHandler implements IRenderer
         {
             this.addLine(title + ": " + (world.isThundering() ? "Thundering" : (world.isRaining() ? "Raining" : "Clear")));
         }
+    }
+
+    private void addZombieConversionLine(MinecraftClient mc)
+    {
+        Entity target = this.getTargetedEntity(mc);
+        Entity serverEntity = this.getServerEntity(mc, target);
+
+        if (target instanceof ZombieVillagerEntity)
+        {
+            if (((ZombieVillagerEntity) target).isConverting())
+            {
+                String time = serverEntity instanceof ZombieVillagerEntity ?
+                              MiscUtils.formatTicks(((IMixinZombieVillagerEntity) serverEntity).minihud_getConversionTimer()) : "?";
+                this.addLine(String.format("Villager conversion in: %s%s%s", GuiBase.TXT_AQUA, time, GuiBase.TXT_RST));
+            }
+        }
+        else if (serverEntity instanceof ZombieEntity && (serverEntity instanceof DrownedEntity) == false)
+        {
+            // ZombieEntity#tick(): after 600 ticks in water, start a 300 tick conversion
+            IMixinZombieEntity zombie = (IMixinZombieEntity) serverEntity;
+            String result = serverEntity instanceof HuskEntity ? "Zombie" : "Drowned";
+
+            if (((ZombieEntity) serverEntity).isConvertingInWater())
+            {
+                this.addLine(String.format("%s conversion in: %s%s%s", result, GuiBase.TXT_AQUA,
+                                           MiscUtils.formatTicks(Math.max(zombie.minihud_getTicksUntilWaterConversion(), 0)), GuiBase.TXT_RST));
+            }
+            else if (zombie.minihud_getInWaterTime() > 0)
+            {
+                this.addLine(String.format("%s conversion starts in: %s%s%s", result, GuiBase.TXT_AQUA,
+                                           MiscUtils.formatTicks(600 - zombie.minihud_getInWaterTime()), GuiBase.TXT_RST));
+            }
+        }
+    }
+
+    /**
+     * The integrated server's copy of the given client entity, or null on servers.
+     * Only reads the values, like the other single player info lines do.
+     */
+    @Nullable
+    private Entity getServerEntity(MinecraftClient mc, @Nullable Entity clientEntity)
+    {
+        IntegratedServer server = mc.getServer();
+
+        if (clientEntity == null || server == null || mc.world == null)
+        {
+            return null;
+        }
+
+        ServerWorld world = server.getWorld(mc.world.dimension.getType());
+
+        return world != null ? world.getEntity(clientEntity.getUuid()) : null;
     }
 
     @Nullable

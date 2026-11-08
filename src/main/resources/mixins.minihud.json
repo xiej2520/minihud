@@ -13,6 +13,8 @@
 		"IMixinServerWorld",
 		"IMixinWorld",
 		"IMixinWorldRenderer",
+		"IMixinZombieEntity",
+		"IMixinZombieVillagerEntity",
 		"MixinBeaconBlockEntity",
 		"MixinBlockOutlineDebugRenderer",
 		"MixinClientPlayerInteractionManager",
