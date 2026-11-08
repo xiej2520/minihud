@@ -25,6 +25,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.DrownedEntity;
 import net.minecraft.entity.mob.HuskEntity;
 import net.minecraft.entity.mob.MobEntity;
@@ -661,6 +662,21 @@ public class RenderHandler implements IRenderer
                 BlockPos home = mob.getPositionTarget();
                 this.addLine(String.format("Home Position: %s%d, %d, %d%s / Radius: %s%.0f", GuiBase.TXT_AQUA,
                                            home.getX(), home.getY(), home.getZ(), GuiBase.TXT_RST, GuiBase.TXT_AQUA, mob.getPositionTargetRange()));
+            }
+        }
+        else if (type == InfoToggle.LOOKING_AT_EFFECTS)
+        {
+            // Other entities' effects are not synced to the client (only the particle color)
+            Entity serverEntity = this.getServerEntity(mc, this.getTargetedEntity(mc));
+
+            if (serverEntity instanceof LivingEntity)
+            {
+                for (StatusEffectInstance effect : ((LivingEntity) serverEntity).getStatusEffects())
+                {
+                    String duration = effect.isPermanent() ? "INF" : MiscUtils.formatTicks(effect.getDuration());
+                    String amplifier = effect.getAmplifier() > 0 ? String.format("x%d / ", effect.getAmplifier() + 1) : "";
+                    this.addLine(String.format("Status Effect: %s / %s%s", effect.getEffectType().getName().getString(), amplifier, duration));
+                }
             }
         }
         else if (type == InfoToggle.DISTANCE)

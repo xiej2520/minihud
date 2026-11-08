@@ -47,6 +47,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     LIGHT_LEVEL             ("infoLightLevel",              false, 10, "", "Show the current light level"),
     LOOKING_AT_BLOCK        ("infoLookingAtBlock",          false, 25, "", "Show which block the player is currently looking at"),
     LOOKING_AT_BLOCK_CHUNK  ("infoLookingAtBlockInChunk",   false, 26, "", "Show which block within its containing chunk\nthe player is currently looking at"),
+    LOOKING_AT_EFFECTS      ("infoLookingAtEffects",        false, 48, "", "Show the looked-at entity's active status effects.\n§6Note: This only works in single player."),
     LOOKING_AT_ENTITY       ("infoLookingAtEntity",         false, 23, "", "Show the entity name and health when looked at"),
     MEMORY_USAGE            ("infoMemoryUsage",             false,  0, "", "Show the memory usage and allocation"),
     MOB_CAPS                ("infoMobCaps",                 false, 10, "", "Show the mob caps\n\n§dNote: Works in single player and Carpet servers.\n§6On Carpet servers the data is parsed from the player list footer,\n§6if you have subscribed to the data with '/log mobcaps'"),
