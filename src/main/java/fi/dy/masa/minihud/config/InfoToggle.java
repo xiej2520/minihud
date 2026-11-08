@@ -26,6 +26,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     CHUNK_SECTIONS          ("infoChunkSections",           false, 14, "", "Show the currently rendered number of\nChunk sections (the C value from F3)"),
     CHUNK_SECTIONS_FULL     ("infoChunkSectionsLine",       false, 15, "", "Show the entire line of the C value from the F3 screen"),
     CHUNK_UPDATES           ("infoChunkUpdates",            false, 16, "", "Show the current number of chunk updates per second"),
+    COMPARATOR_OUTPUT       ("infoComparatorOutput",        false, 49, "", "Show the output signal strength of the looked-at Comparator.\n§6Note: This only works in single player."),
     COORDINATES             ("infoCoordinates",             true,   4, "", "Show the player's coordinates"),
     COORDINATES_SCALED      ("infoCoordinatesScaled",       false,  4, "", "Show the player's coordinates scaled by the dimension's scale factor.\nOnly works in the overworld and the nether,\nand assumes the vanilla nether portal scaling factor.\n(Coordinates are kept for End -> Nether in 1.15,\nand Nether -> End for players.)"),
     DIFFICULTY              ("infoDifficulty",              false, 18, "", "Show the local difficulty"),

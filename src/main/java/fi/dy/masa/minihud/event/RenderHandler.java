@@ -18,6 +18,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.ComparatorBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.math.MatrixStack;
@@ -677,6 +678,16 @@ public class RenderHandler implements IRenderer
                     String amplifier = effect.getAmplifier() > 0 ? String.format("x%d / ", effect.getAmplifier() + 1) : "";
                     this.addLine(String.format("Status Effect: %s / %s%s", effect.getEffectType().getName().getString(), amplifier, duration));
                 }
+            }
+        }
+        else if (type == InfoToggle.COMPARATOR_OUTPUT)
+        {
+            // The output signal is not synced to the client, so only use the integrated server's block entity
+            BlockEntity be = mc.isIntegratedServerRunning() ? this.getTargetedBlockEntity(WorldUtils.getBestWorld(mc), mc) : null;
+
+            if (be instanceof ComparatorBlockEntity)
+            {
+                this.addLine(String.format("Comparator Output: %s%d%s", GuiBase.TXT_RED, ((ComparatorBlockEntity) be).getOutputSignal(), GuiBase.TXT_RST));
             }
         }
         else if (type == InfoToggle.DISTANCE)
