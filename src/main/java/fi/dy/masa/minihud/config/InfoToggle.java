@@ -35,6 +35,7 @@ public enum InfoToggle implements IConfigInteger, IHotkeyTogglable
     ENTITIES                ("infoEntities",                false, 21, "", "Show the visible/loaded entity count"),
     ENTITIES_CLIENT_WORLD   ("infoEntitiesClientWorld",     false, 22, "", "Show the entity count in the world list/map"),
     ENTITY_VARIANT          ("infoEntityVariant",           false, 42, "", "Show the looked-at entity's variant, such as the\nhorse color and markings, cat type or sheep color"),
+    ENTITY_HOME_POS         ("infoEntityHomePos",           false, 47, "", "Show the looked-at mob's home position and radius,\nwhich it does not wander away from (in 1.15 for example\nthe leash holder of a leashed mob).\n§6Note: This only works in single player."),
     ENTITY_REG_NAME         ("infoEntityRegistryName",      false, 24, "", "Show the registry name of the entity\nthe player is currently looking at"),
     FACING                  ("infoFacing",                  true,   8, "", "Show the player's current facing"),
     FURNACE_XP              ("infoFurnaceXp",               false, 30, "", "Show the amount of XP in the looked at Furnace.\nUnderestimate, fractional furnace XP is randomly rounded up.\n§6Note: This only works in single player (without server-side support,\n§6which doesn't exist yet, but will be in the Servux mod at some point)."),

@@ -27,6 +27,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.DrownedEntity;
 import net.minecraft.entity.mob.HuskEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.DolphinEntity;
@@ -648,6 +649,19 @@ public class RenderHandler implements IRenderer
         else if (type == InfoToggle.ZOMBIE_CONVERSION)
         {
             this.addZombieConversionLine(mc);
+        }
+        else if (type == InfoToggle.ENTITY_HOME_POS)
+        {
+            // MobEntity#setPositionTarget() is not synced to the client
+            Entity serverEntity = this.getServerEntity(mc, this.getTargetedEntity(mc));
+
+            if (serverEntity instanceof MobEntity && ((MobEntity) serverEntity).hasPositionTarget())
+            {
+                MobEntity mob = (MobEntity) serverEntity;
+                BlockPos home = mob.getPositionTarget();
+                this.addLine(String.format("Home Position: %s%d, %d, %d%s / Radius: %s%.0f", GuiBase.TXT_AQUA,
+                                           home.getX(), home.getY(), home.getZ(), GuiBase.TXT_RST, GuiBase.TXT_AQUA, mob.getPositionTargetRange()));
+            }
         }
         else if (type == InfoToggle.DISTANCE)
         {
