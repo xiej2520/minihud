@@ -36,7 +36,7 @@ public class RenderContainer
         this.addRenderer(new OverlayRendererRandomTickableChunks(RendererToggle.OVERLAY_RANDOM_TICKS_FIXED));
         this.addRenderer(new OverlayRendererRandomTickableChunks(RendererToggle.OVERLAY_RANDOM_TICKS_PLAYER));
         this.addRenderer(new OverlayRendererRegion());
-        this.addRenderer(new OverlayRendererSlimeChunks());
+        this.addRenderer(OverlayRendererSlimeChunks.INSTANCE);
         this.addRenderer(new OverlayRendererSpawnableColumnHeights());
         this.addRenderer(new OverlayRendererSpawnChunks(RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_REAL));
         this.addRenderer(new OverlayRendererSpawnChunks(RendererToggle.OVERLAY_SPAWN_CHUNK_OVERLAY_PLAYER));

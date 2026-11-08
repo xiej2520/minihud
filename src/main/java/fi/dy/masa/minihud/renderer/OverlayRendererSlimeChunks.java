@@ -22,6 +22,8 @@ import fi.dy.masa.minihud.util.MiscUtils;
 
 public class OverlayRendererSlimeChunks extends OverlayRendererBase
 {
+    public static final OverlayRendererSlimeChunks INSTANCE = new OverlayRendererSlimeChunks();
+
     public static double overlayTopY;
     protected static boolean needsUpdate = true;
 
