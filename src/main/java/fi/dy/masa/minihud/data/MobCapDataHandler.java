@@ -1,13 +1,22 @@
 package fi.dy.masa.minihud.data;
 
+import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import fi.dy.masa.minihud.mixin.IMixinServerChunkManager;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.EntityCategory;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.minihud.config.InfoToggle;
 import fi.dy.masa.minihud.data.MobCapData.EntityCategoryWrapper;
+import net.minecraft.world.SpawnHelper;
+import net.minecraft.world.dimension.DimensionType;
 
 public class MobCapDataHandler
 {
@@ -122,25 +131,35 @@ public class MobCapDataHandler
 
     public void updateIntegratedServerMobCaps()
     {
-        /*
         if (this.mc.isIntegratedServerRunning() && this.mc.world != null)
         {
             MinecraftServer server = this.mc.getServer();
-            RegistryKey<World> dim = this.mc.world.getRegistryKey();
+            DimensionType dim = this.mc.world.dimension.getType();
+            if (server == null)
+            {
+                return;
+            }
 
             server.execute(() -> {
                 ServerWorld world = server.getWorld(dim);
+                if (world == null)
+                {
+                    return;
+                }
+
                 MobCapData.Cap[] data = MobCapData.createCapArray();
-                int spawnableChunks = MiscUtils.getSpawnableChunksCount(world);
+                int spawnableChunks = ((IMixinServerChunkManager) world.getChunkManager()).minihud_getTicketManager().getLevelCount();
                 int divisor = 17 * 17;
                 long worldTime = world.getTime();
 
-                for (EntityCategoryWrapper category : ENTITY_CATEGORIES)
+                for (Object2IntMap.Entry<EntityCategory> entry : world.getMobCountsByCategory().object2IntEntrySet())
                 {
-                    SpawnGroup type = category.getVanillaCategory();
-                    int current = world.getEnticountEntities(type.getCreatureClass());
-                    int cap = type.getCapacity() * spawnableChunks / divisor;
-                    data[category.ordinal()].setCurrentAndCap(current, cap);
+                    EntityCategoryWrapper category = EntityCategoryWrapper.fromVanillaCategory(entry.getKey());
+                    if (category != null)
+                    {
+                        int cap = entry.getKey().getSpawnCap() * spawnableChunks / divisor;
+                        data[category.ordinal()].setCurrentAndCap(entry.getIntValue(), cap);
+                    }
                 }
 
                 this.mc.execute(() -> {
@@ -152,7 +171,6 @@ public class MobCapDataHandler
                 });
             });
         }
-        */
     }
 
     public void parsePlayerListFooterMobCapData(Text textComponent)
