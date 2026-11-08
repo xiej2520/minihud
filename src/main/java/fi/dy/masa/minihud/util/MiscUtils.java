@@ -7,11 +7,13 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.item.FoodComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.recipe.AbstractCookingRecipe;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -148,6 +150,19 @@ public class MiscUtils
             }
 
             lines.add(Math.min(1, lines.size()), text);
+        }
+    }
+
+    public static void addFoodTooltip(ItemStack stack, List<Text> lines)
+    {
+        FoodComponent food = stack.getItem().getFoodComponent();
+
+        if (food != null)
+        {
+            // HungerManager#eat(): hunger points, and saturation = hunger * modifier * 2
+            float hunger = food.getHunger();
+            float saturation = hunger * food.getSaturationModifier() * 2.0F;
+            lines.add(new LiteralText(String.format("§7Restores §b%.1f§7, Saturation §b%.1f§r", hunger / 2.0F, saturation)));
         }
     }
 

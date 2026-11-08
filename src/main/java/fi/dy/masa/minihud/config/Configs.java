@@ -40,6 +40,7 @@ public class Configs implements IConfigHandler
     public static class Generic
     {
         public static final ConfigBoolean       BEE_TOOLTIPS                        = new ConfigBoolean("beeTooltips", false, "Adds the number of contained bees to the tooltip of Bee Hive and Bee Nest items");
+        public static final ConfigBoolean       FOOD_TOOLTIPS                       = new ConfigBoolean("foodTooltips", false, "Adds the nutrition and saturation values of Food items");
         public static final ConfigBoolean       HONEY_TOOLTIPS                      = new ConfigBoolean("honeyTooltips", false, "Adds the honey level to the tooltip of Bee Hive and Bee Nest items");
         public static final ConfigInteger       BIOME_OVERLAY_RANGE                 = new ConfigInteger("biomeOverlayRange", 4, 0, 32, "The horizontal chunk radius to render for the Biome Border Overlay");
         public static final ConfigInteger       BIOME_OVERLAY_RANGE_VERTICAL        = new ConfigInteger("biomeOverlayRangeVertical", 0, 0, 32, "The vertical (sub-)chunk radius to render for the Biome Border Overlay");
@@ -111,6 +112,7 @@ public class Configs implements IConfigHandler
 
         public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
                 BEE_TOOLTIPS,
+                FOOD_TOOLTIPS,
                 HONEY_TOOLTIPS,
                 BIOME_OVERLAY_SINGLE_COLOR,
                 DEBUG_MESSAGES,

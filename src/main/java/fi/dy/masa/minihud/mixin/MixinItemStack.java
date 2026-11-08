@@ -34,6 +34,11 @@ public abstract class MixinItemStack
             MiscUtils.addBeeTooltip((ItemStack) (Object) this, list);
         }
 
+        if (Configs.Generic.FOOD_TOOLTIPS.getBooleanValue() && this.getItem().isFood())
+        {
+            MiscUtils.addFoodTooltip((ItemStack) (Object) this, list);
+        }
+
         if (Configs.Generic.HONEY_TOOLTIPS.getBooleanValue() &&
             this.getItem() instanceof BlockItem &&
             ((BlockItem) this.getItem()).getBlock() instanceof BeehiveBlock)
