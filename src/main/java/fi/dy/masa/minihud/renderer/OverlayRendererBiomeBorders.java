@@ -14,7 +14,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
@@ -50,6 +49,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     //private long lastUpdateTime = System.nanoTime();
     private boolean needsUpdate;
     private boolean needsRenderUpdate;
+    @Nullable private SubChunkPos fixedPos;
 
     private OverlayRendererBiomeBorders()
     {
@@ -78,6 +78,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
             this.quads.clear();
             this.scheduledChunks.clear();
             this.biomeMapping.clear();
+            this.fixedPos = null;
 
             // All the quads need to have the same relative camera offset, so
             // we use an internal position that is only updated when all the quads are cleared
@@ -107,7 +108,20 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     @Override
     public void update(Vec3d cameraPos, Entity cameraEntity, MinecraftClient mc)
     {
-        List<SubChunkPos> chunks = this.getSubChunksWithinRange(cameraEntity, mc);
+        SubChunkPos center = new SubChunkPos(new BlockPos(cameraEntity));
+        if (Configs.Generic.BIOME_OVERLAY_FIXED.getBooleanValue())
+        {
+            if (this.fixedPos == null)
+            {
+                this.fixedPos = center;
+            }
+            center = this.fixedPos;
+        }
+        else
+        {
+            this.fixedPos = null;
+        }
+        List<SubChunkPos> chunks = this.getSubChunksWithinRange(center, mc);
         BlockPos cameraBlockPos = new BlockPos(cameraPos);
         this.scheduleTasksForMissingChunks(chunks, cameraBlockPos, mc.world);
 
@@ -146,15 +160,15 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         //long post = System.nanoTime(); System.out.printf("renderQuads: %.6fs\n", ((double) post - (double) pre) / 1000000000D);
     }
 
-    protected List<SubChunkPos> getSubChunksWithinRange(Entity cameraEntity, MinecraftClient mc)
+    protected List<SubChunkPos> getSubChunksWithinRange(SubChunkPos center, MinecraftClient mc)
     {
         //long pre = System.nanoTime();
         World world = mc.world;
         int viewDistance = Math.min(Configs.Generic.BIOME_OVERLAY_RANGE.getIntegerValue(), mc.options.viewDistance);
         int viewDistanceVertical = Math.min(Configs.Generic.BIOME_OVERLAY_RANGE_VERTICAL.getIntegerValue(), mc.options.viewDistance);
-        int chunkX = MathHelper.floor(cameraEntity.getX()) >> 4;
-        int chunkY = MathHelper.floor(cameraEntity.getY()) >> 4;
-        int chunkZ = MathHelper.floor(cameraEntity.getZ()) >> 4;
+        int chunkX = center.getX();
+        int chunkY = center.getY();
+        int chunkZ = center.getZ();
         // FIXME: getBottomY, getTopY in 1.17+
         int minCY = Math.max(0 >> 4, chunkY - viewDistanceVertical);
         int maxCY = Math.min((256 - 1) >> 4, chunkY + viewDistanceVertical);

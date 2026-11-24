@@ -17,6 +17,7 @@ import fi.dy.masa.minihud.gui.GuiConfigs.ConfigGuiTab;
 import fi.dy.masa.minihud.gui.GuiShapeEditor;
 import fi.dy.masa.minihud.gui.GuiShapeManager;
 import fi.dy.masa.minihud.renderer.OverlayRendererBeaconRange;
+import fi.dy.masa.minihud.renderer.OverlayRendererBiomeBorders;
 import fi.dy.masa.minihud.renderer.OverlayRendererLightLevel;
 import fi.dy.masa.minihud.renderer.OverlayRendererSlimeChunks;
 import fi.dy.masa.minihud.renderer.OverlayRendererSpawnChunks;
@@ -43,6 +44,7 @@ public class KeyCallbacks
         Configs.Colors.BEACON_RANGE_LVL4_OVERLAY_COLOR.setValueChangeCallback((config) -> updateBeaconOverlay());
         Configs.Colors.CONDUIT_RANGE_OVERLAY_COLOR.setValueChangeCallback(cfg -> OverlayRendererBeaconRange.INSTANCE.setNeedsUpdate());
 
+        Configs.Generic.BIOME_OVERLAY_FIXED.setValueChangeCallback((config) -> OverlayRendererBiomeBorders.INSTANCE.setNeedsUpdate());
         Configs.Generic.LIGHT_LEVEL_RANGE.setValueChangeCallback((config) -> OverlayRendererLightLevel.setNeedsUpdate());
         Configs.Generic.LIGHT_LEVEL_RENDER_THROUGH.setValueChangeCallback((config) -> OverlayRendererLightLevel.INSTANCE.setRenderThrough(config.getBooleanValue()));
         Configs.Generic.SLIME_CHUNK_RENDER_THROUGH.setValueChangeCallback((config) -> OverlayRendererSlimeChunks.INSTANCE.setRenderThrough(config.getBooleanValue()));
