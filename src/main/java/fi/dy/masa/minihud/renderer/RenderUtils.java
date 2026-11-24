@@ -446,10 +446,10 @@ public class RenderUtils
             buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, 1f).next();
             buffer.vertex(minX, maxY, maxZ).color(color.r, color.g, color.b, 1f).next();
 
-            for (double z = minZ; z < maxZ + 0.5; z += 1.0)
+            for (int dz = 0; dz <= height; dz += 1)
             {
-                buffer.vertex(minX, minY, z).color(color.r, color.g, color.b, 1f).next();
-                buffer.vertex(maxX, maxY, z).color(color.r, color.g, color.b, 1f).next();
+                buffer.vertex(minX, minY, minZ + dz).color(color.r, color.g, color.b, 1f).next();
+                buffer.vertex(maxX, maxY, minZ + dz).color(color.r, color.g, color.b, 1f).next();
             }
         }
         else
@@ -458,10 +458,10 @@ public class RenderUtils
             buffer.vertex(minX, minY, minZ).color(color.r, color.g, color.b, 1f).next();
             buffer.vertex(minX, maxY, minZ).color(color.r, color.g, color.b, 1f).next();
 
-            for (double y = minY; y < maxY + 0.5; y += 1.0)
+            for (int dy = 0; dy <= height; dy += 1)
             {
-                buffer.vertex(minX, y, minZ).color(color.r, color.g, color.b, 1f).next();
-                buffer.vertex(maxX, y, maxZ).color(color.r, color.g, color.b, 1f).next();
+                buffer.vertex(minX, minY + dy, minZ).color(color.r, color.g, color.b, 1f).next();
+                buffer.vertex(maxX, minY + dy, maxZ).color(color.r, color.g, color.b, 1f).next();
             }
         }
     }
