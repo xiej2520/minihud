@@ -628,7 +628,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         reg.set("minecraft:desert_hills",                     0xF2B801);
         reg.set("minecraft:desert_lakes",                     0xC0F201);
         reg.set("minecraft:dripstone_caves",                  0xB29268);
-        reg.set("minecraft:end_barrens",                      0xD2CFB4);
+        reg.set("minecraft:end_barrens",                      0x8C77B2);
         reg.set("minecraft:end_highlands",                    0xF0C136);
         reg.set("minecraft:end_midlands",                     0xE7F036);
         reg.set("minecraft:eroded_badlands",                  0xE278A9);
@@ -655,8 +655,9 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         reg.set("minecraft:mountain_edge",                    0x818181);
         reg.set("minecraft:mountains",                        0xC5C5C5);
         reg.set("minecraft:mushroom_field_shore",             0xEC7F5E);
-        reg.set("minecraft:mushroom_fields",                  0xED7109);
-        reg.set("minecraft:nether_wastes",                    0x88AABC);
+        reg.set("minecraft:mushroom_fields",                  0xE625EA);
+        reg.set("minecraft:nether",                           0xA95355);
+        reg.set("minecraft:nether_wastes",                    0xA95355);
         reg.set("minecraft:ocean",                            0x0926ED);
         reg.set("minecraft:plains",                           0x1EA128);
         reg.set("minecraft:river",                            0x2D6EDA);
@@ -664,14 +665,14 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         reg.set("minecraft:savanna_plateau",                  0xEBE433);
         reg.set("minecraft:shattered_savanna",                0xEBB433);
         reg.set("minecraft:shattered_savanna_plateau",        0xB19D6F);
-        reg.set("minecraft:small_end_islands",                0xC0CD03);
+        reg.set("minecraft:small_end_islands",                0xA083E0);
         reg.set("minecraft:snowy_beach",                      0xE0DD95);
         reg.set("minecraft:snowy_mountains",                  0xDDDDDD);
         reg.set("minecraft:snowy_taiga",                      0xC9EFC5);
         reg.set("minecraft:snowy_taiga_hills",                0x4FB043);
         reg.set("minecraft:snowy_taiga_mountains",            0xA1BBE9);
         reg.set("minecraft:snowy_tundra",                     0x62A15A);
-        reg.set("minecraft:soul_sand_valley",                 0x8F510B);
+        reg.set("minecraft:soul_sand_valley",                 0x694935);
         reg.set("minecraft:stone_shore",                      0xABABAB);
         reg.set("minecraft:sunflower_plains",                 0x93DF19);
         reg.set("minecraft:swamp",                            0x27960B);
@@ -684,7 +685,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         reg.set("minecraft:the_end",                          0xC7E030);
         reg.set("minecraft:the_void",                         0xF218F3);
         reg.set("minecraft:warm_ocean",                       0x189EF4);
-        reg.set("minecraft:warped_forest",                    0x7BB6DA);
+        reg.set("minecraft:warped_forest",                    0x2797A0);
         reg.set("minecraft:wooded_badlands_plateau",          0xCBAA3D);
         reg.set("minecraft:wooded_hills",                     0x3BAC30);
         reg.set("minecraft:wooded_mountains",                 0x97B994);
