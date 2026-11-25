@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -28,8 +27,6 @@ import fi.dy.masa.minihud.MiniHUD;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.config.RendererToggle;
 import fi.dy.masa.minihud.util.DataStorage;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.lwjgl.opengl.GL11;
@@ -39,12 +36,13 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     public static final OverlayRendererBiomeBorders INSTANCE = new OverlayRendererBiomeBorders();
 
     private final Object2ObjectOpenHashMap<SubChunkPos, List<ColoredQuad>> quads = new Object2ObjectOpenHashMap<>();
-    private final Object2IntOpenHashMap<Biome> biomeMapping = new Object2IntOpenHashMap<>();
-    private final Int2ObjectOpenHashMap<Color4f> biomeColorsMap = new Int2ObjectOpenHashMap<>();
     private final ObjectOpenHashSet<SubChunkPos> scheduledChunks = new ObjectOpenHashSet<>();
-    private final Color4f fixedColor = Color4f.fromColor(0x30F030, 0.25f);
+
+    // A read-only biome registry that worker threads can read without locking. Replaced on server change.
+    @Nullable private Registry<Biome> biomeRegistry;
+    // Mapping for biomeRegistry's biome ids. Should only be read or modified on main thread!
     private Color4f[] biomeColorsArray = new Color4f[0];
-    private IntFunction<Color4f> colorRetriever = (id) -> this.biomeColorsArray[id];
+    private final Color4f fixedColor = Color4f.fromColor(0x30F030, 0.25f);
     private Vec3d cameraPosition = Vec3d.ZERO;
     //private long lastUpdateTime = System.nanoTime();
     private boolean needsUpdate;
@@ -77,7 +75,6 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
 
             this.quads.clear();
             this.scheduledChunks.clear();
-            this.biomeMapping.clear();
             this.fixedPos = null;
 
             // All the quads need to have the same relative camera offset, so
@@ -214,13 +211,15 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     protected void scheduleTasksForMissingChunks(List<SubChunkPos> chunks, BlockPos cameraBlockPos, World world)
     {
         //long pre = System.nanoTime(); int count = 0;
+        final Registry<Biome> registry = Registry.BIOME;
+
+        if (registry != this.biomeRegistry) // changing servers
+        {
+            this.createBiomeColors(registry);
+        }
+
         synchronized (this.quads)
         {
-            if (this.biomeMapping.isEmpty())
-            {
-                this.createBiomeMapping(world);
-            }
-
             if (this.quads.size() > 32000)
             {
                 this.quads.clear();
@@ -239,7 +238,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
             {
                 Runnable task = () -> {
                     List<ColoredQuad> quadsOut = new ArrayList<>();
-                    readBiomesAndFindEdges(chunk, pos, quadsOut, this.biomeMapping);
+                    readBiomesAndFindEdges(chunk, pos, quadsOut, registry);
 
                     synchronized (this.quads)
                     {
@@ -267,7 +266,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     private static int readBiomesAndFindEdges(WorldChunk chunk,
                                               SubChunkPos subChunkPos,
                                               List<ColoredQuad> quadsOut,
-                                              Object2IntOpenHashMap<Biome> biomeMapping)
+                                              Registry<Biome> registry)
     {
         //long pre = System.nanoTime();
         final int startX = (subChunkPos.getX() << 4) - 1;
@@ -289,13 +288,13 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         }
         //long post = System.nanoTime(); System.out.printf("readBiomesAndFindEdges, reading biome data: %.6fs\n", ((double) post - (double) pre) / 1000000000D);
 
-        return buildQuadsFromBiomeData(startX, startY, startZ, biomes, quadsOut, biomeMapping);
+        return buildQuadsFromBiomeData(startX, startY, startZ, biomes, quadsOut, registry);
     }
 
     private static int buildQuadsFromBiomeData(int minX, int minY, int minZ,
                                                Biome[][][] biomes,
                                                List<ColoredQuad> quadsOut,
-                                               Object2IntOpenHashMap<Biome> biomeMapping)
+                                               Registry<Biome> registry)
     {
         //long pre = System.nanoTime();
         ArrayList<EdgeStrip> stripList = new ArrayList<>();
@@ -316,11 +315,11 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
                 for (int x = 1; x < 17; ++x)
                 {
                     Biome biome = biomes[x][y][z];
-                    buildStrips(x, y, z, axis, minCorner, biome, lastBiome, startPos, biomes, sides, strips, stripList, biomeMapping);
+                    buildStrips(x, y, z, axis, minCorner, biome, lastBiome, startPos, biomes, sides, strips, stripList, registry);
                     lastBiome = biome;
                 }
 
-                endStrips(17, y, z, axis, minCorner, lastBiome, startPos, sides, strips, stripList, biomeMapping);
+                endStrips(17, y, z, axis, minCorner, lastBiome, startPos, sides, strips, stripList, registry);
             }
         }
 
@@ -337,11 +336,11 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
                 for (int z = 1; z < 17; ++z)
                 {
                     Biome biome = biomes[x][y][z];
-                    buildStrips(x, y, z, axis, minCorner, biome, lastBiome, startPos, biomes, sides, strips, stripList, biomeMapping);
+                    buildStrips(x, y, z, axis, minCorner, biome, lastBiome, startPos, biomes, sides, strips, stripList, registry);
                     lastBiome = biome;
                 }
 
-                endStrips(x, y, 17, axis, minCorner, lastBiome, startPos, sides, strips, stripList, biomeMapping);
+                endStrips(x, y, 17, axis, minCorner, lastBiome, startPos, sides, strips, stripList, registry);
             }
         }
         //long post = System.nanoTime(); System.out.printf("buildQuadsFromBiomeData, strips: %.6fs - count: %d\n", ((double) post - (double) pre) / 1000000000D, stripList.size());
@@ -352,7 +351,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     private static void buildStrips(int x, int y, int z, Direction.Axis axis, BlockPos minCorner,
                                     Biome biome, @Nullable Biome lastBiome, int[] startPos,
                                     Biome[][][] biomes, Direction[] sides, EdgeStrip[][][][] strips,
-                                    ArrayList<EdgeStrip> stripList, Object2IntOpenHashMap<Biome> biomeMapping)
+                                    ArrayList<EdgeStrip> stripList, Registry<Biome> registry)
     {
         int biomeId = -1;
         int pos = axis == Direction.Axis.X ? x : z;
@@ -377,7 +376,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
             {
                 if (biomeId == -1)
                 {
-                    biomeId = biomeMapping.getInt(lastBiome);
+                    biomeId = registry.getRawId(lastBiome);
                 }
 
                 if (axis == Direction.Axis.X)
@@ -416,7 +415,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
     private static void endStrips(int x, int y, int z, Direction.Axis axis, BlockPos minCorner,
                                   Biome lastBiome, int[] startPos,
                                   Direction[] sides, EdgeStrip[][][][] strips, ArrayList<EdgeStrip> stripList,
-                                  Object2IntOpenHashMap<Biome> biomeMapping)
+                                  Registry<Biome> registry)
     {
         int biomeId = -1;
         // Note: The min coordinates are adjusted by -1 already
@@ -434,7 +433,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
             {
                 if (biomeId == -1)
                 {
-                    biomeId = biomeMapping.getInt(lastBiome);
+                    biomeId = registry.getRawId(lastBiome);
                 }
 
                 if (axis == Direction.Axis.X)
@@ -515,75 +514,32 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         return  quadsOut.size();
     }
 
-    private void createBiomeMapping(World world)
+    private void createBiomeColors(Registry<Biome> registry)
     {
-        this.biomeMapping.clear();
-        this.biomeColorsMap.clear();
-        this.biomeColorsArray = new Color4f[0];
+        int count = 0;
+        int maxId = 0;
 
-        if (Configs.Generic.BIOME_OVERLAY_SINGLE_COLOR.getBooleanValue())
+        for (Biome biome : registry)
         {
-            this.colorRetriever = (id) -> this.fixedColor;
+            maxId = Math.max(maxId, registry.getRawId(biome));
+            ++count;
         }
-        else
+
+        this.biomeColorsArray = new Color4f[maxId + 1];
+
+        for (Biome biome : registry)
         {
-            final Registry<Biome> registry = Registry.BIOME;
-            int count = 0;
-            int maxId = 0;
-
-            for (Biome biome : registry)
-            {
-                int id = registry.getRawId(biome);
-                this.biomeMapping.put(biome, id);
-                ++count;
-
-                if (id > maxId)
-                {
-                    maxId = id;
-                }
-            }
-
-            int hueInc = 360 / count;
-            int hue = 0;
-
-            if (maxId <= 65535)
-            {
-                this.biomeColorsArray = new Color4f[maxId + 1];
-                this.colorRetriever = (id) -> this.biomeColorsArray[id];
-
-                for (int id : this.biomeMapping.values())
-                {
-                    this.biomeColorsArray[id] = Color4f.fromColor(getColorFromHue(hue), 0.25f);
-                    hue += hueInc;
-                }
-            }
-            else
-            {
-                this.colorRetriever = this.biomeColorsMap::get;
-
-                for (int id : this.biomeMapping.values())
-                {
-                    this.biomeColorsMap.put(id, Color4f.fromColor(getColorFromHue(hue), 0.25f));
-                    hue += hueInc;
-                }
-            }
-
-            this.addCustomColorMappings(registry);
+            int id = registry.getRawId(biome);
+            this.biomeColorsArray[id] = Color4f.fromColor(getColorFromHue(id * 360 / count), 0.25f);
         }
+
+        this.addCustomColorMappings(registry);
+        this.biomeRegistry = registry;
     }
 
     private void addCustomColorMappings(Registry<Biome> registry)
     {
-        ColorRegistry reg;
-
-        if (this.biomeColorsArray.length > 0)
-        {
-            reg = (biomeId, color) -> this.assignColor(biomeId, color, (id, c) -> this.biomeColorsArray[id] = c, registry);
-        }
-        else
-        {
-            reg = (biomeId, color) -> this.assignColor(biomeId, color, this.biomeColorsMap::put, registry);
-        }
+        ColorRegistry reg = (biomeId, color) -> this.assignColor(biomeId, color, registry);
 
         reg.set("minecraft:badlands",                         0xFFC040);
         reg.set("minecraft:badlands_plateau",                 0xFFC040);
@@ -669,7 +625,7 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         reg.set("minecraft:wooded_mountains",                 0x97B994);
     }
 
-    private void assignColor(String biomeId, int color, ColorSetter setter, Registry<Biome> registry)
+    private void assignColor(String biomeId, int color, Registry<Biome> registry)
     {
         try
         {
@@ -677,11 +633,11 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
 
             if (optional.isPresent())
             {
-                int id = this.biomeMapping.getInt(optional.get());
+                int id = registry.getRawId(optional.get());
 
                 if (id >= 0)
                 {
-                    setter.set(id, Color4f.fromColor(color, 0.25f));
+                    this.biomeColorsArray[id] = Color4f.fromColor(color, 0.25f);
                 }
             }
         }
@@ -693,14 +649,15 @@ public class OverlayRendererBiomeBorders extends OverlayRendererBase
         void set(String biomeId, int color);
     }
 
-    private interface ColorSetter
-    {
-        void set(int biomeId, Color4f color);
-    }
-
     private Color4f getColor(int biomeId)
     {
-        return this.colorRetriever.apply(biomeId);
+        if (Configs.Generic.BIOME_OVERLAY_SINGLE_COLOR.getBooleanValue() ||
+            biomeId < 0 || biomeId >= this.biomeColorsArray.length)
+        {
+            return this.fixedColor;
+        }
+
+        return this.biomeColorsArray[biomeId];
     }
 
     public static int getColorFromHue(int hue)
