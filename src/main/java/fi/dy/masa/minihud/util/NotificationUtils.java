@@ -1,10 +1,13 @@
 package fi.dy.masa.minihud.util;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+
+import fi.dy.masa.minihud.renderer.OverlayRendererBiomeBorders;
 
 public class NotificationUtils
 {
@@ -21,5 +24,10 @@ public class NotificationUtils
     public static void onChunkData(int chunkX, int chunkZ, ChunkDataS2CPacket packet)
     {
         DataStorage.getInstance().markChunkForHeightmapCheck(chunkX, chunkZ);
+
+        if (MinecraftClient.getInstance().world != null)
+        {
+            OverlayRendererBiomeBorders.INSTANCE.onChunkLoaded(chunkX, chunkZ);
+        }
     }
 }

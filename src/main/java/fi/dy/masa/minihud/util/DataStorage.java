@@ -198,6 +198,7 @@ public class DataStorage
     {
         MiniHUD.printDebug("DataStorage#onWorldJoin()");
         OverlayRendererBeaconRange.INSTANCE.setNeedsUpdate();
+        OverlayRendererBiomeBorders.INSTANCE.setNeedsUpdate();
         OverlayRendererConduitRange.INSTANCE.setNeedsUpdate();
 
         if (this.mc.isIntegratedServerRunning() == false && RendererToggle.OVERLAY_STRUCTURE_MAIN_TOGGLE.getBooleanValue())
