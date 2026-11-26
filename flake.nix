@@ -1,11 +1,10 @@
 {
   description = "A Nix-flake for a minecraft modding dev environment.";
-  # make sure to git add the flake
 
-  inputs.nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1.*.tar.gz";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   outputs =
-    { self, nixpkgs }:
+    { nixpkgs, ... }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -20,57 +19,65 @@
           system:
           let
             pkgs = import nixpkgs { inherit system; };
-            deps = with pkgs; [
-              jdk8 # change java version as necessary
-              openjdk
-              gradle
-              libpulseaudio
-              libGL
-              glfw
-              openal
-              stdenv.cc.cc.lib
-            ];
           in
-          f {
-            pkgs = pkgs;
-            deps = deps;
-          }
+          f pkgs
         );
-
     in
     {
       devShells = forEachSupportedSystem (
-        { pkgs, deps }:
+        pkgs:
+        let
+          lib = pkgs.lib;
+
+          java = pkgs.jetbrains.jdk-no-jcef;
+
+          java8 = pkgs.zulu8.override {
+            gtkSupport = false;
+          };
+
+          # native libraries the game loads at runtime
+          runtimeLibs =
+            with pkgs;
+            [
+              libGL
+              libpulseaudio
+              flite # TTS for the narrator
+            ]
+            ++ lib.optionals stdenv.hostPlatform.isLinux [
+              glfw3-minecraft # windowing for LWJGL 3 (1.13+), with Minecraft's patches
+              alsa-lib # libasound linked by the narrator's flite wrapper
+              openal # sound engine for LWJGL 3
+              stdenv.cc.cc.lib
+              pipewire # PipeWire output for OpenAL
+              # LWJGL 2 (1.12.2 and below) and SDL3 on X11 (26.3+)
+              libx11
+              libxext
+              libxcursor
+              libxrandr
+              libxxf86vm # LWJGL 2 only
+              # SDL3 on X11
+              libxi
+              libxfixes
+              # SDL3 on Wayland (26.3+)
+              wayland
+              libxkbcommon
+              libdecor
+            ];
+        in
         {
           default = pkgs.mkShell {
-            packages = deps;
-            buildInputs = deps;
-            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath deps; # Set up the library path for linking
+            packages = with pkgs; [
+              java
+              java8
+              gradle_9
+            ];
+            # gradle_9 uses JAVA_HOME (loom requires 25), prefer ./gradlew
+            JAVA_HOME = "${java.home}";
+            # Java 8 for testing mods on it, or for projects that run the game on Java 8
+            # (`org.gradle.java.installations.fromEnv=JAVA8_HOME` + a Java 8 javaLauncher on the run tasks)
+            JAVA8_HOME = "${java8.home}";
 
-            # tell Intellij to use jdk and gradle in ./.share since nixos doesn't like dynamically linked executables
-            # Settings -> Build, Execution, Deployment -> Build Tools -> Gradle
-            shellHook = ''
-              export BASE_DIR=$(pwd)
-              mkdir -p $BASE_DIR/.share
-
-              if [ -L "$BASE_DIR/.share/java8" ]; then
-                unlink "$BASE_DIR/.share/java8"
-              fi
-              ln -sf ${pkgs.jdk8}/lib/openjdk $BASE_DIR/.share/java8
-
-              if [ -L "$BASE_DIR/.share/java" ]; then
-                unlink "$BASE_DIR/.share/java"
-              fi
-              ln -sf ${pkgs.openjdk}/lib/openjdk $BASE_DIR/.share/java
-
-              if [ -L "$BASE_DIR/.share/gradle" ]; then
-                unlink "$BASE_DIR/.share/gradle"
-              fi
-              ln -sf ${pkgs.gradle}/lib/gradle $BASE_DIR/.share/gradle
-              export GRADLE_HOME="$BASE_DIR/.share/gradle"
-
-              export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath deps};
-            '';
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath runtimeLibs;
           };
         }
       );
